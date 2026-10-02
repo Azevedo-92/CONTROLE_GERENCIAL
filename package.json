@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "private": true,
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "postinstall": "node src/corrigir-whatsapp.js"
   },
   "engines": {
     "node": ">=18"

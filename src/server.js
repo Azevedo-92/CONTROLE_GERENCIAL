@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { db, salvar, novoId, UPLOAD_DIR, MENSAGEM_PADRAO } = require('./db');
+require('./corrigir-whatsapp')();
 const whatsapp = require('./whatsapp');
 
 const PORTA = process.env.PORTA || 3000;
