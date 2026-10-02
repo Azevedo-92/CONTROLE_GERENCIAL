@@ -1,0 +1,19 @@
+{
+  "name": "controle-gerencial",
+  "version": "1.0.0",
+  "description": "Sistema interno para cadastrar notas fiscais e boletos de clientes e enviar por WhatsApp com um clique",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4",
+    "whatsapp-web.js": "^1.34.7"
+  }
+}
