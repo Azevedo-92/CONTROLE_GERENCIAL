@@ -20,7 +20,12 @@ if (process.env.SENHA) {
   });
 }
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Sem cache: depois de atualizar o sistema, o navegador sempre carrega a tela nova.
+app.use(express.static(path.join(__dirname, '..', 'public'), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => res.set('Cache-Control', 'no-store'),
+}));
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -229,7 +234,28 @@ app.use((err, req, res, next) => {
   res.status(err.code?.startsWith('LIMIT_') ? 400 : 500).json({ erro });
 });
 
-app.listen(PORTA, () => {
-  console.log(`\n  Sistema aberto em: http://localhost:${PORTA}\n`);
+function abrirNavegador(url) {
+  if (process.env.NAO_ABRIR_NAVEGADOR) return;
+  const { exec } = require('child_process');
+  const cmd = process.platform === 'win32' ? `start "" "${url}"` : process.platform === 'darwin' ? `open "${url}"` : `xdg-open "${url}"`;
+  exec(cmd, () => {});
+}
+
+const servidor = app.listen(PORTA, (err) => {
+  if (err) return; // tratado em servidor.on('error')
+  const url = `http://localhost:${PORTA}`;
+  console.log(`\n  Sistema aberto em: ${url}`);
+  console.log('  Deixe esta janela aberta (pode minimizar). Fechar esta janela desliga o sistema.\n');
+  abrirNavegador(url);
   whatsapp.iniciar();
+});
+
+servidor.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n  ATENÇÃO: o sistema já está aberto em outra janela (porta ${PORTA} em uso).`);
+    console.error('  Feche TODAS as janelas pretas do sistema (ou reinicie o computador) e abra o iniciar.bat de novo.\n');
+  } else {
+    console.error('\n  Erro ao iniciar o sistema:', err.message, '\n');
+  }
+  process.exit(1);
 });
