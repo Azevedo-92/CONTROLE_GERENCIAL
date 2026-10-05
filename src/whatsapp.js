@@ -39,6 +39,18 @@ const opcoesNavegador = {
   args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1100,850', '--no-first-run', '--no-default-browser-check'],
 };
 
+// Uma sessão criada por outro navegador (ex.: versão anterior do sistema) atrapalha a conexão: descarta.
+function limparSessaoDeOutroNavegador() {
+  const marca = path.join(PASTA_SESSAO, 'navegador.txt');
+  const atual = String(opcoesNavegador.executablePath || 'puppeteer');
+  const anterior = fs.existsSync(marca) ? fs.readFileSync(marca, 'utf8') : null;
+  if (anterior !== atual) {
+    fs.rmSync(path.join(PASTA_SESSAO, 'session'), { recursive: true, force: true });
+    fs.mkdirSync(PASTA_SESSAO, { recursive: true });
+    fs.writeFileSync(marca, atual);
+  }
+}
+
 const client = new Client({
   authStrategy: new LocalAuth({ dataPath: PASTA_SESSAO }),
   puppeteer: opcoesNavegador,
@@ -134,6 +146,7 @@ async function iniciar() {
   if (primeiraVez) {
     primeiraVez = false;
     fecharNavegadorAbandonado();
+    limparSessaoDeOutroNavegador();
   }
   if (estado.status !== 'abrindo_janela') estado.status = 'iniciando';
   try {
