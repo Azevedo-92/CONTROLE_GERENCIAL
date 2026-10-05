@@ -26,7 +26,11 @@ Para atualizar o sistema no futuro, é só extrair o zip novo e rodar `instalar.
 Acesse **http://localhost:3000**, vá na aba **WhatsApp** e escaneie o QR Code com o celular da empresa:
 *WhatsApp → Configurações (ou ⋮) → Aparelhos conectados → Conectar um aparelho.*
 
+Ao conectar, o sistema abre uma janela do **WhatsApp Web** (no Edge do computador). Não feche essa janela; se o celular ou o computador pedir uma confirmação de segurança (chave de acesso / Windows Hello), confirme. Depois de conectado, a janela fecha sozinha e o sistema continua em segundo plano.
+
 Pronto! A conexão fica salva; nas próximas vezes não precisa ler o QR Code de novo.
+
+> Desde 2026 o WhatsApp exige essa confirmação de segurança para conectar computadores novos em algumas contas, e ela não funciona em navegador escondido. Por isso a janela fica visível só durante a conexão.
 
 > Outros computadores da mesma rede podem usar o sistema acessando `http://IP-DESTE-COMPUTADOR:3000`.
 

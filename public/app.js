@@ -282,7 +282,8 @@ async function atualizarWhatsApp() {
     const conectado = s.status === 'conectado';
     const textos = {
       iniciando: 'Iniciando o WhatsApp… aguarde alguns segundos.',
-      aguardando_qr: 'Escaneie o QR Code abaixo com o WhatsApp da empresa.',
+      abrindo_janela: 'Abrindo a janela do WhatsApp Web… aguarde alguns segundos.',
+      aguardando_qr: 'Escaneie o QR Code com o WhatsApp da empresa (aqui ou na janela do WhatsApp Web que abriu).',
       autenticado: 'QR Code lido! Carregando suas conversas…',
       conectado: `Conectado ao número +${s.numero || ''}. Pronto para enviar!`,
       desconectado: 'Desconectado. Gerando um novo QR Code…',
@@ -294,6 +295,7 @@ async function atualizarWhatsApp() {
     $('#wa-qr').hidden = !s.qr;
     if (s.qr) $('#wa-qr').src = s.qr;
     $('#wa-instrucoes').hidden = !s.qr;
+    $('#wa-janela').hidden = !(s.janelaVisivel && s.status !== 'conectado');
     $('#btn-sair').hidden = !conectado;
   } catch {
     $('#wa-badge').textContent = 'Servidor fora do ar';
