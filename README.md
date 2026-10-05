@@ -13,12 +13,15 @@ Sistema interno simples para cadastrar a **nota fiscal** e o **boleto** de cada 
 ## Instalação (uma vez só)
 
 1. Instale o **Node.js** (versão LTS): https://nodejs.org
-2. Baixe esta pasta para o computador que ficará ligado com o sistema. Coloque em `C:\notas-boletos`, **fora do OneDrive** (Área de Trabalho e Documentos costumam estar dentro do OneDrive, que corrompe os arquivos do sistema).
+2. Extraia o zip em qualquer lugar e dê dois cliques em **`instalar.bat`**.
+   Ele copia o sistema para `C:\notas-boletos` (fora do OneDrive, que corrompe os arquivos do sistema), cria o atalho **"Notas e Boletos"** na Área de Trabalho e já abre o sistema. Na primeira vez demora alguns minutos.
 
 ## Como abrir
 
-- **Windows:** dê dois cliques em `iniciar.bat`. Na primeira vez ele instala tudo sozinho (pode levar alguns minutos) e abre o navegador.
+- **Windows:** dê dois cliques no atalho **"Notas e Boletos"** da Área de Trabalho.
 - **Outros sistemas:** no terminal, dentro da pasta, rode `npm install` (só na primeira vez) e depois `npm start`.
+
+Para atualizar o sistema no futuro, é só extrair o zip novo e rodar `instalar.bat` de novo: seus clientes e arquivos são mantidos.
 
 Acesse **http://localhost:3000**, vá na aba **WhatsApp** e escaneie o QR Code com o celular da empresa:
 *WhatsApp → Configurações (ou ⋮) → Aparelhos conectados → Conectar um aparelho.*
