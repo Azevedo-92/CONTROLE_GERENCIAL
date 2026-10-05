@@ -13,7 +13,7 @@ Sistema interno simples para cadastrar a **nota fiscal** e o **boleto** de cada 
 ## Instalação (uma vez só)
 
 1. Instale o **Node.js** (versão LTS): https://nodejs.org
-2. Baixe esta pasta para o computador que ficará ligado com o sistema.
+2. Baixe esta pasta para o computador que ficará ligado com o sistema. Coloque em `C:\notas-boletos`, **fora do OneDrive** (Área de Trabalho e Documentos costumam estar dentro do OneDrive, que corrompe os arquivos do sistema).
 
 ## Como abrir
 
@@ -32,7 +32,8 @@ Pronto! A conexão fica salva; nas próximas vezes não precisa ler o QR Code de
 1. Feche todas as janelas pretas do sistema e dê dois cliques em `fechar-sistema.bat` (fecha alguma cópia que tenha ficado aberta escondida).
 2. Abra o `iniciar.bat` de novo e espere a mensagem **"Sistema aberto em: http://localhost:3000"**.
 3. No navegador, aperte **Ctrl + F5** para recarregar a página.
-4. Se ainda não abrir, tire um print da janela preta.
+4. Se aparecer `Cannot find module`, a instalação foi corrompida (geralmente pelo OneDrive). Mova a pasta para `C:\notas-boletos` e abra o `iniciar.bat`: ele repara sozinho.
+5. Se ainda não abrir, tire um print da janela preta.
 
 ## Personalizar a mensagem
 
