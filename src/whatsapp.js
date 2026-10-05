@@ -66,7 +66,7 @@ async function enviar(telefone, mensagem, arquivos) {
   if (!contato) throw new Error(`O número ${telefone} não possui WhatsApp.`);
   const chatId = contato._serialized;
 
-  await client.sendMessage(chatId, mensagem);
+  if (mensagem) await client.sendMessage(chatId, mensagem);
   for (const arq of arquivos) {
     const media = MessageMedia.fromFilePath(arq.caminho);
     media.filename = arq.nome;

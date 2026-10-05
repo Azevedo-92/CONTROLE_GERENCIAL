@@ -13,90 +13,80 @@
   </header>
 
   <nav>
-    <button data-aba="documentos" class="ativa">Documentos</button>
-    <button data-aba="clientes">Clientes</button>
+    <button data-aba="pastas" class="ativa">Clientes e arquivos</button>
+    <button data-aba="historico">Histórico de envios</button>
     <button data-aba="whatsapp">WhatsApp</button>
     <button data-aba="config">Mensagem</button>
   </nav>
 
   <main>
-    <!-- DOCUMENTOS -->
-    <section id="aba-documentos">
-      <div class="card">
-        <h2>Novo envio</h2>
-        <form id="form-doc">
-          <div class="grade">
-            <label>Cliente
-              <select name="clienteId" required></select>
-            </label>
-            <label>Descrição
-              <input name="descricao" placeholder="Ex.: serviço de outubro">
-            </label>
-            <label>Valor (R$)
-              <input name="valor" placeholder="1.250,00">
-            </label>
-            <label>Vencimento
-              <input name="vencimento" type="date">
-            </label>
-            <label>Nota fiscal (PDF/XML)
-              <input name="nota" type="file" accept=".pdf,.xml,image/*">
-            </label>
-            <label>Boleto (PDF)
-              <input name="boleto" type="file" accept=".pdf,image/*">
-            </label>
-          </div>
-          <div class="acoes">
-            <button type="submit" name="acao" value="salvar" class="sec">Salvar</button>
-            <button type="submit" name="acao" value="enviar" class="wa">Salvar e enviar no WhatsApp</button>
-          </div>
-        </form>
-      </div>
+    <!-- PASTAS -->
+    <section id="aba-pastas">
+      <div class="pastas">
+        <aside class="card lista-pastas">
+          <button id="btn-novo-cliente" class="largo">+ Novo cliente</button>
+          <input id="busca-cliente" type="search" placeholder="Buscar cliente…">
+          <ul id="lista-clientes"></ul>
+        </aside>
 
-      <div class="card">
-        <div class="titulo-linha">
-          <h2>Documentos</h2>
-          <div>
-            <select id="filtro-status">
-              <option value="">Todos</option>
-              <option value="pendente">Pendentes</option>
-              <option value="enviado">Enviados</option>
-              <option value="erro">Com erro</option>
-            </select>
-            <button id="btn-enviar-pendentes" class="wa">Enviar todos os pendentes</button>
+        <div class="card pasta" id="pasta-vazia">
+          <div class="vazio">
+            <div class="icone-grande">📁</div>
+            Selecione um cliente à esquerda para ver a pasta dele,<br>ou clique em <b>+ Novo cliente</b>.
           </div>
         </div>
-        <div class="tabela">
-          <table>
-            <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Arquivos</th><th>Status</th><th></th></tr></thead>
-            <tbody id="lista-docs"></tbody>
-          </table>
+
+        <div class="card pasta" id="pasta" hidden>
+          <div class="titulo-linha">
+            <div>
+              <h2 id="pasta-nome"></h2>
+              <small class="sub" id="pasta-info"></small>
+            </div>
+            <div>
+              <button class="mini sec" id="btn-editar-cliente">Editar cliente</button>
+              <button class="link" id="btn-excluir-cliente">Excluir</button>
+            </div>
+          </div>
+
+          <label class="soltar" id="area-soltar">
+            <input type="file" id="input-arquivos" multiple hidden>
+            <b>Importar arquivos do computador</b>
+            <span>Clique aqui ou arraste os PDFs para cá (pode escolher vários de uma vez)</span>
+          </label>
+
+          <div class="titulo-linha barra-arquivos">
+            <label class="marcar-todos"><input type="checkbox" id="marcar-todos"> Marcar todos</label>
+            <input id="busca-arquivo" type="search" placeholder="Buscar arquivo…">
+          </div>
+          <ul id="lista-arquivos" class="arquivos"></ul>
+
+          <div class="envio" id="painel-envio" hidden>
+            <label>Mensagem que vai junto
+              <textarea id="mensagem-envio" rows="6"></textarea>
+            </label>
+            <div class="acoes">
+              <button class="wa" id="btn-enviar">Enviar pelo WhatsApp</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- CLIENTES -->
-    <section id="aba-clientes" hidden>
+    <!-- HISTÓRICO -->
+    <section id="aba-historico" hidden>
       <div class="card">
-        <h2 id="titulo-cliente">Novo cliente</h2>
-        <form id="form-cliente">
-          <input type="hidden" name="id">
-          <div class="grade">
-            <label>Nome<input name="nome" required></label>
-            <label>WhatsApp (com DDD)<input name="telefone" required placeholder="(11) 98765-4321"></label>
-            <label>CPF/CNPJ<input name="documento"></label>
-          </div>
-          <div class="acoes">
-            <button type="button" id="cancelar-cliente" class="sec" hidden>Cancelar</button>
-            <button type="submit">Salvar cliente</button>
-          </div>
-        </form>
-      </div>
-      <div class="card">
-        <h2>Clientes</h2>
+        <div class="titulo-linha">
+          <h2>Histórico de envios</h2>
+          <select id="filtro-status">
+            <option value="">Todos</option>
+            <option value="enviado">Enviados</option>
+            <option value="erro">Com erro</option>
+          </select>
+        </div>
         <div class="tabela">
           <table>
-            <thead><tr><th>Nome</th><th>WhatsApp</th><th>CPF/CNPJ</th><th></th></tr></thead>
-            <tbody id="lista-clientes"></tbody>
+            <thead><tr><th>Data</th><th>Cliente</th><th>Arquivos</th><th>Status</th><th></th></tr></thead>
+            <tbody id="lista-envios"></tbody>
           </table>
         </div>
       </div>
@@ -118,8 +108,9 @@
     <!-- CONFIG -->
     <section id="aba-config" hidden>
       <div class="card">
-        <h2>Mensagem enviada ao cliente</h2>
-        <p class="dica">Use as variáveis: <code>{cliente}</code> <code>{descricao}</code> <code>{valor}</code> <code>{vencimento}</code></p>
+        <h2>Mensagem padrão</h2>
+        <p class="dica esquerda">Este texto já vem preenchido em cada envio (dá para alterar na hora). Variáveis:
+          <code>{cliente}</code> nome do cliente, <code>{arquivos}</code> lista dos arquivos enviados.</p>
         <form id="form-config">
           <textarea name="mensagem" rows="9"></textarea>
           <div class="acoes">
@@ -130,6 +121,20 @@
       </div>
     </section>
   </main>
+
+  <dialog id="dlg-cliente">
+    <form id="form-cliente" method="dialog">
+      <h2 id="titulo-cliente">Novo cliente</h2>
+      <input type="hidden" name="id">
+      <label>Nome<input name="nome" required></label>
+      <label>WhatsApp (com DDD)<input name="telefone" required placeholder="(11) 98765-4321"></label>
+      <label>CPF/CNPJ<input name="documento"></label>
+      <div class="acoes">
+        <button type="button" class="sec" id="cancelar-cliente">Cancelar</button>
+        <button type="submit">Salvar</button>
+      </div>
+    </form>
+  </dialog>
 
   <div id="aviso" hidden></div>
   <script src="app.js"></script>

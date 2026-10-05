@@ -33,6 +33,11 @@ const upload = multer({
 const agora = () => new Date().toISOString();
 const naoEncontrado = (res) => res.status(404).json({ erro: 'Registro não encontrado' });
 const nomeOriginal = (file) => Buffer.from(file.originalname, 'latin1').toString('utf8');
+const buscarCliente = (id) => db.clientes.find((c) => c.id === id);
+
+function apagarArquivo(arq) {
+  fs.rm(path.join(UPLOAD_DIR, arq.arquivo), { force: true }, () => {});
+}
 
 // ---------- WhatsApp ----------
 app.get('/api/whatsapp', (req, res) => res.json(whatsapp.estado));
@@ -45,154 +50,183 @@ app.post('/api/whatsapp/sair', async (req, res) => {
   }
 });
 
-// ---------- Clientes ----------
+// ---------- Clientes (pastas) ----------
 app.get('/api/clientes', (req, res) => {
-  res.json([...db.clientes].sort((a, b) => a.nome.localeCompare(b.nome)));
+  const lista = db.clientes.map((c) => ({ ...c, qtdArquivos: db.arquivos.filter((a) => a.clienteId === c.id).length }));
+  res.json(lista.sort((a, b) => a.nome.localeCompare(b.nome)));
 });
 
+function dadosCliente(body) {
+  const { nome, telefone, documento } = body;
+  if (!nome?.trim() || !telefone?.trim()) return null;
+  return { nome: nome.trim(), telefone: telefone.trim(), documento: (documento || '').trim() };
+}
+
 app.post('/api/clientes', (req, res) => {
-  const { nome, telefone, documento } = req.body;
-  if (!nome || !telefone) return res.status(400).json({ erro: 'Informe nome e telefone' });
-  const cliente = { id: novoId(), nome: nome.trim(), telefone: telefone.trim(), documento: (documento || '').trim(), criadoEm: agora() };
+  const dados = dadosCliente(req.body);
+  if (!dados) return res.status(400).json({ erro: 'Informe nome e telefone' });
+  const cliente = { id: novoId(), ...dados, criadoEm: agora() };
   db.clientes.push(cliente);
   salvar();
   res.json(cliente);
 });
 
 app.put('/api/clientes/:id', (req, res) => {
-  const cliente = db.clientes.find((c) => c.id === req.params.id);
+  const cliente = buscarCliente(req.params.id);
   if (!cliente) return naoEncontrado(res);
-  const { nome, telefone, documento } = req.body;
-  if (!nome || !telefone) return res.status(400).json({ erro: 'Informe nome e telefone' });
-  Object.assign(cliente, { nome: nome.trim(), telefone: telefone.trim(), documento: (documento || '').trim() });
+  const dados = dadosCliente(req.body);
+  if (!dados) return res.status(400).json({ erro: 'Informe nome e telefone' });
+  Object.assign(cliente, dados);
   salvar();
   res.json(cliente);
 });
 
+// Exclui o cliente junto com todos os arquivos da pasta dele (o histórico de envios é mantido).
 app.delete('/api/clientes/:id', (req, res) => {
-  if (db.documentos.some((d) => d.clienteId === req.params.id)) {
-    return res.status(400).json({ erro: 'Este cliente possui documentos. Exclua-os antes.' });
-  }
+  if (!buscarCliente(req.params.id)) return naoEncontrado(res);
+  db.arquivos.filter((a) => a.clienteId === req.params.id).forEach(apagarArquivo);
+  db.arquivos = db.arquivos.filter((a) => a.clienteId !== req.params.id);
   db.clientes = db.clientes.filter((c) => c.id !== req.params.id);
   salvar();
   res.json({ ok: true });
 });
 
-// ---------- Documentos (nota fiscal + boleto) ----------
-function comCliente(doc) {
-  const cliente = db.clientes.find((c) => c.id === doc.clienteId);
-  return { ...doc, clienteNome: cliente?.nome || '(cliente excluído)', clienteTelefone: cliente?.telefone || '' };
-}
-
-app.get('/api/documentos', (req, res) => {
-  res.json(db.documentos.map(comCliente).sort((a, b) => b.criadoEm.localeCompare(a.criadoEm)));
+// ---------- Arquivos da pasta do cliente ----------
+app.get('/api/clientes/:id/arquivos', (req, res) => {
+  const lista = db.arquivos.filter((a) => a.clienteId === req.params.id);
+  res.json(lista.sort((a, b) => b.criadoEm.localeCompare(a.criadoEm)));
 });
 
-app.post('/api/documentos', upload.fields([{ name: 'nota', maxCount: 1 }, { name: 'boleto', maxCount: 1 }]), (req, res) => {
-  const { clienteId, descricao, valor, vencimento } = req.body;
-  const nota = req.files?.nota?.[0];
-  const boleto = req.files?.boleto?.[0];
-  if (!db.clientes.some((c) => c.id === clienteId)) return res.status(400).json({ erro: 'Selecione um cliente' });
-  if (!nota && !boleto) return res.status(400).json({ erro: 'Anexe a nota fiscal e/ou o boleto' });
-
-  const doc = {
-    id: novoId(),
-    clienteId,
-    descricao: (descricao || '').trim(),
-    valor: (valor || '').trim(),
-    vencimento: vencimento || '',
-    nota: nota ? { arquivo: nota.filename, nome: nomeOriginal(nota) } : null,
-    boleto: boleto ? { arquivo: boleto.filename, nome: nomeOriginal(boleto) } : null,
-    status: 'pendente',
-    enviadoEm: null,
-    erro: null,
-    criadoEm: agora(),
-  };
-  db.documentos.push(doc);
-  salvar();
-  res.json(comCliente(doc));
-});
-
-app.get('/api/documentos/:id/arquivo/:tipo', (req, res) => {
-  const doc = db.documentos.find((d) => d.id === req.params.id);
-  const arq = doc && ['nota', 'boleto'].includes(req.params.tipo) ? doc[req.params.tipo] : null;
-  if (!arq) return naoEncontrado(res);
-  res.download(path.join(UPLOAD_DIR, arq.arquivo), arq.nome);
-});
-
-app.delete('/api/documentos/:id', (req, res) => {
-  const doc = db.documentos.find((d) => d.id === req.params.id);
-  if (!doc) return naoEncontrado(res);
-  for (const arq of [doc.nota, doc.boleto]) {
-    if (arq) fs.rm(path.join(UPLOAD_DIR, arq.arquivo), { force: true }, () => {});
+app.post('/api/clientes/:id/arquivos', upload.array('arquivos', 50), (req, res) => {
+  const files = req.files || [];
+  if (!buscarCliente(req.params.id)) {
+    files.forEach((f) => fs.rm(f.path, { force: true }, () => {}));
+    return naoEncontrado(res);
   }
-  db.documentos = db.documentos.filter((d) => d.id !== doc.id);
+  if (!files.length) return res.status(400).json({ erro: 'Selecione ao menos um arquivo' });
+  const novos = files.map((f) => ({
+    id: novoId(),
+    clienteId: req.params.id,
+    nome: nomeOriginal(f),
+    arquivo: f.filename,
+    tamanho: f.size,
+    criadoEm: agora(),
+    enviadoEm: null,
+  }));
+  db.arquivos.push(...novos);
+  salvar();
+  res.json(novos);
+});
+
+// Abre o arquivo no navegador (PDF/imagem); com ?baixar=1 faz o download.
+app.get('/api/arquivos/:id', (req, res) => {
+  const arq = db.arquivos.find((a) => a.id === req.params.id);
+  if (!arq) return naoEncontrado(res);
+  const caminho = path.join(UPLOAD_DIR, arq.arquivo);
+  if (req.query.baixar) return res.download(caminho, arq.nome);
+  res.attachment(arq.nome);
+  res.set('Content-Disposition', res.get('Content-Disposition').replace('attachment', 'inline'));
+  res.sendFile(caminho);
+});
+
+app.put('/api/arquivos/:id', (req, res) => {
+  const arq = db.arquivos.find((a) => a.id === req.params.id);
+  if (!arq) return naoEncontrado(res);
+  const nome = String(req.body.nome || '').trim();
+  if (!nome) return res.status(400).json({ erro: 'Informe o nome do arquivo' });
+  arq.nome = nome;
+  salvar();
+  res.json(arq);
+});
+
+app.delete('/api/arquivos/:id', (req, res) => {
+  const arq = db.arquivos.find((a) => a.id === req.params.id);
+  if (!arq) return naoEncontrado(res);
+  apagarArquivo(arq);
+  db.arquivos = db.arquivos.filter((a) => a.id !== arq.id);
   salvar();
   res.json({ ok: true });
 });
 
-function formatarData(iso) {
-  if (!iso) return '-';
-  const [a, m, d] = iso.split('-');
-  return `${d}/${m}/${a}`;
-}
-
-function montarMensagem(doc, cliente) {
-  return (db.config.mensagem || MENSAGEM_PADRAO)
+// ---------- Envios ----------
+function montarMensagem(cliente, arquivos) {
+  return (db.config.mensagem ?? MENSAGEM_PADRAO)
     .replaceAll('{cliente}', cliente.nome)
-    .replaceAll('{descricao}', doc.descricao || 'seu pedido')
-    .replaceAll('{valor}', doc.valor ? `R$ ${doc.valor}` : '-')
-    .replaceAll('{vencimento}', formatarData(doc.vencimento));
+    .replaceAll('{arquivos}', arquivos.map((a) => '• ' + a.nome).join('\n'));
 }
 
-async function enviarDocumento(doc) {
-  const cliente = db.clientes.find((c) => c.id === doc.clienteId);
+async function realizarEnvio(clienteId, arquivoIds, mensagem) {
+  const cliente = buscarCliente(clienteId);
+  if (!cliente) throw Object.assign(new Error('Cliente não encontrado'), { status: 404 });
+  const arquivos = arquivoIds.map((id) => db.arquivos.find((a) => a.id === id && a.clienteId === clienteId)).filter(Boolean);
+  if (!arquivos.length) throw Object.assign(new Error('Selecione ao menos um arquivo'), { status: 400 });
+  if (mensagem === undefined) mensagem = montarMensagem(cliente, arquivos);
+
+  const envio = {
+    id: novoId(),
+    clienteId,
+    arquivos: arquivos.map((a) => ({ id: a.id, nome: a.nome })),
+    mensagem,
+    status: 'enviado',
+    erro: null,
+    criadoEm: agora(),
+  };
   try {
-    if (!cliente) throw new Error('Cliente não encontrado');
-    const arquivos = [doc.nota, doc.boleto]
-      .filter(Boolean)
-      .map((a) => ({ caminho: path.join(UPLOAD_DIR, a.arquivo), nome: a.nome }));
-    await whatsapp.enviar(cliente.telefone, montarMensagem(doc, cliente), arquivos);
-    Object.assign(doc, { status: 'enviado', enviadoEm: agora(), erro: null });
+    await whatsapp.enviar(
+      cliente.telefone,
+      mensagem.trim(),
+      arquivos.map((a) => ({ caminho: path.join(UPLOAD_DIR, a.arquivo), nome: a.nome }))
+    );
+    arquivos.forEach((a) => (a.enviadoEm = envio.criadoEm));
   } catch (e) {
-    Object.assign(doc, { status: 'erro', erro: e.message });
+    Object.assign(envio, { status: 'erro', erro: e.message });
   }
+  db.envios.push(envio);
   salvar();
-  return comCliente(doc);
+  return envio;
 }
 
-app.post('/api/documentos/:id/enviar', async (req, res) => {
-  const doc = db.documentos.find((d) => d.id === req.params.id);
-  if (!doc) return naoEncontrado(res);
-  const resultado = await enviarDocumento(doc);
-  res.status(resultado.status === 'enviado' ? 200 : 400).json(resultado);
+app.post('/api/envios', async (req, res) => {
+  try {
+    const { clienteId, arquivoIds, mensagem } = req.body;
+    const envio = await realizarEnvio(clienteId, arquivoIds || [], mensagem);
+    res.status(envio.status === 'enviado' ? 200 : 400).json(envio);
+  } catch (e) {
+    res.status(e.status || 500).json({ erro: e.message });
+  }
 });
 
-// Envia todos os pendentes (e os que deram erro), um por vez, com pausa para não parecer spam.
-app.post('/api/documentos/enviar-pendentes', async (req, res) => {
-  if (whatsapp.estado.status !== 'conectado') {
-    return res.status(400).json({ erro: 'WhatsApp não está conectado. Abra a aba "WhatsApp" e escaneie o QR Code.' });
+app.post('/api/envios/:id/reenviar', async (req, res) => {
+  const antigo = db.envios.find((e) => e.id === req.params.id);
+  if (!antigo) return naoEncontrado(res);
+  try {
+    const envio = await realizarEnvio(antigo.clienteId, antigo.arquivos.map((a) => a.id), antigo.mensagem);
+    res.status(envio.status === 'enviado' ? 200 : 400).json(envio);
+  } catch (e) {
+    res.status(e.status || 500).json({ erro: e.status === 400 ? 'Os arquivos deste envio foram excluídos da pasta' : e.message });
   }
-  const fila = db.documentos.filter((d) => d.status !== 'enviado');
-  let enviados = 0;
-  for (const doc of fila) {
-    if ((await enviarDocumento(doc)).status === 'enviado') enviados++;
-    await new Promise((r) => setTimeout(r, 3000));
-  }
-  res.json({ total: fila.length, enviados, falhas: fila.length - enviados });
+});
+
+app.get('/api/envios', (req, res) => {
+  const lista = db.envios.map((e) => {
+    const cliente = buscarCliente(e.clienteId);
+    return { ...e, clienteNome: cliente?.nome || '(cliente excluído)', clienteTelefone: cliente?.telefone || '' };
+  });
+  res.json(lista.sort((a, b) => b.criadoEm.localeCompare(a.criadoEm)));
 });
 
 // ---------- Configurações ----------
 app.get('/api/config', (req, res) => res.json({ ...db.config, mensagemPadrao: MENSAGEM_PADRAO }));
 app.put('/api/config', (req, res) => {
-  db.config.mensagem = String(req.body.mensagem || '').trim() || MENSAGEM_PADRAO;
+  db.config.mensagem = String(req.body.mensagem ?? '').trim();
   salvar();
   res.json(db.config);
 });
 
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ erro: err.message });
+  const erro = err.code === 'LIMIT_FILE_SIZE' ? 'Arquivo maior que 15 MB' : err.message;
+  res.status(err.code?.startsWith('LIMIT_') ? 400 : 500).json({ erro });
 });
 
 app.listen(PORTA, () => {
