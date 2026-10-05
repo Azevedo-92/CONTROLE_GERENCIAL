@@ -286,7 +286,7 @@ async function atualizarWhatsApp() {
       autenticado: 'QR Code lido! Carregando suas conversas…',
       conectado: `Conectado ao número +${s.numero || ''}. Pronto para enviar!`,
       desconectado: 'Desconectado. Gerando um novo QR Code…',
-      erro: 'Não foi possível abrir o WhatsApp (verifique a internet). Tentando novamente… Detalhe: ' + (s.erro || 'desconhecido'),
+      erro: 'Problema ao abrir o WhatsApp. Tentando novamente em 30 segundos… Detalhe: ' + (s.erro || 'desconhecido'),
     };
     $('#wa-badge').textContent = conectado ? 'WhatsApp conectado' : 'WhatsApp desconectado';
     $('#wa-badge').className = 'badge ' + (conectado ? 'ok' : 'off');
