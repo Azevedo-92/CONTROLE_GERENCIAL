@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chef Chowder bake shop | Encomendas e orçamento</title>
+<meta name="description" content="Torres de macarons, mesas de doces e lembrancinhas pelo Chef Daniel Souza. Peça seu orçamento pelo WhatsApp.">
+<meta name="theme-color" content="#131F37">
+<meta property="og:title" content="Chef Chowder bake shop | Peça seu orçamento">
+<meta property="og:description" content="Todo grande momento merece um final à altura. Torres de macarons, mesas de doces e lembrancinhas.">
+<meta property="og:image" content="assets/img/torre-flores.webp">
+<link rel="icon" href="assets/img/icone.png">
+<link rel="apple-touch-icon" href="assets/img/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="preload" as="image" href="assets/img/logo-branca.webp">
+<style>
+:root{
+  --navy:#131F37; --navy-2:#1C2B4A; --bord:#591524; --bord-2:#6E1F30; --gold:#C4A265; --gold-ink:#7A5C26;
+  --bg:#F5EFE6; --card:#FCF9F4; --ink:#131F37; --mute:#5E6275; --line:#E4D9C8; --field:#FFFFFF;
+  --ok:#1F7A4D; --err:#A3262F; --on-dark:#F5EFE6; --on-dark-mute:#CDD0DC;
+  --shadow:0 1px 2px rgba(19,31,55,.06),0 14px 34px rgba(19,31,55,.10);
+  --f-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1628; --card:#16213A; --ink:#F2ECE3; --mute:#B4B8C8; --line:#2A3656; --field:#0F1A2F;
+  --gold-ink:#D9BC85; --err:#F08A8F; --ok:#5CC48E; --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1628; --card:#16213A; --ink:#F2ECE3; --mute:#B4B8C8; --line:#2A3656; --field:#0F1A2F;
+  --gold-ink:#D9BC85; --err:#F08A8F; --ok:#5CC48E; --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.08;margin:0;text-wrap:balance}
+a{color:inherit}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+.eyebrow{font:600 .74rem/1 var(--f-body);letter-spacing:.24em;text-transform:uppercase;color:var(--gold-ink)}
+.rule{display:flex;align-items:center;gap:10px;color:var(--gold);margin:14px 0}
+.rule::before,.rule::after{content:"";height:1px;background:currentColor;flex:1;opacity:.7}
+.rule i{width:5px;height:5px;border-radius:50%;background:currentColor}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* Cabeçalho */
+header.top{position:sticky;top:0;z-index:20;background:var(--navy);color:var(--on-dark);padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid rgba(196,162,101,.35)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px}
+header.top img{height:40px;width:auto}
+header.top nav{display:flex;gap:4px}
+header.top nav a{padding:8px 12px;border-radius:99px;text-decoration:none;font-weight:600;font-size:.92rem;color:var(--on-dark-mute)}
+header.top nav a.cta{background:var(--bord);color:#fff;box-shadow:inset 0 0 0 1px rgba(196,162,101,.5)}
+
+/* Abertura */
+.hero{position:relative;color:var(--on-dark);background:linear-gradient(90deg,var(--navy) 0 50%,var(--bord) 50% 100%);overflow:hidden;padding:46px 0 120px;text-align:center}
+.hero::before{content:"";position:absolute;left:50%;top:50%;width:min(620px,140vw);aspect-ratio:1;transform:translate(-50%,-46%);border:1px solid rgba(196,162,101,.55);border-radius:50%;pointer-events:none}
+.hero::after{content:"";position:absolute;left:50%;top:50%;width:min(560px,126vw);aspect-ratio:1;transform:translate(-50%,-46%);border:1px solid rgba(196,162,101,.2);border-radius:50%;pointer-events:none}
+.hero .wrap{position:relative}
+.hero .logo{width:min(230px,58vw);height:auto;margin:0 auto 6px}
+.hero .rule{max-width:280px;margin:12px auto 18px}
+.hero h1{font-size:clamp(2.2rem,8.4vw,3.5rem);font-weight:500;max-width:15ch;margin:0 auto}
+.hero h1 em{color:var(--gold);font-style:italic}
+.hero .tags{margin:18px 0 0;font:600 .72rem/1.6 var(--f-body);letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark-mute)}
+.hero .tags span{color:var(--gold);padding:0 6px}
+.hero .tags b{font-weight:600;white-space:nowrap}
+.hero p.lead{font-family:var(--f-display);font-style:italic;font-size:1.2rem;color:var(--gold);margin:10px 0 0}
+
+/* Formulário */
+.form-card{position:relative;margin-top:-88px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:26px 20px 22px}
+.form-card::before{content:"";position:absolute;left:20px;right:20px;top:0;height:3px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,var(--navy) 0 50%,var(--bord) 50%)}
+.form-card h2{font-size:2.1rem}
+.form-card .sub{color:var(--mute);margin:6px 0 4px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.step{display:flex;align-items:baseline;gap:10px;margin:26px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
+.step b{font-family:var(--f-display);font-size:1.5rem;color:var(--bord);line-height:1}
+.step span{font-family:var(--f-display);font-size:1.35rem;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .step b{color:var(--gold)}}
+:root[data-theme="dark"] .step b{color:var(--gold)}
+label.f,.lbl{display:block;font-weight:600;font-size:.95rem;margin:16px 0 6px}
+.f small,.lbl small{font-weight:400;color:var(--mute)}
+input,select,textarea{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:13px 14px;min-height:50px}
+textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus{border-color:var(--gold);outline:2px solid color-mix(in srgb,var(--gold) 40%,transparent);outline-offset:0}
+input[aria-invalid="true"]{border-color:var(--err)}
+.err{color:var(--err);font-size:.88rem;margin:6px 0 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;min-height:0;cursor:pointer}
+.chip span{display:block;padding:10px 15px;border:1px solid var(--line);border-radius:99px;background:var(--field);font-weight:600;font-size:.94rem;cursor:pointer;user-select:none}
+.chip input:checked+span{background:var(--bord);border-color:var(--bord);color:#fff}
+.chip input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg .chip span{text-align:center;border-radius:10px;padding:12px}
+.seg .chip input:checked+span{background:var(--navy);border-color:var(--navy)}
+:root[data-theme="dark"] .seg .chip input:checked+span{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg .chip input:checked+span{background:var(--gold);border-color:var(--gold);color:var(--navy)}}
+
+/* Pacotes */
+.pacotes{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(170px,1fr);gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 10px;margin:0 -2px}
+.pac{position:relative;scroll-snap-align:start}
+.pac input{position:absolute;opacity:0;inset:0;min-height:0;cursor:pointer}
+.pac .box{display:flex;flex-direction:column;gap:2px;height:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--field);cursor:pointer}
+.pac .nm{font-family:var(--f-display);font-size:1.25rem;font-weight:600;line-height:1.1}
+.pac .dt{font-size:.86rem;color:var(--mute)}
+.pac .vl{margin-top:auto;padding-top:8px;font-weight:700;color:var(--bord)}
+.pac .tag{position:absolute;top:-8px;right:10px;background:var(--gold);color:var(--navy);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
+.pac input:checked+.box{border-color:var(--bord);box-shadow:inset 0 0 0 2px var(--bord);background:color-mix(in srgb,var(--bord) 6%,var(--field))}
+.pac input:focus-visible+.box{outline:3px solid var(--gold);outline-offset:2px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pac .vl{color:var(--gold)}:root:not([data-theme="light"]) .pac input:checked+.box{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold)}}
+:root[data-theme="dark"] .pac .vl{color:var(--gold)}
+:root[data-theme="dark"] .pac input:checked+.box{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold)}
+.hint{font-size:.86rem;color:var(--mute);margin:2px 0 0}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;text-align:center;text-decoration:none;font:700 1.05rem var(--f-body);border:0;border-radius:10px;padding:16px;min-height:56px;background:var(--bord);color:#fff;cursor:pointer;margin-top:12px;box-shadow:inset 0 0 0 1px rgba(196,162,101,.45)}
+.btn:hover{background:var(--bord-2)}
+.btn.navy{background:var(--navy)}
+.btn.navy:hover{background:var(--navy-2)}
+.btn.wa{background:var(--ok);box-shadow:none}
+.btn.line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn[disabled]{opacity:.7;cursor:progress}
+.btn .spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.note{font-size:.88rem;color:var(--mute);margin:12px 0 0;text-align:center}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* Sucesso */
+.done{text-align:center}
+.done .seal{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:var(--navy);color:var(--gold);font-size:1.8rem;box-shadow:0 0 0 4px var(--card),0 0 0 5px var(--gold)}
+.done h2{font-size:2rem}
+.done .proto{display:inline-block;margin:10px 0 4px;padding:4px 12px;border:1px dashed var(--gold);border-radius:99px;font-weight:700;letter-spacing:.08em}
+.done .btns{display:grid;gap:0;margin-top:10px}
+.done .mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.done .mini .btn{font-size:.95rem;min-height:48px;padding:12px}
+
+/* Seções */
+section.blk{padding:44px 0 8px}
+section.blk h2{font-size:clamp(1.9rem,6vw,2.4rem)}
+section.blk .sub{color:var(--mute);margin:6px 0 18px}
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gal figure{margin:0;position:relative;overflow:hidden;border-radius:10px;background:var(--line)}
+.gal img{width:100%;height:auto;object-fit:cover;aspect-ratio:4/5}
+.gal .wide{grid-column:1/-1}
+.gal .wide img{aspect-ratio:16/10}
+.gal figcaption{position:absolute;left:8px;bottom:8px;right:8px;background:rgba(19,31,55,.82);color:var(--on-dark);font-size:.82rem;font-weight:600;padding:5px 10px;border-radius:99px;width:fit-content;max-width:calc(100% - 16px)}
+@media (min-width:700px){.gal.four{grid-template-columns:repeat(4,1fr)}}
+
+/* Dúvidas */
+.faq{display:flex;flex-direction:column;gap:10px}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;gap:12px;font-family:var(--f-display);font-size:1.35rem;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary .ic{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--gold);font-size:1rem;font-family:var(--f-body)}
+summary::after{content:"+";margin-left:auto;font:400 1.6rem/1 var(--f-body);color:var(--gold-ink);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details[open] summary{border-bottom:1px solid var(--line)}
+.dd{padding:6px 18px 18px}
+.dd p{margin:12px 0 0}
+.dd .btn{margin-top:10px}
+.list{margin:10px 0 0;padding:0;list-style:none}
+.list li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list li b{white-space:nowrap;color:var(--bord)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .list li b{color:var(--gold)}}
+:root[data-theme="dark"] .list li b{color:var(--gold)}
+.chef{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:start;margin-top:14px}
+.chef img{width:120px;height:auto;aspect-ratio:3/4;object-fit:cover;object-position:center 15%;border-radius:10px}
+@media (max-width:420px){.chef{grid-template-columns:1fr}.chef img{width:100%;height:auto;aspect-ratio:4/3}}
+.sab{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.sab span{padding:7px 14px;border-radius:99px;font-weight:600;font-size:.9rem;color:#fff}
+.sab span:nth-child(odd){background:var(--navy);box-shadow:inset 0 0 0 1px rgba(196,162,101,.5)}
+.sab span:nth-child(even){background:var(--bord);box-shadow:inset 0 0 0 1px rgba(196,162,101,.5)}
+.steps{counter-reset:s;display:grid;gap:12px;margin:14px 0 0;padding:0;list-style:none}
+.steps li{counter-increment:s;display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}
+.steps li::before{content:counter(s);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold-ink);font-family:var(--f-display);font-size:1.3rem;font-weight:600}
+.steps b{display:block}
+.steps span{color:var(--mute);font-size:.95rem}
+.mini2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini2 .btn{font-size:.95rem;min-height:48px;padding:12px}
+
+/* Fechamento */
+.closing{margin-top:44px;background:linear-gradient(90deg,var(--navy) 0 50%,var(--bord) 50% 100%);color:var(--on-dark);text-align:center;padding:44px 0}
+.closing h2{font-size:clamp(1.9rem,6vw,2.5rem);font-weight:500}
+.closing .btn{max-width:420px;margin:18px auto 0;background:var(--gold);color:var(--navy);box-shadow:none}
+.closing .btn.wa{background:transparent;color:var(--on-dark);box-shadow:inset 0 0 0 1px rgba(245,239,230,.5);margin-top:10px}
+footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(96px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
+footer img{height:54px;width:auto;margin-bottom:12px}
+footer a{color:var(--gold)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:99px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.fab svg{width:22px;height:22px}
+@media (prefers-reduced-motion:no-preference){.reveal{animation:up .5s ease both}@keyframes up{from{opacity:0;transform:translateY(10px)}}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a href="#topo" aria-label="Chef Chowder bake shop, início"><img src="assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="70" height="40"></a>
+  <nav aria-label="Seções"><a href="#duvidas">Dúvidas</a><a class="cta" href="#orcamento">Orçamento</a></nav>
+</div></header>
+
+<main id="topo">
+  <div class="hero">
+    <div class="wrap">
+      <img class="logo" src="assets/img/logo-branca.webp" alt="" width="230" height="131">
+      <div class="rule" aria-hidden="true"><i></i></div>
+      <h1>Todo grande momento merece um <em>final à altura.</em></h1>
+      <p class="tags"><b>Mesas de doces</b><span>•</span><b>Torres de macarons</b><span>•</span><b>Lembrancinhas</b></p>
+      <p class="lead">pelo Chef Daniel Souza</p>
+    </div>
+  </div>
+
+  <!-- ORÇAMENTO -->
+  <div class="wrap" id="orcamento">
+    <div class="form-card reveal">
+      <form id="form" novalidate>
+        <span class="eyebrow">Encomendas e eventos</span>
+        <h2>Peça seu orçamento</h2>
+        <p class="sub">Leva 1 minuto. Ao finalizar, geramos um PDF com o seu pedido e abrimos a conversa com o Chef no WhatsApp.</p>
+
+        <div class="step"><b>1</b><span>Seus dados</span></div>
+        <div class="row">
+          <div>
+            <label class="f" for="nome">Seu nome</label>
+            <input id="nome" name="nome" autocomplete="name" required maxlength="120">
+            <p class="err" id="err-nome" hidden>Conte como podemos te chamar.</p>
+          </div>
+          <div>
+            <label class="f" for="telefone">Seu WhatsApp</label>
+            <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(27) 99999-9999" required maxlength="16">
+            <p class="err" id="err-telefone" hidden>Informe um WhatsApp com DDD.</p>
+          </div>
+        </div>
+
+        <div class="step"><b>2</b><span>Sobre o evento</span></div>
+        <div class="lbl" id="lbl-ocasiao">Qual a ocasião?</div>
+        <div class="chips" role="radiogroup" aria-labelledby="lbl-ocasiao" id="ocasioes"></div>
+        <div class="row">
+          <div><label class="f" for="data">Data do evento <small>(aproximada)</small></label><input id="data" type="date"></div>
+          <div><label class="f" for="qtd">Convidados ou quantidade</label><input id="qtd" maxlength="60" placeholder="Ex.: 80 convidados"></div>
+        </div>
+        <div class="lbl" id="lbl-entrega">Como prefere receber?</div>
+        <div class="seg" role="radiogroup" aria-labelledby="lbl-entrega">
+          <label class="chip"><input type="radio" name="entrega" value="Entrega no local" checked><span>Entrega no local</span></label>
+          <label class="chip"><input type="radio" name="entrega" value="Retirada no quiosque"><span>Retirada no quiosque</span></label>
+        </div>
+        <div id="wrap-local"><label class="f" for="local">Local ou bairro do evento</label><input id="local" maxlength="160" placeholder="Ex.: Buffet X, Praia do Canto"></div>
+
+        <div class="step"><b>3</b><span>O que você precisa</span></div>
+        <div class="lbl" id="lbl-nec">Marque tudo o que te interessa</div>
+        <div class="chips" aria-labelledby="lbl-nec" id="necessidades"></div>
+
+        <div class="lbl" id="lbl-pac">Pacotes mais pedidos <small>(opcional)</small></div>
+        <div class="pacotes" role="radiogroup" aria-labelledby="lbl-pac" id="pacotes"></div>
+        <p class="hint" id="hint-pac"></p>
+
+        <label class="f" for="obs">Algo mais? <small>Cores, tema, sabores, referências</small></label>
+        <textarea id="obs" maxlength="1200" rows="3"></textarea>
+
+        <div class="hp" aria-hidden="true"><label>Empresa<input id="empresa" tabindex="-1" autocomplete="off"></label></div>
+
+        <button class="btn" type="submit" id="enviar">Finalizar e enviar pelo WhatsApp</button>
+        <p class="note" id="nota-prazo"></p>
+      </form>
+
+      <div class="done" id="done" hidden tabindex="-1">
+        <div class="seal" aria-hidden="true">✓</div>
+        <h2>Pedido pronto!</h2>
+        <p class="sub" style="margin-top:6px">Falta só um toque: envie para o Chef pelo WhatsApp. O PDF do pedido vai junto na mensagem.</p>
+        <span class="proto" id="d-proto"></span>
+        <div class="btns">
+          <a class="btn wa" id="d-wa" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.5.4.1.1.1.7-.1 1.3Z"/></svg>
+            Enviar pelo WhatsApp
+          </a>
+          <div class="mini">
+            <button class="btn line" type="button" id="d-share" hidden>Compartilhar PDF</button>
+            <a class="btn line" id="d-pdf" href="#" download>Baixar PDF</a>
+          </div>
+          <button class="btn line" type="button" id="d-novo" style="margin-top:8px">Fazer outro pedido</button>
+        </div>
+        <p class="note" id="d-aviso" hidden></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALERIAS -->
+  <section class="blk"><div class="wrap">
+    <span class="eyebrow">Portfólio</span>
+    <h2>Mesas que já assinamos</h2>
+    <p class="sub">Torres de macarons em casamentos e celebrações.</p>
+    <div class="gal">
+      <figure class="wide"><img loading="lazy" src="assets/img/mesa-rosas.webp" width="700" height="466" alt="Torre de macarons em mesa de doces com rosas"></figure>
+      <figure><img loading="lazy" src="assets/img/torre-flores.webp" width="520" height="693" alt="Torre de macarons com flores cor-de-rosa"></figure>
+      <figure><img loading="lazy" src="assets/img/torre-bolo.webp" width="520" height="693" alt="Torre de macarons ao lado do bolo de casamento"></figure>
+    </div>
+  </div></section>
+
+  <section class="blk"><div class="wrap">
+    <span class="eyebrow">Personalização</span>
+    <h2>Feito sob medida</h2>
+    <p class="sub">Cores, embalagens, fitas e tags personalizadas para o seu evento.</p>
+    <div class="gal four">
+      <figure><img loading="lazy" src="assets/img/torre-cores.webp" width="520" height="693" alt="Torre de macarons em verde e chocolate"><figcaption>Cores da sua paleta</figcaption></figure>
+      <figure><img loading="lazy" src="assets/img/caixinhas-tag.webp" width="520" height="693" alt="Caixinhas de macarons com laço azul e tag personalizada"><figcaption>Tag com logo ou mensagem</figcaption></figure>
+      <figure><img loading="lazy" src="assets/img/lembrancinhas-brownie.webp" width="520" height="693" alt="Mesa de lembrancinhas de brownie com laços"><figcaption>Lembrancinhas em volume</figcaption></figure>
+      <figure><img loading="lazy" src="assets/img/caixa-5-macarons.webp" width="460" height="818" alt="Caixa com 5 macarons e laço azul"><figcaption>Caixinha com 5 macarons</figcaption></figure>
+    </div>
+    <a class="btn" href="#orcamento" style="margin-top:16px">Pedir meu orçamento</a>
+  </div></section>
+
+  <!-- DÚVIDAS -->
+  <section class="blk" id="duvidas"><div class="wrap">
+    <span class="eyebrow">Antes de pedir</span>
+    <h2>Dúvidas frequentes</h2>
+    <p class="sub">Tudo para você conhecer a Chef Chowder.</p>
+    <div class="faq">
+      <details>
+        <summary><span class="ic" aria-hidden="true">✦</span>Quem somos</summary>
+        <div class="dd">
+          <p>Da cozinha das avós à pâtisserie francesa: o Chef Daniel Souza deixou o Direito para seguir a confeitaria, formou-se pela Le Cordon Bleu São Paulo em 2021 e hoje produz tudo em cozinha profissional própria. Em 2024 abriu o quiosque no Shopping Vitória e passou a atender eventos.</p>
+          <div class="chef">
+            <img loading="lazy" src="assets/img/chef-daniel.webp" width="720" height="1174" alt="Chef Daniel Souza segurando um macaron">
+            <div><h3 style="font-size:1.4rem">O Chef</h3><p style="margin-top:6px">Daniel Souza une a precisão da técnica francesa aos sabores e ao afeto brasileiro. As receitas são autorais, e ele é fundador da Chef Chowder Academy, onde ensina a técnica do macaron.</p></div>
+          </div>
+        </div>
+      </details>
+      <details>
+        <summary><span class="ic" aria-hidden="true">⌖</span>Onde estamos e horários</summary>
+        <div class="dd">
+          <p id="end"></p>
+          <ul class="list"><li>Segunda a sábado<b>10h às 22h</b></li><li>Domingo<b>13h às 21h</b></li></ul>
+          <div class="mini2">
+            <a class="btn navy" id="l-maps" href="#" target="_blank" rel="noopener">Abrir no mapa</a>
+            <a class="btn navy" id="l-video" href="#" target="_blank" rel="noopener">Vídeo: como chegar</a>
+          </div>
+          <a class="btn" id="l-ifood" href="#" target="_blank" rel="noopener">Pedir pronta entrega no iFood</a>
+        </div>
+      </details>
+      <details>
+        <summary><span class="ic" aria-hidden="true">❀</span>Personalização e sabores</summary>
+        <div class="dd">
+          <p>Cada pedido é montado para o seu evento. Fazemos lembrancinhas, brindes corporativos e presentes com acabamento pensado para a identidade da ocasião.</p>
+          <ul class="list"><li>Cores dos macarons de acordo com a paleta do evento</li><li>Diferentes tipos de embalagens e caixinhas</li><li>Fitas em diferentes cores</li><li>Tag personalizada com logo ou mensagem</li></ul>
+          <h3 style="font-size:1.35rem;margin-top:16px">Sabores da casa</h3>
+          <div class="sab" id="sabores"></div>
+          <p class="hint" style="margin-top:10px">Também produzimos brownies e cookies.</p>
+        </div>
+      </details>
+      <details id="faq-valores">
+        <summary><span class="ic" aria-hidden="true">R$</span>Valores de referência</summary>
+        <div class="dd">
+          <p style="color:var(--mute)">Para planejar. O orçamento final é sempre personalizado.</p>
+          <ul class="list" id="tabela-valores"></ul>
+        </div>
+      </details>
+      <details>
+        <summary><span class="ic" aria-hidden="true">↻</span>Como funciona</summary>
+        <div class="dd">
+          <ol class="steps">
+            <li><div><b>Conversa</b><span>Você envia o pedido por aqui e falamos pelo WhatsApp sobre a ocasião.</span></div></li>
+            <li><div><b>Proposta</b><span id="passo-prop">Enviamos a proposta personalizada com valores, sabores e embalagens.</span></div></li>
+            <li><div><b>Produção</b><span>Com o sinal confirmado, produzimos tudo artesanalmente.</span></div></li>
+            <li><div><b>Entrega</b><span>Entregamos e montamos no local, ou você retira no quiosque.</span></div></li>
+          </ol>
+        </div>
+      </details>
+    </div>
+  </div></section>
+
+  <div class="closing">
+    <div class="wrap">
+      <span class="eyebrow" style="color:var(--gold)">Vamos criar juntos</span>
+      <h2 style="margin-top:8px">Conte sobre o seu evento.</h2>
+      <a class="btn" href="#orcamento">Fazer encomenda ou orçamento</a>
+      <a class="btn wa" id="l-wa" href="#" target="_blank" rel="noopener">Tirar uma dúvida no WhatsApp</a>
+    </div>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  <img src="assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="95" height="54" loading="lazy">
+  <div id="f-end"></div>
+  <div>WhatsApp <span id="f-wa"></span></div>
+  <a id="l-ig" href="#" target="_blank" rel="noopener"></a>
+</div></footer>
+
+<a class="fab" id="l-fab" href="#" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.5.4.1.1.1.7-.1 1.3Z"/></svg>
+  WhatsApp
+</a>
+
+<script src="js/config.js"></script>
+<script src="assets/vendor/jspdf.umd.min.js" defer></script>
+<script src="assets/vendor/supabase.min.js" defer></script>
+<script src="js/pedido-pdf.js" defer></script>
+<script defer>
+document.addEventListener("DOMContentLoaded", function () {
+  const C = window.CHOWDER;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const brl = n => (Number(n) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const waBase = "https://wa.me/" + C.whatsapp;
+
+  // ---------- Conteúdo vindo da configuração ----------
+  $("#l-maps").href = C.maps; $("#l-video").href = C.video; $("#l-ifood").href = C.ifood;
+  $("#l-ig").href = C.instagram; $("#l-ig").textContent = C.instagramUser;
+  $("#f-wa").textContent = C.whatsappExibicao;
+  $("#end").innerHTML = esc(C.endereco) + "<br>" + esc(C.bairro);
+  $("#f-end").textContent = C.endereco + ", " + C.bairro;
+  const duvida = waBase + "?text=" + encodeURIComponent("Olá! Vim pela página da Chef Chowder e tenho uma dúvida.");
+  $("#l-wa").href = duvida; $("#l-fab").href = duvida;
+
+  $("#ocasioes").innerHTML = C.ocasioes.map((o, i) => `<label class="chip"><input type="radio" name="ocasiao" value="${esc(o)}"${i === 0 ? " checked" : ""}><span>${esc(o)}</span></label>`).join("");
+  $("#necessidades").innerHTML = C.necessidades.map(o => `<label class="chip"><input type="checkbox" name="nec" value="${esc(o)}"><span>${esc(o)}</span></label>`).join("");
+  $("#pacotes").innerHTML = `<label class="pac"><input type="radio" name="pacote" value="" checked><span class="box"><span class="nm">Ainda não sei</span><span class="dt">O Chef te ajuda a escolher</span></span></label>`
+    + C.pacotes.map(p => `<label class="pac"><input type="radio" name="pacote" value="${esc(p.id)}"><span class="box">${p.destaque ? `<span class="tag">${esc(p.destaque)}</span>` : ""}<span class="nm">${esc(p.nome)}</span><span class="dt">${esc(p.detalhe)}</span>${C.mostrarPrecos ? `<span class="vl">a partir de ${brl(p.valor)}</span>` : ""}</span></label>`).join("");
+  $("#hint-pac").textContent = C.mostrarPrecos ? "Valores de referência, sem entrega e montagem. O orçamento final é personalizado." : "O valor final vem na proposta personalizada.";
+  $("#sabores").innerHTML = C.sabores.map(s => `<span>${esc(s)}</span>`).join("");
+  if (C.mostrarPrecos) {
+    $("#tabela-valores").innerHTML = C.pacotes.map(p => `<li>${esc(p.nome)} (${esc(p.detalhe.replace("cerca de ", "≈ "))})<b>${brl(p.valor)}</b></li>`).join("")
+      + C.precosAvulsos.map(p => `<li>${esc(p.nome)}<b>${esc(p.valor)}</b></li>`).join("");
+  } else $("#faq-valores").hidden = true;
+  const notas = [];
+  if (C.prazoResposta) notas.push("Respondemos " + C.prazoResposta + ".");
+  if (C.antecedencia) notas.push("Antecedência recomendada: " + C.antecedencia + ".");
+  $("#nota-prazo").textContent = notas.join(" ");
+  if (C.prazoResposta) $("#passo-prop").textContent = "Enviamos a proposta personalizada " + C.prazoResposta + ", com valores, sabores e embalagens.";
+
+  // Escolher um pacote marca "Torre de macarons" automaticamente
+  $("#pacotes").addEventListener("change", e => {
+    if (e.target.value) { const t = document.querySelector('input[name="nec"][value="Torre de macarons"]'); if (t) t.checked = true; }
+  });
+  // Campo de local só aparece para entrega
+  document.querySelectorAll('input[name="entrega"]').forEach(r => r.addEventListener("change", () => {
+    $("#wrap-local").hidden = document.querySelector('input[name="entrega"]:checked').value !== "Entrega no local";
+  }));
+
+  // Máscara do telefone
+  const tel = $("#telefone");
+  tel.addEventListener("input", () => {
+    let d = tel.value.replace(/\D/g, "");
+    if (d.startsWith("55") && d.length > 11) d = d.slice(2);
+    d = d.slice(0, 11);
+    tel.value = d.length > 6 ? `(${d.slice(0, 2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}` : d.length > 2 ? `(${d.slice(0, 2)}) ${d.slice(2)}` : d;
+  });
+
+  // Data mínima: hoje
+  const hoje = new Date(); const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  $("#data").min = iso(hoje);
+
+  // Origem do visitante (anúncio do Instagram ou site)
+  const qs = new URLSearchParams(location.search);
+  const utm = {}; ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(k => { if (qs.get(k)) utm[k] = qs.get(k).slice(0, 80); });
+  const veioInsta = /instagram|ig|facebook|fb|meta/i.test(qs.get("utm_source") || "") || qs.has("fbclid") || /instagram\.com|facebook\.com/i.test(document.referrer);
+  const origem = veioInsta ? "Instagram" : "Site";
+
+  // Banco (opcional)
+  let sb = null;
+  if (C.supabaseUrl && C.supabaseAnonKey && window.supabase) {
+    try { sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, { auth: { persistSession: false } }); } catch (e) { sb = null; }
+  }
+  if (window.ChowderPDF) window.ChowderPDF.carregarLogo();
+
+  // ---------- Envio ----------
+  function erro(id, on) { const i = $("#" + id), e = $("#err-" + id); i.setAttribute("aria-invalid", on ? "true" : "false"); e.hidden = !on; }
+  function uuid() { return (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))); }
+  const fdata = s => s ? s.split("-").reverse().join("/") : "A definir";
+
+  let pdfUrlLocal = null, pdfFile = null, ultimo = null;
+
+  $("#form").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const nome = $("#nome").value.trim();
+    const digitos = tel.value.replace(/\D/g, "");
+    erro("nome", !nome); erro("telefone", digitos.length < 10);
+    if (!nome) { $("#nome").focus(); return; }
+    if (digitos.length < 10) { tel.focus(); return; }
+    if ($("#empresa").value) return; // robô
+
+    const btn = $("#enviar"); btn.disabled = true; btn.innerHTML = '<span class="spin" aria-hidden="true"></span> Preparando seu pedido…';
+
+    const id = uuid();
+    const pacId = document.querySelector('input[name="pacote"]:checked').value;
+    const entrega = document.querySelector('input[name="entrega"]:checked').value;
+    const p = {
+      id, protocolo: "CC-" + id.replace(/-/g, "").slice(0, 6).toUpperCase(), criadoEm: new Date().toISOString(),
+      nome, telefone: tel.value,
+      ocasiao: document.querySelector('input[name="ocasiao"]:checked').value,
+      data: $("#data").value, quantidade: $("#qtd").value.trim(),
+      entrega, local: entrega === "Entrega no local" ? $("#local").value.trim() : "",
+      necessidades: [...document.querySelectorAll('input[name="nec"]:checked')].map(x => x.value),
+      pacote: C.pacotes.find(x => x.id === pacId) || null,
+      obs: $("#obs").value.trim()
+    };
+
+    let blob = null, pdfPublico = "", salvo = false;
+    try { blob = await window.ChowderPDF.gerar(p); } catch (e) { console.error("PDF", e); }
+
+    if (sb) {
+      try {
+        if (blob) {
+          const path = id + ".pdf";
+          const up = await sb.storage.from(C.bucketPdf).upload(path, blob, { contentType: "application/pdf", upsert: false });
+          if (!up.error) pdfPublico = sb.storage.from(C.bucketPdf).getPublicUrl(path).data.publicUrl;
+        }
+        const hojeIso = iso(new Date());
+        const dados = {
+          nome: p.nome, telefone: p.telefone, origem, tipo: "Evento", categoria: p.ocasiao,
+          interesse: [p.necessidades.join(", "), p.pacote ? p.pacote.nome : "", p.quantidade].filter(Boolean).join(" · "),
+          etapa: "contato", novo: true, criadoEm: hojeIso,
+          conversas: [{ data: hojeIso, texto: "Pedido recebido pela landing page (" + p.protocolo + ")", sistema: true }],
+          orcamento: { dataEvento: p.data, local: p.local, modo: entrega === "Entrega no local" ? "Entrega no local" : "Retirada na loja", obs: p.obs },
+          solicitacao: { protocolo: p.protocolo, enviadoEm: p.criadoEm, ocasiao: p.ocasiao, data: p.data, quantidade: p.quantidade, entrega, local: p.local, necessidades: p.necessidades, pacote: p.pacote ? { id: p.pacote.id, nome: p.pacote.nome, detalhe: p.pacote.detalhe, valor: p.pacote.valor } : null, obs: p.obs, pdfUrl: pdfPublico, utm }
+        };
+        const ins = await sb.from("registros").insert({ id, dados });
+        salvo = !ins.error;
+        if (ins.error) console.error("registro", ins.error);
+      } catch (e) { console.error("banco", e); }
+    }
+
+    // Mensagem do WhatsApp
+    const L = [
+      "Olá! Acabei de pedir um orçamento pela página da Chef Chowder.",
+      "",
+      "*Protocolo:* " + p.protocolo,
+      "*Nome:* " + p.nome,
+      "*Ocasião:* " + p.ocasiao,
+      "*Data:* " + fdata(p.data),
+      "*Convidados/quantidade:* " + (p.quantidade || "A definir"),
+      "*Entrega:* " + p.entrega + (p.local ? " — " + p.local : ""),
+      "*Interesse:* " + (p.necessidades.join(", ") || "A definir")
+    ];
+    if (p.pacote) L.push("*Pacote:* " + p.pacote.nome + " (" + p.pacote.detalhe + ")");
+    if (p.obs) L.push("*Observações:* " + p.obs);
+    if (pdfPublico) { L.push(""); L.push("📄 PDF do pedido: " + pdfPublico); }
+    const waMsg = waBase + "?text=" + encodeURIComponent(L.join("\n"));
+
+    // Tela de conclusão
+    if (pdfUrlLocal) URL.revokeObjectURL(pdfUrlLocal);
+    const nomeArq = "Pedido-Chef-Chowder-" + p.protocolo + ".pdf";
+    pdfUrlLocal = blob ? URL.createObjectURL(blob) : null;
+    pdfFile = blob ? new File([blob], nomeArq, { type: "application/pdf" }) : null;
+    ultimo = p;
+    $("#d-proto").textContent = "Protocolo " + p.protocolo;
+    $("#d-wa").href = waMsg;
+    $("#d-pdf").hidden = !blob; if (blob) { $("#d-pdf").href = pdfUrlLocal; $("#d-pdf").download = nomeArq; }
+    $("#d-share").hidden = !(pdfFile && navigator.canShare && navigator.canShare({ files: [pdfFile] }));
+    const aviso = $("#d-aviso");
+    if (!pdfPublico && blob) { aviso.hidden = false; aviso.textContent = "Dica: depois de enviar a mensagem, toque em “Compartilhar PDF” ou “Baixar PDF” para anexar o arquivo na conversa."; }
+    else aviso.hidden = true;
+
+    $("#form").hidden = true; $("#done").hidden = false;
+    btn.disabled = false; btn.textContent = "Finalizar e enviar pelo WhatsApp";
+    $("#orcamento").scrollIntoView({ block: "start" }); $("#done").focus({ preventScroll: true });
+  });
+
+  $("#d-share").addEventListener("click", async () => {
+    try { await navigator.share({ files: [pdfFile], title: "Pedido " + (ultimo ? ultimo.protocolo : ""), text: "Pedido de orçamento — Chef Chowder" }); } catch (e) {}
+  });
+  $("#d-novo").addEventListener("click", () => {
+    $("#form").reset(); $("#wrap-local").hidden = false; $("#done").hidden = true; $("#form").hidden = false; $("#nome").focus();
+  });
+});
+</script>
+</body>
+</html>

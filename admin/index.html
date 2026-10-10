@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#131F37">
+<title>Chowder Pedidos</title>
+<link rel="icon" href="../assets/img/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: funil em 3 etapas (contato → orçamento → evento) + arquivo; cartões em grade, detalhe em gaveta lateral */
+:root{
+  --bg:#F5EFE6; --surface:#FCF9F4; --surface-2:#F3ECE1; --ink:#131F37; --muted:#5E6275; --line:#E4D9C8;
+  --navy:#131F37; --bord:#591524; --gold:#C4A265;
+  --accent:#131F37; --accent-ink:#FFFFFF; --accent-soft:#E2E5EE; --wine:#591524; --wine-soft:#F3E3E5; --goldc:#7A5C26; --gold-soft:#F4EAD6;
+  --ok:#1F7A4D; --ok-soft:#DFF0E6; --warn:#8E5A00; --warn-soft:#FBEFD9; --crit:#A3262F; --crit-soft:#F8E1E2;
+  --shadow:0 1px 2px rgba(19,31,55,.06),0 8px 24px rgba(19,31,55,.08);
+  --f-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1628; --surface:#16213A; --surface-2:#111B30; --ink:#F2ECE3; --muted:#B4B8C8; --line:#2A3656;
+  --accent:#D9BC85; --accent-ink:#131F37; --accent-soft:#2A3350; --wine:#E8A3AE; --wine-soft:#3A1E26; --goldc:#D9BC85; --gold-soft:#3A3020;
+  --ok:#5CC48E; --ok-soft:#173527; --warn:#EBB056; --warn-soft:#3A2C14; --crit:#F08A8F; --crit-soft:#3D1F22;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1628; --surface:#16213A; --surface-2:#111B30; --ink:#F2ECE3; --muted:#B4B8C8; --line:#2A3656;
+  --accent:#D9BC85; --accent-ink:#131F37; --accent-soft:#2A3350; --wine:#E8A3AE; --wine-soft:#3A1E26; --goldc:#D9BC85; --gold-soft:#3A3020;
+  --ok:#5CC48E; --ok-soft:#173527; --warn:#EBB056; --warn-soft:#3A2C14; --crit:#F08A8F; --crit-soft:#3D1F22;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;margin:0;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+.band{background:linear-gradient(90deg,var(--navy) 0 50%,var(--bord) 50% 100%);color:#F5EFE6;border-bottom:1px solid rgba(196,162,101,.45);padding-top:env(safe-area-inset-top,0px)}
+.band .in{max-width:1120px;margin:0 auto;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand img{height:48px;width:auto;display:block}
+.brand h1{font-size:26px;line-height:1.05;padding-left:14px;border-left:1px solid var(--gold);font-weight:500}
+.brand small{display:block;font-family:var(--f-body);font-size:12px;color:#CDD0DC;letter-spacing:.04em}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.band .btn{background:rgba(255,255,255,.08);border-color:rgba(245,239,230,.35);color:#F5EFE6}
+.band .btn.primary{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.band .who{font-size:12px;color:#CDD0DC}
+
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:18px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.danger{color:var(--crit);border-color:var(--crit-soft);background:var(--crit-soft)}
+.btn.wa{background:#1F7A4D;border-color:#1F7A4D;color:#fff}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+@media (max-width:560px){.summary{grid-template-columns:1fr 1fr}.sum .val{font-size:22px}.search{width:100%}.band .who{display:none}.brand h1{font-size:22px}}
+.sum{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
+.sum::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.sum.hot::before{background:var(--bord)}
+.sum:hover{border-color:var(--gold)}
+.sum .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.sum .val{font-family:var(--f-display);font-size:28px;font-weight:600;line-height:1.1}
+.sum .sub{font-size:13px;color:var(--muted)}
+
+.flow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
+.tab{border:none;background:none;padding:10px 12px;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:8px}
+.tab .n{background:var(--line);color:var(--ink);border-radius:999px;padding:1px 8px;font-size:12px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--bord)}
+.tab[aria-selected="true"] .n{background:var(--accent);color:var(--accent-ink)}
+.flow .arrow{color:var(--gold);font-size:13px}
+.flow .spacer{flex:1}
+.search{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;min-width:0;width:240px;max-width:100%;margin:4px 0}
+
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative}
+.card:hover{border-color:var(--gold);box-shadow:var(--shadow)}
+.card.novo{border-color:var(--bord);box-shadow:inset 3px 0 0 var(--bord)}
+.card .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;min-width:0}
+.card .name{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.card .meta{color:var(--muted);font-size:13px}
+.card .snip{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .money{font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.accent{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.chip.wine{background:var(--wine-soft);border-color:transparent;color:var(--wine)}
+.chip.gold{background:var(--gold-soft);border-color:transparent;color:var(--goldc)}
+.chip.ok{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.chip.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.chip.crit{background:var(--crit-soft);border-color:transparent;color:var(--crit)}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:28px 20px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty h3{color:var(--ink);font-size:22px}
+.notice{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;font-size:14px}
+
+/* Login */
+.login{max-width:400px;margin:8vh auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.login h2{font-size:28px}
+.login p{margin:0;color:var(--muted)}
+
+/* Gaveta */
+.scrim{position:fixed;inset:0;background:rgba(14,22,40,.45);z-index:10}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(660px,100%);background:var(--bg);z-index:11;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.2)}
+.dhead{padding:calc(14px + env(safe-area-inset-top,0px)) 20px 12px;border-bottom:1px solid var(--line);background:var(--surface);display:flex;gap:12px;align-items:flex-start;justify-content:space-between;box-shadow:inset 0 3px 0 var(--bord)}
+.dhead h2{font-size:26px}
+.dhead .stage{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--goldc)}
+.dbody{flex:1;overflow-y:auto;padding:16px 20px 24px;display:flex;flex-direction:column;gap:16px}
+.dfoot{padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--surface);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dfoot .grow{flex:1}
+.close{border:none;background:var(--surface-2);border-radius:999px;width:34px;height:34px;font-size:18px;flex:none}
+section.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+section.box.site{border-color:var(--gold);background:linear-gradient(var(--gold-soft),var(--surface) 70%)}
+section.box h3{font-size:20px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+section.box h3 .hint{font-family:var(--f-body);font-size:12px;color:var(--muted);font-weight:400}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
+.kv div{min-width:0}
+.kv dt{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.kv dd{margin:2px 0 0;overflow-wrap:anywhere}
+.kv .full{grid-column:1/-1}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.grid .full{grid-column:1/-1}
+@media (max-width:520px){.grid,.kv{grid-template-columns:minmax(0,1fr)}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.f input,.f select,.f textarea,.cell{border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:8px 10px;font-size:14px;font-weight:400;color:var(--ink);width:100%;min-width:0}
+.f textarea{min-height:64px;resize:vertical}
+.tblwrap{overflow-x:auto}
+table.items{width:100%;border-collapse:collapse;min-width:460px}
+table.items th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:4px 6px;font-weight:700}
+table.items td{padding:3px 4px;vertical-align:middle}
+table.items td.r,table.items th.r{text-align:right}
+.x{border:none;background:none;color:var(--muted);font-size:18px;padding:2px 6px}
+.x:hover{color:var(--crit)}
+.totals{display:flex;flex-direction:column;gap:4px;align-items:flex-end;font-size:14px}
+.totals .big{font-family:var(--f-display);font-size:26px;font-weight:600}
+.timeline{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.timeline li{display:grid;grid-template-columns:82px minmax(0,1fr) auto;gap:10px;font-size:14px;align-items:start;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.timeline li:last-child{border-bottom:none}
+.timeline .d{color:var(--muted);font-size:13px}
+.timeline .sys{color:var(--muted);font-style:italic}
+.timeline .t{white-space:pre-wrap;overflow-wrap:anywhere}
+.addline{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.addline .f{flex:1 1 200px}
+.addline .f.date{flex:0 0 150px}
+.confirm{background:var(--surface);border:1px solid var(--bord);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.confirm p{margin:0}
+.confirm .btns{display:flex;gap:8px;flex-wrap:wrap}
+.pay{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
+.pay b{font-family:var(--f-display);font-weight:600;font-size:22px;display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#F5EFE6;padding:10px 18px;border-radius:999px;font-weight:600;z-index:20;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 0 0 1px var(--gold)}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
+</style>
+</head>
+<body>
+<div class="band"><div class="in">
+  <div class="brand"><img src="../assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="84" height="48"><h1>Pedidos e eventos<small>Contatos, orçamentos e eventos contratados</small></h1></div>
+  <div class="top-actions" id="topActions" hidden>
+    <span class="who" id="who"></span>
+    <button class="btn" id="btnExport">Exportar planilha (CSV)</button>
+    <button class="btn" id="btnSair">Sair</button>
+    <button class="btn primary" id="btnNovo">+ Novo contato</button>
+  </div>
+</div></div>
+
+<form class="login" id="login" hidden>
+  <h2>Entrar no painel</h2>
+  <p>Acesso restrito aos sócios da Chef Chowder.</p>
+  <label class="f">E-mail<input id="lg_email" type="email" autocomplete="username" required></label>
+  <label class="f">Senha<input id="lg_senha" type="password" autocomplete="current-password" required></label>
+  <button class="btn primary" type="submit" style="justify-content:center;padding:10px">Entrar</button>
+  <p id="lg_msg" style="color:var(--crit)" hidden></p>
+</form>
+
+<div class="wrap" id="app">
+  <div id="notice" class="notice" hidden></div>
+  <div id="main" hidden>
+    <div class="summary" id="summary"></div>
+    <nav class="flow" id="tabs" role="tablist" style="margin-top:18px"></nav>
+    <div id="list" style="margin-top:16px"></div>
+  </div>
+</div>
+<div id="drawerRoot"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="../js/config.js"></script>
+<script src="../assets/vendor/supabase.min.js"></script>
+<script>
+(function(){
+const C=window.CHOWDER;
+const STAGES=[
+  {k:'contato',label:'Contatos'},
+  {k:'orcamento',label:'Orçamentos'},
+  {k:'evento',label:'Eventos contratados'},
+  {k:'arquivo',label:'Arquivo'}
+];
+const STAGE_TITLE={contato:'Contato (lead)',orcamento:'Orçamento',evento:'Evento contratado',arquivo:'Arquivado'};
+const ORIGENS=['WhatsApp','Instagram','Site','Indicação','Loja','Outro'];
+const TIPOS=['Evento','Pronta entrega'];
+const CATEGORIAS=[...new Set([...C.ocasioes.filter(o=>o!=='Outro'),'Presente','Pronta entrega','Outro'])];
+const FORMAS=['PIX','Cartão de crédito','Cartão de débito','Dinheiro','Transferência','Boleto'];
+const MODOS=['Entrega no local','Retirada na loja'];
+const MOT_ENCERRAR=['Só pesquisando preço','Parou de responder','Data indisponível','Fora do orçamento do cliente','Fechou com outro fornecedor','Outro'];
+const MOT_RECUSA=['Achou caro','Fechou com outro fornecedor','Desistiu do evento','Sem resposta no prazo','Mudou a data','Outro'];
+const RESULT={contato_encerrado:{t:'Contato encerrado',c:'warn'},orcamento_recusado:{t:'Orçamento não aceito',c:'crit'},entregue:{t:'Entregue com sucesso',c:'ok'}};
+
+let sb=null, canWrite=true, userEmail='';
+let recs={}; let loaded=false;
+let tab='contato'; let q='';
+let open=null; // {id,isNew,draft,dirty,pending}
+try{const t=localStorage.getItem('cm_tab'); if(t&&STAGES.some(s=>s.k===t)) tab=t;}catch(e){}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=n=>(Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>iso(new Date());
+const parse=s=>{if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s)||new Date();d.setDate(d.getDate()+n);return iso(d)};
+const diff=s=>{const d=parse(s);if(!d)return null;const t=parse(today());return Math.round((d-t)/864e5)};
+const fd=s=>{const d=parse(s);return d?pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear():'—'};
+const fds=s=>{const d=parse(s);return d?pad(d.getDate())+'/'+pad(d.getMonth()+1):'—'};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const num=v=>{if(typeof v==='number')return v;const s=String(v??'').trim().replace(/\s/g,'').replace(/R\$/,'');if(!s)return 0;const n=s.includes(',')?s.replace(/\./g,'').replace(',','.'):s;const r=parseFloat(n);return isNaN(r)?0:r};
+const waLink=(tel,txt)=>{let d=String(tel||'').replace(/\D/g,'');if(d.length<=11)d='55'+d;return 'https://wa.me/'+d+(txt?'?text='+encodeURIComponent(txt):'')};
+
+function blank(){return{nome:'',telefone:'',origem:'WhatsApp',tipo:'Evento',categoria:CATEGORIAS[0],interesse:'',etapa:'contato',resultado:'',motivo:'',etapaAnterior:'',conversas:[],
+  orcamento:{itens:[],taxaEntrega:0,desconto:0,formaPgto:'PIX',condicoes:'50% de sinal na contratação e 50% até a entrega',dataEvento:'',horario:'',local:'',modo:'Entrega no local',dataEnvio:'',prazoResposta:'',obs:''},
+  evento:{contratadoEm:'',pagamentos:[],entregueEm:''},criadoEm:today(),atualizadoEm:new Date().toISOString()}}
+function norm(r){const b=blank();const o=Object.assign(b,r||{});o.orcamento=Object.assign(blank().orcamento,(r||{}).orcamento||{});o.evento=Object.assign(blank().evento,(r||{}).evento||{});o.conversas=Array.isArray(o.conversas)?o.conversas:[];o.orcamento.itens=Array.isArray(o.orcamento.itens)?o.orcamento.itens:[];o.evento.pagamentos=Array.isArray(o.evento.pagamentos)?o.evento.pagamentos:[];return o}
+const subtotal=r=>r.orcamento.itens.reduce((a,i)=>a+num(i.qtd)*num(i.unit),0);
+const total=r=>subtotal(r)+num(r.orcamento.taxaEntrega)-num(r.orcamento.desconto);
+const pago=r=>r.evento.pagamentos.reduce((a,p)=>a+num(p.valor),0);
+const saldo=r=>total(r)-pago(r);
+const lastTouch=r=>{const c=r.conversas.filter(x=>!x.sistema).map(x=>x.data).sort().pop();return c||r.criadoEm};
+
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)}
+function notice(msg){const n=$('#notice');n.hidden=!msg;n.innerHTML=msg||''}
+
+/* ---------- Lista ---------- */
+function all(){return Object.entries(recs).map(([id,r])=>({id,r:norm(r)}))}
+function inStage(k){return all().filter(x=>x.r.etapa===k)}
+function matches(x){if(!q)return true;const s=(x.r.nome+' '+x.r.telefone+' '+x.r.categoria+' '+x.r.interesse+' '+(x.r.solicitacao?.protocolo||'')).toLowerCase();return s.includes(q.toLowerCase())}
+
+function renderSummary(){
+  const c=inStage('contato'), o=inStage('orcamento'), e=inStage('evento');
+  const novos=c.filter(x=>x.r.novo).length;
+  const vO=o.reduce((a,x)=>a+total(x.r),0);
+  const vencidos=o.filter(x=>{const d=diff(x.r.orcamento.prazoResposta);return d!==null&&d<0}).length;
+  const aReceber=e.reduce((a,x)=>a+Math.max(0,saldo(x.r)),0);
+  const prox=e.filter(x=>x.r.orcamento.dataEvento).sort((a,b)=>a.r.orcamento.dataEvento.localeCompare(b.r.orcamento.dataEvento))[0];
+  $('#summary').innerHTML=`
+   <button class="sum ${novos?'hot':''}" data-go="contato"><span class="lbl">Contatos em aberto</span><span class="val num">${c.length}</span><span class="sub">${novos?`<b style="color:var(--wine)">${novos} novo${novos===1?'':'s'} pela landing</b>`:c.length?'aguardando orçamento':'nenhum no momento'}</span></button>
+   <button class="sum" data-go="orcamento"><span class="lbl">Orçamentos em aberto</span><span class="val num">${brl(vO)}</span><span class="sub">${o.length} orçamento${o.length===1?'':'s'}${vencidos?` · <span style="color:var(--crit)">${vencidos} com prazo vencido</span>`:''}</span></button>
+   <button class="sum" data-go="evento"><span class="lbl">A receber dos eventos</span><span class="val num">${brl(aReceber)}</span><span class="sub">${e.length} evento${e.length===1?'':'s'} a entregar</span></button>
+   <button class="sum" data-go="evento"><span class="lbl">Próximo evento</span><span class="val">${prox?fds(prox.r.orcamento.dataEvento):'—'}</span><span class="sub">${prox?esc(prox.r.nome)+' · '+esc(prox.r.categoria):'nenhum agendado'}</span></button>`;
+}
+function renderTabs(){
+  $('#tabs').innerHTML=STAGES.map((s,i)=>`${i>0&&i<3?'<span class="arrow" aria-hidden="true">→</span>':''}${i===3?'<span class="spacer"></span>':''}<button class="tab" role="tab" aria-selected="${tab===s.k}" data-tab="${s.k}">${s.label}<span class="n num">${inStage(s.k).length}</span></button>`).join('')
+   +`<input class="search" id="search" type="search" placeholder="Buscar nome, telefone, protocolo" value="${esc(q)}" aria-label="Buscar">`;
+}
+function dueChip(r){const d=diff(r.orcamento.prazoResposta);if(d===null)return '<span class="chip">sem prazo de resposta</span>';if(d<0)return `<span class="chip crit">prazo vencido há ${-d} dia${d===-1?'':'s'}</span>`;if(d===0)return '<span class="chip warn">responder hoje</span>';if(d<=2)return `<span class="chip warn">prazo em ${d} dia${d===1?'':'s'}</span>`;return `<span class="chip">prazo ${fds(r.orcamento.prazoResposta)}</span>`}
+function eventChip(r){const d=diff(r.orcamento.dataEvento);if(d===null)return '<span class="chip warn">sem data</span>';if(d<0)return `<span class="chip crit">data passou (${fds(r.orcamento.dataEvento)})</span>`;if(d===0)return '<span class="chip accent">é hoje</span>';if(d<=7)return `<span class="chip accent">em ${d} dia${d===1?'':'s'} · ${fds(r.orcamento.dataEvento)}</span>`;return `<span class="chip">${fd(r.orcamento.dataEvento)}</span>`}
+function card(x){const r=x.r;let body='';
+  const site=r.solicitacao?`<span class="chip gold">${esc(r.solicitacao.protocolo||'Landing')}</span>`:'';
+  if(r.etapa==='contato'){const d=-diff(lastTouch(r));body=`<div class="snip">${esc(r.interesse)||'<span class="meta">Sem interesse registrado</span>'}</div><div class="chips">${r.novo?'<span class="chip wine">novo</span>':''}<span class="chip accent">${esc(r.categoria)}</span><span class="chip">${esc(r.origem)}</span>${site}${r.orcamento.dataEvento?`<span class="chip">evento ${fds(r.orcamento.dataEvento)}</span>`:''}<span class="chip ${d>=3?'warn':''}">último contato ${d===0?'hoje':d===1?'ontem':'há '+d+' dias'}</span></div>`}
+  else if(r.etapa==='orcamento'){body=`<div class="row"><span class="meta">${r.orcamento.dataEvento?'Evento '+fd(r.orcamento.dataEvento):'Data a definir'}</span><span class="money num">${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${dueChip(r)}</div>`}
+  else if(r.etapa==='evento'){const s=saldo(r);body=`<div class="row"><span class="meta num">Pago ${brl(pago(r))} de ${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${eventChip(r)}${s>0.005?`<span class="chip warn">saldo ${brl(s)}</span>`:'<span class="chip ok">quitado</span>'}</div>`}
+  else{const R=RESULT[r.resultado]||{t:'Arquivado',c:''};body=`<div class="chips"><span class="chip ${R.c}">${R.t}</span><span class="chip">${esc(r.categoria)}</span>${r.resultado==='entregue'?`<span class="chip num">${brl(total(r))}</span>`:''}</div>${r.motivo?`<div class="meta">Motivo: ${esc(r.motivo)}</div>`:''}`}
+  return `<button class="card${r.novo?' novo':''}" data-open="${esc(x.id)}"><div class="row"><span class="name">${esc(r.nome)||'Sem nome'}</span><span class="meta num">${esc(r.telefone)}</span></div>${body}</button>`}
+function sorted(list){
+  if(tab==='contato')return list.sort((a,b)=>(b.r.novo?1:0)-(a.r.novo?1:0)||lastTouch(b.r).localeCompare(lastTouch(a.r)));
+  if(tab==='orcamento')return list.sort((a,b)=>(a.r.orcamento.prazoResposta||'9').localeCompare(b.r.orcamento.prazoResposta||'9'));
+  if(tab==='evento')return list.sort((a,b)=>(a.r.orcamento.dataEvento||'9').localeCompare(b.r.orcamento.dataEvento||'9'));
+  return list.sort((a,b)=>(b.r.atualizadoEm||'').localeCompare(a.r.atualizadoEm||''));
+}
+const EMPTY={
+  contato:['Nenhum contato em aberto','Os pedidos feitos na landing page chegam aqui sozinhos, com o PDF. Conversas que começam direto no WhatsApp você registra em “+ Novo contato”.'],
+  orcamento:['Nenhum orçamento em aberto','Abra um contato e toque em "Criar orçamento" para montar itens, valores, pagamento e prazo de resposta.'],
+  evento:['Nenhum evento contratado','Quando o cliente aceitar um orçamento, toque em "Orçamento contratado" e ele chega aqui para acompanhar pagamentos e conversas.'],
+  arquivo:['Arquivo vazio','Contatos encerrados, orçamentos não aceitos e eventos entregues ficam guardados aqui.']};
+function renderList(){
+  if(!loaded){$('#list').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
+  const list=sorted(inStage(tab).filter(matches));
+  if(!list.length){const [h,p]=EMPTY[tab];$('#list').innerHTML=`<div class="empty"><h3>${q?'Nada encontrado':h}</h3><p style="max-width:56ch;margin:0">${q?'Nenhum registro desta etapa corresponde à busca.':p}</p>${tab==='contato'&&!q&&canWrite?'<button class="btn primary" data-act="novo">+ Registrar contato</button>':''}</div>`;return}
+  $('#list').innerHTML=`<div class="list">${list.map(card).join('')}</div>`;
+}
+function renderAll(){renderSummary();const had=document.activeElement&&document.activeElement.id==='search';renderTabs();if(had){const s=$('#search');s.focus();s.setSelectionRange(s.value.length,s.value.length)}renderList();if(open&&!open.dirty&&!open.isNew&&recs[open.id]){open.draft=norm(clone(recs[open.id]));renderDrawer()} if(open&&!open.isNew&&!recs[open.id]){closeDrawer()}}
+
+/* ---------- Gaveta ---------- */
+function opt(list,v){const l=list.includes(v)||!v?list:[v,...list];return l.map(o=>`<option${o===v?' selected':''}>${esc(o)}</option>`).join('')}
+function fld(label,path,v,type='text',extra=''){return `<label class="f ${extra}">${label}<input id="f_${path.replace(/\./g,'_')}" data-f="${path}" type="${type}" value="${esc(v)}"${type==='text'&&path.match(/taxa|desconto/)?' inputmode="decimal"':''}></label>`}
+function sel(label,path,list,v,extra=''){return `<label class="f ${extra}">${label}<select id="f_${path.replace(/\./g,'_')}" data-f="${path}">${opt(list,v)}</select></label>`}
+function area(label,path,v,extra='full'){return `<label class="f ${extra}">${label}<textarea id="f_${path.replace(/\./g,'_')}" data-f="${path}">${esc(v)}</textarea></label>`}
+
+function secSite(r){const s=r.solicitacao;if(!s)return '';
+  const quando=s.enviadoEm?new Date(s.enviadoEm).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'';
+  const utm=s.utm&&Object.keys(s.utm).length?Object.entries(s.utm).map(([k,v])=>k.replace('utm_','')+': '+v).join(' · '):'';
+  return `<section class="box site"><h3>Pedido da landing page <span class="hint">${esc(s.protocolo||'')} · ${esc(quando)}</span></h3>
+  <dl class="kv">
+   <div><dt>Ocasião</dt><dd>${esc(s.ocasiao)}</dd></div><div><dt>Data do evento</dt><dd>${fd(s.data)}</dd></div>
+   <div><dt>Convidados / quantidade</dt><dd>${esc(s.quantidade)||'—'}</dd></div><div><dt>Entrega</dt><dd>${esc(s.entrega)}${s.local?' — '+esc(s.local):''}</dd></div>
+   <div class="full"><dt>Interesse</dt><dd>${esc((s.necessidades||[]).join(', '))||'—'}</dd></div>
+   ${s.pacote?`<div class="full"><dt>Pacote de referência</dt><dd>${esc(s.pacote.nome)} · ${esc(s.pacote.detalhe)} · ${brl(s.pacote.valor)}</dd></div>`:''}
+   ${s.obs?`<div class="full"><dt>Observações</dt><dd style="white-space:pre-wrap">${esc(s.obs)}</dd></div>`:''}
+   ${utm?`<div class="full"><dt>Campanha</dt><dd>${esc(utm)}</dd></div>`:''}
+  </dl>
+  <div class="chips" style="gap:8px">${s.pdfUrl?`<a class="btn sm" href="${esc(s.pdfUrl)}" target="_blank" rel="noopener">Abrir PDF do pedido</a>`:'<span class="chip">PDF não foi salvo</span>'}<a class="btn sm wa" href="${esc(waLink(r.telefone,'Olá, '+(r.nome.split(' ')[0]||'')+'! Aqui é da Chef Chowder. Recebemos seu pedido '+(s.protocolo||'')+' e já estamos preparando sua proposta.'))}" target="_blank" rel="noopener">Responder no WhatsApp</a></div></section>`}
+function secContato(r){return `<section class="box"><h3>Contato</h3><div class="grid">
+  ${fld('Nome','nome',r.nome)}${fld('Telefone / WhatsApp','telefone',r.telefone,'tel')}
+  ${sel('Tipo de pedido','tipo',TIPOS,r.tipo)}${sel('Ocasião','categoria',CATEGORIAS,r.categoria)}
+  ${sel('Como chegou','origem',ORIGENS,r.origem)}${fld('Primeiro contato em','criadoEm',r.criadoEm,'date')}
+  ${area('Interesse demonstrado','interesse',r.interesse)}</div></section>`}
+function secOrc(r){const o=r.orcamento;const ev=r.tipo==='Pronta entrega'?'Data de entrega/retirada':'Data do evento';
+  const rows=o.itens.map((it,i)=>`<tr><td><input class="cell" id="it_d_${i}" data-it="${i}" data-k="desc" value="${esc(it.desc)}" placeholder="Ex.: Macarons sortidos"></td><td style="width:80px"><input class="cell num" id="it_q_${i}" data-it="${i}" data-k="qtd" inputmode="numeric" value="${esc(it.qtd)}"></td><td style="width:110px"><input class="cell num" id="it_u_${i}" data-it="${i}" data-k="unit" inputmode="decimal" value="${esc(it.unit)}"></td><td class="r num" data-linetotal="${i}" style="width:110px">${brl(num(it.qtd)*num(it.unit))}</td><td style="width:34px"><button class="x" data-delit="${i}" aria-label="Remover item">×</button></td></tr>`).join('');
+  return `<section class="box"><h3>Orçamento <span class="hint">${r.etapa==='evento'?'dados contratados':''}</span></h3>
+  <div class="tblwrap"><table class="items"><thead><tr><th>Item</th><th>Qtd</th><th>Valor unit.</th><th class="r">Total</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="meta" style="padding:8px 6px">Nenhum item ainda.</td></tr>'}</tbody></table></div>
+  <div class="chips"><button class="btn sm" data-act="additem">+ Adicionar item</button>${C.pacotes.map(p=>`<button class="btn sm ghost" data-addpac="${esc(p.id)}">+ ${esc(p.nome.replace('Torre de ','Torre '))}</button>`).join('')}</div>
+  <div class="grid">${fld('Taxa de entrega (R$)','orcamento.taxaEntrega',o.taxaEntrega||'')}${fld('Desconto (R$)','orcamento.desconto',o.desconto||'')}</div>
+  <div class="totals"><span class="meta num">Subtotal <span data-tot="sub">${brl(subtotal(r))}</span></span><span class="big num" data-tot="total">${brl(total(r))}</span></div>
+  <div class="grid">
+   ${sel('Forma de pagamento','orcamento.formaPgto',FORMAS,o.formaPgto)}${fld('Condições de pagamento','orcamento.condicoes',o.condicoes)}
+   ${fld(ev,'orcamento.dataEvento',o.dataEvento,'date')}${fld('Horário','orcamento.horario',o.horario,'time')}
+   ${sel('Entrega','orcamento.modo',MODOS,o.modo)}${fld('Local / endereço','orcamento.local',o.local)}
+   ${fld('Orçamento enviado em','orcamento.dataEnvio',o.dataEnvio,'date')}${fld('Prazo para o cliente responder','orcamento.prazoResposta',o.prazoResposta,'date')}
+   ${area('Observações (sabores, cores, embalagem, personalização)','orcamento.obs',o.obs)}</div></section>`}
+function secEvento(r){const e=r.evento;const s=saldo(r);
+  const rows=e.pagamentos.map((p,i)=>`<li><span class="d num">${fd(p.data)}</span><span class="t"><b class="num">${brl(num(p.valor))}</b> · ${esc(p.forma)}${p.obs?' · '+esc(p.obs):''}</span><button class="x" data-delpay="${i}" aria-label="Remover pagamento">×</button></li>`).join('');
+  return `<section class="box"><h3>Pagamentos <span class="hint">contratado em ${fd(e.contratadoEm)}</span></h3>
+  <div class="pay num"><span>Total<b>${brl(total(r))}</b></span><span>Pago<b style="color:var(--ok)">${brl(pago(r))}</b></span><span>Saldo<b style="color:${s>0.005?'var(--warn)':'var(--ok)'}">${brl(s)}</b></span></div>
+  ${rows?`<ul class="timeline">${rows}</ul>`:'<p class="meta" style="margin:0">Nenhum pagamento registrado.</p>'}
+  <div class="addline"><label class="f date">Data<input id="np_data" type="date" value="${today()}"></label><label class="f" style="flex:0 1 130px">Valor (R$)<input id="np_valor" inputmode="decimal" placeholder="${s>0?String(s.toFixed(2)).replace('.',','):'0,00'}"></label><label class="f" style="flex:0 1 160px">Forma<select id="np_forma">${opt(FORMAS,r.orcamento.formaPgto)}</select></label><label class="f">Observação<input id="np_obs" placeholder="Ex.: sinal de 50%"></label><button class="btn sm" data-act="addpay">Registrar pagamento</button></div></section>`}
+function secConversas(r){const list=[...r.conversas].map((c,i)=>({c,i})).sort((a,b)=>(b.c.data||'').localeCompare(a.c.data||'')||b.i-a.i);
+  return `<section class="box"><h3>Conversas e histórico</h3>
+  <div class="addline"><label class="f date">Data<input id="nc_data" type="date" value="${today()}"></label><label class="f">O que foi conversado<input id="nc_txt" placeholder="Ex.: Pediu cores rosa e dourado, 200 convidados"></label><button class="btn sm" data-act="addconv">Registrar</button></div>
+  ${list.length?`<ul class="timeline">${list.map(({c,i})=>`<li><span class="d num">${fd(c.data)}</span><span class="t ${c.sistema?'sys':''}">${esc(c.texto)}</span>${c.sistema?'<span></span>':`<button class="x" data-delconv="${i}" aria-label="Remover anotação">×</button>`}</li>`).join('')}</ul>`:'<p class="meta" style="margin:0">Nenhuma conversa registrada.</p>'}</section>`}
+function confirmBox(p,r){
+  if(p.kind==='encerrar'||p.kind==='naoaceito'){const lst=p.kind==='encerrar'?MOT_ENCERRAR:MOT_RECUSA;return `<div class="confirm"><p><b>${p.kind==='encerrar'?'Encerrar este contato?':'Registrar orçamento como não aceito?'}</b> O registro vai para o Arquivo e pode ser reaberto depois.</p><label class="f">Motivo<select id="cf_motivo">${opt(lst,lst[0])}</select></label><label class="f">Detalhe (opcional)<input id="cf_det"></label><div class="btns"><button class="btn danger" data-act="cf_ok">${p.kind==='encerrar'?'Encerrar contato':'Confirmar não aceito'}</button><button class="btn ghost" data-act="cf_no">Voltar</button></div></div>`}
+  if(p.kind==='entregue'){const s=saldo(r);return `<div class="confirm"><p><b>Confirmar que o evento foi entregue com sucesso?</b>${s>0.005?` Ainda há <b class="num">${brl(s)}</b> de saldo em aberto.`:' Pagamento quitado.'}</p><div class="btns"><button class="btn ok" data-act="cf_ok">Evento entregue com sucesso</button><button class="btn ghost" data-act="cf_no">Voltar</button></div></div>`}
+  if(p.kind==='contratar'){return `<div class="confirm"><p><b>Marcar como orçamento contratado?</b> Os dados do orçamento seguem para Eventos contratados, onde você registra pagamentos e conversas.</p>${!r.orcamento.dataEvento?'<p class="meta">A data do evento ainda está em branco.</p>':''}<div class="btns"><button class="btn ok" data-act="cf_ok">Orçamento contratado</button><button class="btn ghost" data-act="cf_no">Voltar</button></div></div>`}
+  if(p.kind==='excluir'){return `<div class="confirm"><p><b>Excluir este registro de vez?</b> Esta ação não pode ser desfeita. Para tirar da lista sem apagar, use Encerrar ou Não aceito.</p><div class="btns"><button class="btn danger" data-act="cf_ok">Excluir definitivamente</button><button class="btn ghost" data-act="cf_no">Voltar</button></div></div>`}
+  return ''}
+function footer(r){
+  const save=`<button class="btn" data-act="save" ${open.dirty||open.isNew?'':'disabled'}>${open.isNew?'Salvar contato':'Salvar alterações'}</button>`;
+  if(!canWrite)return '<span class="meta">Você pode ver os registros, mas não editar.</span>';
+  if(open.isNew)return `${save}<span class="grow"></span><button class="btn ghost" data-act="close">Cancelar</button>`;
+  const del='<button class="btn ghost sm" data-act="excluir" style="color:var(--muted)">Excluir</button>';
+  if(r.etapa==='contato')return `${save}${del}<span class="grow"></span><button class="btn danger" data-act="encerrar">Encerrar contato</button><button class="btn primary" data-act="toorc">Criar orçamento →</button>`;
+  if(r.etapa==='orcamento')return `${save}${del}<button class="btn ghost" data-act="copy">Copiar p/ WhatsApp</button><span class="grow"></span><button class="btn danger" data-act="naoaceito">Não aceito</button><button class="btn ok" data-act="contratar">Orçamento contratado</button>`;
+  if(r.etapa==='evento')return `${save}${del}<button class="btn ghost" data-act="copy">Copiar resumo</button><span class="grow"></span><button class="btn ok" data-act="entregue">Evento entregue com sucesso</button>`;
+  return `${del}<span class="grow"></span><button class="btn" data-act="reabrir">Reabrir em ${STAGE_TITLE[r.etapaAnterior||'contato']}</button>`}
+function renderDrawer(){
+  const root=$('#drawerRoot');if(!open){root.innerHTML='';return}
+  const r=open.draft;const st=open.isNew?'Novo contato':STAGE_TITLE[r.etapa];
+  const R=r.etapa==='arquivo'?RESULT[r.resultado]:null;
+  const keepScroll=root.querySelector('.dbody')?.scrollTop||0;
+  let body=(r.etapa==='contato'?secSite(r):'')+secContato(r);
+  if(r.etapa==='orcamento'||r.etapa==='evento'||(r.etapa==='arquivo'&&r.orcamento.itens.length))body+=secOrc(r);
+  if(r.etapa==='evento'||(r.etapa==='arquivo'&&r.resultado==='entregue'))body+=secEvento(r);
+  if(r.etapa!=='contato')body+=secSite(r);
+  if(!open.isNew)body+=secConversas(r);
+  if(open.pending)body=confirmBox(open.pending,r)+body;
+  root.innerHTML=`<div class="scrim" data-act="close"></div><aside class="drawer${canWrite?'':' readonly'}" role="dialog" aria-modal="true" aria-label="${esc(st)}">
+   <div class="dhead"><div><div class="stage">${esc(st)}</div><h2>${esc(r.nome)||'Sem nome'}</h2>${R?`<div class="chips" style="margin-top:6px"><span class="chip ${R.c}">${R.t}</span>${r.motivo?`<span class="chip">${esc(r.motivo)}</span>`:''}</div>`:''}</div><button class="close" data-act="close" aria-label="Fechar">×</button></div>
+   <div class="dbody">${body}</div><div class="dfoot">${footer(r)}</div></aside>`;
+  root.querySelector('.dbody').scrollTop=open.pending?0:keepScroll;
+}
+function openRec(id){
+  open={id,isNew:false,draft:norm(clone(recs[id])),dirty:false,pending:null};renderDrawer();
+  // Marca como visto o pedido novo da landing
+  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('registros').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderSummary();renderList()}
+}
+function openNew(){open={id:null,isNew:true,draft:blank(),dirty:true,pending:null};renderDrawer();setTimeout(()=>$('#f_nome')?.focus(),30)}
+function closeDrawer(){open=null;renderDrawer()}
+function setPath(o,p,v){const k=p.split('.');let t=o;for(let i=0;i<k.length-1;i++)t=t[k[i]];t[k[k.length-1]]=v}
+function refreshTotals(){if(!open)return;const r=open.draft;document.querySelectorAll('[data-linetotal]').forEach(el=>{const it=r.orcamento.itens[+el.dataset.linetotal];if(it)el.textContent=brl(num(it.qtd)*num(it.unit))});const a=document.querySelector('[data-tot="sub"]');if(a)a.textContent=brl(subtotal(r));const b=document.querySelector('[data-tot="total"]');if(b)b.textContent=brl(total(r))}
+function markDirty(){if(!open.dirty){open.dirty=true;const b=document.querySelector('[data-act="save"]');if(b)b.disabled=false}}
+
+async function persist(r,msg){
+  if(!sb){toast('Sem conexão com o banco. Verifique a configuração.');return false}
+  const data=clone(r);data.atualizadoEm=new Date().toISOString();
+  data.orcamento.taxaEntrega=num(data.orcamento.taxaEntrega);data.orcamento.desconto=num(data.orcamento.desconto);
+  data.orcamento.itens=data.orcamento.itens.map(i=>({desc:i.desc||'',qtd:num(i.qtd),unit:num(i.unit)}));
+  try{
+    let id=open.id;
+    if(open.isNew){id=crypto.randomUUID();const {error}=await sb.from('registros').insert({id,dados:data});if(error)throw error;open.id=id;open.isNew=false}
+    else{const {error}=await sb.from('registros').update({dados:data,atualizado_em:data.atualizadoEm}).eq('id',id);if(error)throw error}
+    recs[id]=data;open.draft=norm(clone(data));open.dirty=false;if(msg)toast(msg);renderAll();renderDrawer();return true
+  }catch(e){
+    console.error(e);
+    if(e&&(e.code==='42501'||/row-level security/i.test(e.message||''))){canWrite=false;toast('Seu e-mail não tem permissão para editar.')}
+    else toast('Não foi possível salvar. Verifique a conexão e tente de novo.');
+    return false}
+}
+function sysNote(r,texto){r.conversas.push({data:today(),texto,sistema:true})}
+
+function waText(r){const o=r.orcamento;const L=[];
+  L.push(`Olá, ${r.nome.split(' ')[0]||''}! Segue o orçamento da Chef Chowder:`);L.push('');
+  o.itens.forEach(i=>L.push(`• ${i.desc||'Item'}: ${num(i.qtd)} × ${brl(num(i.unit))} = ${brl(num(i.qtd)*num(i.unit))}`));
+  if(num(o.taxaEntrega))L.push(`• Taxa de entrega: ${brl(num(o.taxaEntrega))}`);
+  if(num(o.desconto))L.push(`• Desconto: -${brl(num(o.desconto))}`);
+  L.push('');L.push(`*Total: ${brl(total(r))}*`);L.push('');
+  if(o.dataEvento)L.push(`${r.tipo==='Pronta entrega'?'Entrega/retirada':'Data do evento'}: ${fd(o.dataEvento)}${o.horario?' às '+o.horario:''}`);
+  L.push(`${o.modo}${o.local&&o.modo!=='Retirada na loja'?': '+o.local:''}`);
+  L.push(`Pagamento: ${o.formaPgto}${o.condicoes?' — '+o.condicoes:''}`);
+  if(o.obs)L.push(`Obs.: ${o.obs}`);
+  if(r.etapa==='orcamento'&&o.prazoResposta){L.push('');L.push(`Este orçamento vale até ${fd(o.prazoResposta)}.`)}
+  if(r.etapa==='evento'){L.push('');L.push(`Pago até agora: ${brl(pago(r))} · Saldo: ${brl(saldo(r))}`)}
+  return L.join('\n')}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('click',async ev=>{
+  const t=ev.target.closest('[data-tab],[data-go],[data-open],[data-act],[data-delit],[data-delpay],[data-delconv],[data-addpac]');if(!t)return;
+  if(t.dataset.tab||t.dataset.go){tab=t.dataset.tab||t.dataset.go;try{localStorage.setItem('cm_tab',tab)}catch(e){}renderAll();return}
+  if(t.dataset.open){openRec(t.dataset.open);return}
+  if(!open&&t.dataset.act!=='novo')return;
+  const r=open?open.draft:null;
+  if(t.dataset.addpac){const p=C.pacotes.find(x=>x.id===t.dataset.addpac);if(p){r.orcamento.itens.push({desc:p.nome+' ('+p.detalhe+')',qtd:1,unit:p.valor});markDirty();renderDrawer()}return}
+  if(t.dataset.delit!==undefined){r.orcamento.itens.splice(+t.dataset.delit,1);markDirty();renderDrawer();return}
+  if(t.dataset.delpay!==undefined){r.evento.pagamentos.splice(+t.dataset.delpay,1);await persist(r,'Pagamento removido');return}
+  if(t.dataset.delconv!==undefined){r.conversas.splice(+t.dataset.delconv,1);await persist(r,'Anotação removida');return}
+  switch(t.dataset.act){
+    case 'novo':openNew();break;
+    case 'close':if(open&&open.dirty&&!open.isNew){open.pending=null;if(await persist(r))closeDrawer();}else closeDrawer();break;
+    case 'save':if(!r.nome.trim()){toast('Informe o nome do contato.');$('#f_nome')?.focus();return}await persist(r,open.isNew?'Contato registrado':'Alterações salvas');break;
+    case 'additem':r.orcamento.itens.push({desc:'',qtd:'',unit:''});markDirty();renderDrawer();setTimeout(()=>document.getElementById('it_d_'+(r.orcamento.itens.length-1))?.focus(),20);break;
+    case 'addconv':{const tx=$('#nc_txt').value.trim();if(!tx){$('#nc_txt').focus();return}r.conversas.push({data:$('#nc_data').value||today(),texto:tx});await persist(r,'Conversa registrada');break}
+    case 'addpay':{const v=num($('#np_valor').value);if(!v){$('#np_valor').focus();toast('Informe o valor do pagamento.');return}r.evento.pagamentos.push({data:$('#np_data').value||today(),valor:v,forma:$('#np_forma').value,obs:$('#np_obs').value.trim()});r.evento.pagamentos.sort((a,b)=>(a.data||'').localeCompare(b.data||''));await persist(r,'Pagamento registrado');break}
+    case 'toorc':{r.etapa='orcamento';r.novo=false;
+      if(!r.orcamento.itens.length){const pac=r.solicitacao&&r.solicitacao.pacote;
+        if(pac&&pac.valor)r.orcamento.itens.push({desc:pac.nome+' ('+pac.detalhe+')',qtd:1,unit:pac.valor});
+        else r.orcamento.itens.push({desc:r.tipo==='Pronta entrega'?'Macarons sortidos':'Macarons para '+r.categoria.toLowerCase(),qtd:'',unit:''})}
+      if(!r.orcamento.dataEnvio)r.orcamento.dataEnvio=today();if(!r.orcamento.prazoResposta)r.orcamento.prazoResposta=addDays(r.orcamento.dataEnvio,3);sysNote(r,'Orçamento criado');await persist(r,'Orçamento criado');break}
+    case 'encerrar':case 'naoaceito':case 'entregue':case 'contratar':case 'excluir':open.pending={kind:t.dataset.act};renderDrawer();break;
+    case 'cf_no':open.pending=null;renderDrawer();break;
+    case 'cf_ok':{const k=open.pending.kind;open.pending=null;
+      if(k==='encerrar'||k==='naoaceito'){const m=$('#cf_motivo').value,d=$('#cf_det').value.trim();r.motivo=m+(d?' — '+d:'');r.etapaAnterior=r.etapa;r.etapa='arquivo';r.novo=false;r.resultado=k==='encerrar'?'contato_encerrado':'orcamento_recusado';sysNote(r,(k==='encerrar'?'Contato encerrado: ':'Orçamento não aceito: ')+r.motivo);await persist(r,k==='encerrar'?'Contato encerrado':'Orçamento marcado como não aceito')}
+      else if(k==='contratar'){r.etapa='evento';r.evento.contratadoEm=today();sysNote(r,'Orçamento contratado — '+brl(total(r)));await persist(r,'Orçamento contratado. Agora em Eventos contratados.')}
+      else if(k==='entregue'){r.etapaAnterior='evento';r.etapa='arquivo';r.resultado='entregue';r.motivo='';r.evento.entregueEm=today();sysNote(r,'Evento entregue com sucesso');await persist(r,'Evento entregue com sucesso')}
+      else if(k==='excluir'){const id=open.id;const {error}=await sb.from('registros').delete().eq('id',id);if(error){toast('Não foi possível excluir.');break}
+        const pdf=recs[id]?.solicitacao?.pdfUrl;if(pdf)sb.storage.from(C.bucketPdf).remove([id+'.pdf']).then(()=>{});
+        delete recs[id];closeDrawer();renderAll();toast('Registro excluído')}
+      break}
+    case 'reabrir':{const back=r.etapaAnterior||'contato';r.etapa=back;r.resultado='';r.motivo='';if(back==='evento')r.evento.entregueEm='';sysNote(r,'Reaberto em '+STAGE_TITLE[back]);await persist(r,'Registro reaberto');break}
+    case 'copy':{const txt=waText(r);try{await navigator.clipboard.writeText(txt);toast('Texto copiado. Cole no WhatsApp.')}catch(e){const root=$('.dbody');root.insertAdjacentHTML('afterbegin',`<section class="box"><h3>Copie o texto abaixo</h3><textarea class="cell" id="copyArea" rows="10" readonly>${esc(txt)}</textarea></section>`);const a=$('#copyArea');a.focus();a.select();root.scrollTop=0}break}
+  }
+});
+document.addEventListener('input',ev=>{
+  const t=ev.target;
+  if(t.id==='search'){q=t.value;renderList();return}
+  if(!open)return;
+  if(t.dataset.f){setPath(open.draft,t.dataset.f,t.value);markDirty();if(t.dataset.f==='nome')document.querySelector('.dhead h2').textContent=t.value||'Sem nome';if(/taxa|desconto/.test(t.dataset.f))refreshTotals();if(t.dataset.f==='orcamento.dataEnvio'&&!open.draft.orcamento.prazoResposta){open.draft.orcamento.prazoResposta=addDays(t.value,3);const p=$('#f_orcamento_prazoResposta');if(p)p.value=open.draft.orcamento.prazoResposta}return}
+  if(t.dataset.it!==undefined){open.draft.orcamento.itens[+t.dataset.it][t.dataset.k]=t.value;markDirty();refreshTotals()}
+});
+document.addEventListener('change',ev=>{if(open&&ev.target.dataset.f==='tipo'){renderDrawer()}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&open){if(open.pending){open.pending=null;renderDrawer()}else if(!open.dirty||open.isNew)closeDrawer()}if(ev.key==='Enter'&&(ev.target.id==='nc_txt')){ev.preventDefault();document.querySelector('[data-act="addconv"]')?.click()}});
+$('#btnNovo').addEventListener('click',()=>{if(!canWrite){toast('Você não tem permissão para editar.');return}openNew()});
+
+/* ---------- CSV ---------- */
+$('#btnExport').addEventListener('click',()=>{
+  const cols=['Etapa','Resultado','Protocolo','Nome','Telefone','Origem','Tipo','Ocasião','Interesse','Primeiro contato','Data do evento','Horário','Entrega','Local','Itens','Total','Forma de pagamento','Condições','Orçamento enviado','Prazo resposta','Contratado em','Pago','Saldo','Entregue em','Motivo','PDF do pedido','Conversas'];
+  const cell=v=>{const s=String(v??'');return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+  const money=n=>(Number(n)||0).toFixed(2).replace('.',',');
+  const lines=[cols.join(';')];
+  all().forEach(({r})=>{const o=r.orcamento;lines.push([STAGE_TITLE[r.etapa],RESULT[r.resultado]?.t||'',r.solicitacao?.protocolo||'',r.nome,r.telefone,r.origem,r.tipo,r.categoria,r.interesse,fd(r.criadoEm),fd(o.dataEvento),o.horario,o.modo,o.local,o.itens.map(i=>`${num(i.qtd)}x ${i.desc} (${money(i.unit)})`).join(' | '),money(total(r)),o.formaPgto,o.condicoes,fd(o.dataEnvio),fd(o.prazoResposta),fd(r.evento.contratadoEm),money(pago(r)),money(saldo(r)),fd(r.evento.entregueEm),r.motivo,r.solicitacao?.pdfUrl||'',r.conversas.map(c=>fd(c.data)+': '+c.texto).join(' | ')].map(cell).join(';'))});
+  const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chowder-pedidos-'+today()+'.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('Planilha salva');
+});
+
+/* ---------- Login e dados ---------- */
+let channel=null;
+async function carregar(){
+  loaded=false;renderAll();
+  const {data,error}=await sb.from('registros').select('id,dados').order('criado_em',{ascending:false});
+  if(error){loaded=true;notice('Não foi possível carregar os registros. '+esc(error.message));renderAll();return}
+  const n={};data.forEach(x=>{n[x.id]=x.dados});recs=n;loaded=true;
+  if(!data.length){const {data:adm}=await sb.from('admins').select('email').limit(1);if(!adm||!adm.length){canWrite=false;notice('Seu e-mail (<b>'+esc(userEmail)+'</b>) ainda não está na lista de sócios autorizados. Peça para incluir na tabela <b>admins</b> do Supabase.')}}
+  renderAll();
+  if(channel)sb.removeChannel(channel);
+  channel=sb.channel('registros-live').on('postgres_changes',{event:'*',schema:'public',table:'registros'},payload=>{
+    if(payload.eventType==='DELETE'){delete recs[payload.old.id]}
+    else{const chegou=payload.eventType==='INSERT'&&!recs[payload.new.id];recs[payload.new.id]=payload.new.dados;if(chegou&&payload.new.dados&&payload.new.dados.novo)toast('Novo pedido da landing: '+(payload.new.dados.nome||''))}
+    renderAll();
+  }).subscribe();
+}
+function showApp(user){
+  userEmail=user.email||'';$('#who').textContent=userEmail;
+  $('#login').hidden=true;$('#topActions').hidden=false;$('#main').hidden=false;canWrite=true;notice('');carregar();
+}
+function showLogin(){
+  $('#login').hidden=false;$('#topActions').hidden=true;$('#main').hidden=true;closeDrawer();recs={};
+  if(channel){sb.removeChannel(channel);channel=null}
+}
+$('#login').addEventListener('submit',async ev=>{
+  ev.preventDefault();const m=$('#lg_msg');m.hidden=true;
+  const {data,error}=await sb.auth.signInWithPassword({email:$('#lg_email').value.trim(),password:$('#lg_senha').value});
+  if(error){m.hidden=false;m.textContent='E-mail ou senha incorretos.';return}
+  showApp(data.user);
+});
+$('#btnSair').addEventListener('click',async()=>{await sb.auth.signOut();showLogin()});
+
+(async()=>{
+  if(!C.supabaseUrl||!C.supabaseAnonKey||!window.supabase){
+    notice('<b>Banco ainda não configurado.</b> Preencha <code>supabaseUrl</code> e <code>supabaseAnonKey</code> em <code>js/config.js</code> seguindo o passo a passo do README. Até lá, a landing funciona só com PDF + WhatsApp.');
+    return}
+  sb=window.supabase.createClient(C.supabaseUrl,C.supabaseAnonKey);
+  const {data}=await sb.auth.getSession();
+  if(data.session)showApp(data.session.user);else showLogin();
+  sb.auth.onAuthStateChange((evt,session)=>{if(evt==='SIGNED_OUT')showLogin()});
+})();
+})();
+</script>
+</body>
+</html>
