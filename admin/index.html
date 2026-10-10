@@ -84,6 +84,27 @@ a{color:inherit}
 .flow .spacer{flex:1}
 .search{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;min-width:0;width:240px;max-width:100%;margin:4px 0}
 
+/* Quadro (Kanban) */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar .search{flex:1 1 260px;width:auto;margin:0}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.col-head{background:var(--surface);border-bottom:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:2px;box-shadow:inset 0 3px 0 var(--gold)}
+.col[data-k="contato"] .col-head{box-shadow:inset 0 3px 0 var(--bord)}
+.col[data-k="evento"] .col-head{box-shadow:inset 0 3px 0 var(--navy)}
+.col-head .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.col-head .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.col-head .n{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700}
+.col-head .val{font-family:var(--f-display);font-size:26px;font-weight:600;line-height:1.1}
+.col-head .sub{font-size:13px;color:var(--muted)}
+.col-body{display:flex;flex-direction:column;gap:10px;padding:10px;min-height:140px}
+.col-body .card{width:100%}
+.col.drop{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.col.drop .col-body{background:var(--gold-soft)}
+.col-empty{border:1px dashed var(--line);border-radius:10px;padding:16px 12px;color:var(--muted);font-size:13px;text-align:center}
+.card[draggable="true"]{cursor:grab}
+.card.dragging{opacity:.45}
+@media (max-width:820px){.board{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(280px,86%);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.col{scroll-snap-align:start}}
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative}
 .card:hover{border-color:var(--gold);box-shadow:var(--shadow)}
@@ -91,6 +112,7 @@ a{color:inherit}
 .card .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;min-width:0}
 .card .name{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .card .meta{color:var(--muted);font-size:13px}
+.card .row>.meta.num{white-space:nowrap;flex:none}
 .card .snip{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card .money{font-weight:700}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
@@ -194,9 +216,8 @@ table.items td.r,table.items th.r{text-align:right}
 <div class="wrap" id="app">
   <div id="notice" class="notice" hidden></div>
   <div id="main" hidden>
-    <div class="summary" id="summary"></div>
-    <nav class="flow" id="tabs" role="tablist" style="margin-top:18px"></nav>
-    <div id="list" style="margin-top:16px"></div>
+    <div class="toolbar" id="toolbar"></div>
+    <div id="board" style="margin-top:14px"></div>
   </div>
 </div>
 <div id="drawerRoot"></div>
@@ -228,7 +249,7 @@ let sb=null, canWrite=true, userEmail='';
 let recs={}; let loaded=false;
 let tab='contato'; let q='';
 let open=null; // {id,isNew,draft,dirty,pending}
-try{const t=localStorage.getItem('cm_tab'); if(t&&STAGES.some(s=>s.k===t)) tab=t;}catch(e){}
+tab='board';
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -263,22 +284,17 @@ function all(){return Object.entries(recs).map(([id,r])=>({id,r:norm(r)}))}
 function inStage(k){return all().filter(x=>x.r.etapa===k)}
 function matches(x){if(!q)return true;const s=(x.r.nome+' '+x.r.telefone+' '+x.r.categoria+' '+x.r.interesse+' '+(x.r.solicitacao?.protocolo||'')).toLowerCase();return s.includes(q.toLowerCase())}
 
-function renderSummary(){
-  const c=inStage('contato'), o=inStage('orcamento'), e=inStage('evento');
-  const novos=c.filter(x=>x.r.novo).length;
-  const vO=o.reduce((a,x)=>a+total(x.r),0);
-  const vencidos=o.filter(x=>{const d=diff(x.r.orcamento.prazoResposta);return d!==null&&d<0}).length;
-  const aReceber=e.reduce((a,x)=>a+Math.max(0,saldo(x.r)),0);
-  const prox=e.filter(x=>x.r.orcamento.dataEvento).sort((a,b)=>a.r.orcamento.dataEvento.localeCompare(b.r.orcamento.dataEvento))[0];
-  $('#summary').innerHTML=`
-   <button class="sum ${novos?'hot':''}" data-go="contato"><span class="lbl">Contatos em aberto</span><span class="val num">${c.length}</span><span class="sub">${novos?`<b style="color:var(--wine)">${novos} novo${novos===1?'':'s'} pela landing</b>`:c.length?'aguardando orçamento':'nenhum no momento'}</span></button>
-   <button class="sum" data-go="orcamento"><span class="lbl">Orçamentos em aberto</span><span class="val num">${brl(vO)}</span><span class="sub">${o.length} orçamento${o.length===1?'':'s'}${vencidos?` · <span style="color:var(--crit)">${vencidos} com prazo vencido</span>`:''}</span></button>
-   <button class="sum" data-go="evento"><span class="lbl">A receber dos eventos</span><span class="val num">${brl(aReceber)}</span><span class="sub">${e.length} evento${e.length===1?'':'s'} a entregar</span></button>
-   <button class="sum" data-go="evento"><span class="lbl">Próximo evento</span><span class="val">${prox?fds(prox.r.orcamento.dataEvento):'—'}</span><span class="sub">${prox?esc(prox.r.nome)+' · '+esc(prox.r.categoria):'nenhum agendado'}</span></button>`;
-}
-function renderTabs(){
-  $('#tabs').innerHTML=STAGES.map((s,i)=>`${i>0&&i<3?'<span class="arrow" aria-hidden="true">→</span>':''}${i===3?'<span class="spacer"></span>':''}<button class="tab" role="tab" aria-selected="${tab===s.k}" data-tab="${s.k}">${s.label}<span class="n num">${inStage(s.k).length}</span></button>`).join('')
-   +`<input class="search" id="search" type="search" placeholder="Buscar nome, telefone, protocolo" value="${esc(q)}" aria-label="Buscar">`;
+function colHead(k,list){
+  if(k==='contato'){const novos=list.filter(x=>x.r.novo).length;return {lbl:'Contatos',val:list.length,sub:novos?`<b style="color:var(--wine)">${novos} novo${novos===1?'':'s'} pela landing</b>`:list.length?'aguardando orçamento':'nenhum no momento'}}
+  if(k==='orcamento'){const v=list.reduce((a,x)=>a+total(x.r),0);const venc=list.filter(x=>{const d=diff(x.r.orcamento.prazoResposta);return d!==null&&d<0}).length;return {lbl:'Orçamentos',val:brl(v),sub:`${list.length} em aberto${venc?` · <span style="color:var(--crit)">${venc} com prazo vencido</span>`:''}`}}
+  const rec=list.reduce((a,x)=>a+Math.max(0,saldo(x.r)),0);const prox=list.filter(x=>x.r.orcamento.dataEvento&&diff(x.r.orcamento.dataEvento)>=0).sort((a,b)=>a.r.orcamento.dataEvento.localeCompare(b.r.orcamento.dataEvento))[0];
+  return {lbl:'Eventos contratados',val:brl(rec),sub:`a receber${prox?` · próximo ${fds(prox.r.orcamento.dataEvento)} (${esc(prox.r.nome.split(' ')[0])})`:''}`}}
+function renderToolbar(){
+  const had=document.activeElement&&document.activeElement.id==='search';
+  const nArq=inStage('arquivo').length;
+  $('#toolbar').innerHTML=`<input class="search" id="search" type="search" placeholder="Buscar nome, telefone, protocolo" value="${esc(q)}" aria-label="Buscar">`
+   +(tab==='arquivo'?'<button class="btn" data-view="board">← Voltar ao quadro</button>':`<button class="btn" data-view="arquivo">Arquivo <span class="chip num" style="padding:0 7px">${nArq}</span></button>`);
+  if(had){const e=$('#search');e.focus();e.setSelectionRange(e.value.length,e.value.length)}
 }
 function dueChip(r){const d=diff(r.orcamento.prazoResposta);if(d===null)return '<span class="chip">sem prazo de resposta</span>';if(d<0)return `<span class="chip crit">prazo vencido há ${-d} dia${d===-1?'':'s'}</span>`;if(d===0)return '<span class="chip warn">responder hoje</span>';if(d<=2)return `<span class="chip warn">prazo em ${d} dia${d===1?'':'s'}</span>`;return `<span class="chip">prazo ${fds(r.orcamento.prazoResposta)}</span>`}
 function eventChip(r){const d=diff(r.orcamento.dataEvento);if(d===null)return '<span class="chip warn">sem data</span>';if(d<0)return `<span class="chip crit">data passou (${fds(r.orcamento.dataEvento)})</span>`;if(d===0)return '<span class="chip accent">é hoje</span>';if(d<=7)return `<span class="chip accent">em ${d} dia${d===1?'':'s'} · ${fds(r.orcamento.dataEvento)}</span>`;return `<span class="chip">${fd(r.orcamento.dataEvento)}</span>`}
@@ -288,11 +304,11 @@ function card(x){const r=x.r;let body='';
   else if(r.etapa==='orcamento'){body=`<div class="row"><span class="meta">${r.orcamento.dataEvento?'Evento '+fd(r.orcamento.dataEvento):'Data a definir'}</span><span class="money num">${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${dueChip(r)}</div>`}
   else if(r.etapa==='evento'){const s=saldo(r);body=`<div class="row"><span class="meta num">Pago ${brl(pago(r))} de ${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${eventChip(r)}${s>0.005?`<span class="chip warn">saldo ${brl(s)}</span>`:'<span class="chip ok">quitado</span>'}</div>`}
   else{const R=RESULT[r.resultado]||{t:'Arquivado',c:''};body=`<div class="chips"><span class="chip ${R.c}">${R.t}</span><span class="chip">${esc(r.categoria)}</span>${r.resultado==='entregue'?`<span class="chip num">${brl(total(r))}</span>`:''}</div>${r.motivo?`<div class="meta">Motivo: ${esc(r.motivo)}</div>`:''}`}
-  return `<button class="card${r.novo?' novo':''}" data-open="${esc(x.id)}"><div class="row"><span class="name">${esc(r.nome)||'Sem nome'}</span><span class="meta num">${esc(r.telefone)}</span></div>${body}</button>`}
-function sorted(list){
-  if(tab==='contato')return list.sort((a,b)=>(b.r.novo?1:0)-(a.r.novo?1:0)||lastTouch(b.r).localeCompare(lastTouch(a.r)));
-  if(tab==='orcamento')return list.sort((a,b)=>(a.r.orcamento.prazoResposta||'9').localeCompare(b.r.orcamento.prazoResposta||'9'));
-  if(tab==='evento')return list.sort((a,b)=>(a.r.orcamento.dataEvento||'9').localeCompare(b.r.orcamento.dataEvento||'9'));
+  return `<button class="card${r.novo?' novo':''}" data-open="${esc(x.id)}"${r.etapa==='contato'||r.etapa==='orcamento'?` draggable="true" data-drag="${esc(x.id)}"`:''}><div class="row"><span class="name">${esc(r.nome)||'Sem nome'}</span><span class="meta num">${esc(r.telefone)}</span></div>${body}</button>`}
+function sorted(list,k){
+  if(k==='contato')return list.sort((a,b)=>(b.r.novo?1:0)-(a.r.novo?1:0)||lastTouch(b.r).localeCompare(lastTouch(a.r)));
+  if(k==='orcamento')return list.sort((a,b)=>(a.r.orcamento.prazoResposta||'9').localeCompare(b.r.orcamento.prazoResposta||'9'));
+  if(k==='evento')return list.sort((a,b)=>(a.r.orcamento.dataEvento||'9').localeCompare(b.r.orcamento.dataEvento||'9'));
   return list.sort((a,b)=>(b.r.atualizadoEm||'').localeCompare(a.r.atualizadoEm||''));
 }
 const EMPTY={
@@ -300,13 +316,17 @@ const EMPTY={
   orcamento:['Nenhum orçamento em aberto','Abra um contato e toque em "Criar orçamento" para montar itens, valores, pagamento e prazo de resposta.'],
   evento:['Nenhum evento contratado','Quando o cliente aceitar um orçamento, toque em "Orçamento contratado" e ele chega aqui para acompanhar pagamentos e conversas.'],
   arquivo:['Arquivo vazio','Contatos encerrados, orçamentos não aceitos e eventos entregues ficam guardados aqui.']};
-function renderList(){
-  if(!loaded){$('#list').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
-  const list=sorted(inStage(tab).filter(matches));
-  if(!list.length){const [h,p]=EMPTY[tab];$('#list').innerHTML=`<div class="empty"><h3>${q?'Nada encontrado':h}</h3><p style="max-width:56ch;margin:0">${q?'Nenhum registro desta etapa corresponde à busca.':p}</p>${tab==='contato'&&!q&&canWrite?'<button class="btn primary" data-act="novo">+ Registrar contato</button>':''}</div>`;return}
-  $('#list').innerHTML=`<div class="list">${list.map(card).join('')}</div>`;
+const EMPTY_COL={contato:'Pedidos da landing chegam aqui sozinhos. Conversas do WhatsApp: “+ Novo contato”.',orcamento:'Arraste um contato para cá ou use “Criar orçamento”.',evento:'Arraste um orçamento aceito para cá ou use “Orçamento contratado”.'};
+function renderBoard(){
+  if(!loaded){$('#board').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
+  if(tab==='arquivo'){const list=sorted(inStage('arquivo').filter(matches),'arquivo');
+    $('#board').innerHTML=`<h2 style="font-size:26px;margin:4px 0 12px">Arquivo</h2>`+(list.length?`<div class="list">${list.map(card).join('')}</div>`:`<div class="empty"><h3>${q?'Nada encontrado':EMPTY.arquivo[0]}</h3><p style="margin:0">${q?'Nenhum registro arquivado corresponde à busca.':EMPTY.arquivo[1]}</p></div>`);return}
+  $('#board').innerHTML='<div class="board">'+['contato','orcamento','evento'].map(k=>{
+    const all_=inStage(k);const h=colHead(k,all_);const list=sorted(all_.filter(matches),k);
+    return `<section class="col" data-k="${k}" data-drop="${k}" aria-label="${h.lbl}"><div class="col-head"><div class="top"><span class="lbl">${h.lbl}</span><span class="n num">${all_.length}</span></div><span class="val num">${h.val}</span><span class="sub">${h.sub}</span></div>
+     <div class="col-body">${list.length?list.map(card).join(''):`<div class="col-empty">${q?'Nada encontrado.':EMPTY_COL[k]}</div>`}</div></section>`}).join('')+'</div>';
 }
-function renderAll(){renderSummary();const had=document.activeElement&&document.activeElement.id==='search';renderTabs();if(had){const s=$('#search');s.focus();s.setSelectionRange(s.value.length,s.value.length)}renderList();if(open&&!open.dirty&&!open.isNew&&recs[open.id]){open.draft=norm(clone(recs[open.id]));renderDrawer()} if(open&&!open.isNew&&!recs[open.id]){closeDrawer()}}
+function renderAll(){renderToolbar();renderBoard();if(open&&!open.dirty&&!open.isNew&&recs[open.id]){open.draft=norm(clone(recs[open.id]));renderDrawer()} if(open&&!open.isNew&&!recs[open.id]){closeDrawer()}}
 
 /* ---------- Gaveta ---------- */
 function opt(list,v){const l=list.includes(v)||!v?list:[v,...list];return l.map(o=>`<option${o===v?' selected':''}>${esc(o)}</option>`).join('')}
@@ -389,7 +409,7 @@ function renderDrawer(){
 function openRec(id){
   open={id,isNew:false,draft:norm(clone(recs[id])),dirty:false,pending:null};renderDrawer();
   // Marca como visto o pedido novo da landing
-  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('pedidos').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderSummary();renderList()}
+  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('pedidos').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderBoard()}
 }
 function openNew(){open={id:null,isNew:true,draft:blank(),dirty:true,pending:null};renderDrawer();setTimeout(()=>$('#f_nome')?.focus(),30)}
 function closeDrawer(){open=null;renderDrawer()}
@@ -431,8 +451,8 @@ function waText(r){const o=r.orcamento;const L=[];
 
 /* ---------- Eventos ---------- */
 document.addEventListener('click',async ev=>{
-  const t=ev.target.closest('[data-tab],[data-go],[data-open],[data-act],[data-delit],[data-delpay],[data-delconv],[data-addpac]');if(!t)return;
-  if(t.dataset.tab||t.dataset.go){tab=t.dataset.tab||t.dataset.go;try{localStorage.setItem('cm_tab',tab)}catch(e){}renderAll();return}
+  const t=ev.target.closest('[data-view],[data-open],[data-act],[data-delit],[data-delpay],[data-delconv],[data-addpac]');if(!t)return;
+  if(t.dataset.view){tab=t.dataset.view;renderAll();return}
   if(t.dataset.open){openRec(t.dataset.open);return}
   if(!open&&t.dataset.act!=='novo')return;
   const r=open?open.draft:null;
@@ -468,7 +488,7 @@ document.addEventListener('click',async ev=>{
 });
 document.addEventListener('input',ev=>{
   const t=ev.target;
-  if(t.id==='search'){q=t.value;renderList();return}
+  if(t.id==='search'){q=t.value;renderBoard();return}
   if(!open)return;
   if(t.dataset.f){setPath(open.draft,t.dataset.f,t.value);markDirty();if(t.dataset.f==='nome')document.querySelector('.dhead h2').textContent=t.value||'Sem nome';if(/taxa|desconto/.test(t.dataset.f))refreshTotals();if(t.dataset.f==='orcamento.dataEnvio'&&!open.draft.orcamento.prazoResposta){open.draft.orcamento.prazoResposta=addDays(t.value,3);const p=$('#f_orcamento_prazoResposta');if(p)p.value=open.draft.orcamento.prazoResposta}return}
   if(t.dataset.it!==undefined){open.draft.orcamento.itens[+t.dataset.it][t.dataset.k]=t.value;markDirty();refreshTotals()}
@@ -476,6 +496,19 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{if(open&&ev.target.dataset.f==='tipo'){renderDrawer()}});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&open){if(open.pending){open.pending=null;renderDrawer()}else if(!open.dirty||open.isNew)closeDrawer()}if(ev.key==='Enter'&&(ev.target.id==='nc_txt')){ev.preventDefault();document.querySelector('[data-act="addconv"]')?.click()}});
 $('#btnNovo').addEventListener('click',()=>{if(!canWrite){toast('Você não tem permissão para editar.');return}openNew()});
+
+/* ---------- Arrastar entre colunas ---------- */
+let dragId=null;
+document.addEventListener('dragstart',ev=>{const c=ev.target.closest&&ev.target.closest('[data-drag]');if(!c)return;dragId=c.dataset.drag;c.classList.add('dragging');ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',dragId)}catch(e){}});
+document.addEventListener('dragend',()=>{dragId=null;document.querySelectorAll('.dragging,.col.drop').forEach(e=>e.classList.remove('dragging','drop'))});
+document.addEventListener('dragover',ev=>{if(!dragId)return;const col=ev.target.closest&&ev.target.closest('[data-drop]');document.querySelectorAll('.col.drop').forEach(e=>{if(e!==col)e.classList.remove('drop')});if(col){ev.preventDefault();col.classList.add('drop')}});
+document.addEventListener('drop',ev=>{const col=ev.target.closest&&ev.target.closest('[data-drop]');if(!col||!dragId)return;ev.preventDefault();
+  const id=dragId,to=col.dataset.drop,from=recs[id]&&recs[id].etapa;col.classList.remove('drop');dragId=null;if(!from||from===to)return;
+  if(!canWrite){toast('Você não tem permissão para editar.');return}
+  if(from==='contato'&&to==='orcamento'){openRec(id);document.querySelector('.dfoot [data-act="toorc"]')?.click();return}
+  if(from==='orcamento'&&to==='evento'){openRec(id);open.pending={kind:'contratar'};renderDrawer();return}
+  toast(to==='contato'?'Para voltar um passo, abra o cartão e ajuste por lá.':'Avance uma etapa por vez: contato → orçamento → evento.');
+});
 
 /* ---------- Sócios ---------- */
 let soc=null; // {lista,voce,carregando,erro,edit:{email,tipo},ocupado}
