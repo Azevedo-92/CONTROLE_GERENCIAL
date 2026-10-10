@@ -379,7 +379,7 @@ function renderDrawer(){
 function openRec(id){
   open={id,isNew:false,draft:norm(clone(recs[id])),dirty:false,pending:null};renderDrawer();
   // Marca como visto o pedido novo da landing
-  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('registros').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderSummary();renderList()}
+  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('pedidos').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderSummary();renderList()}
 }
 function openNew(){open={id:null,isNew:true,draft:blank(),dirty:true,pending:null};renderDrawer();setTimeout(()=>$('#f_nome')?.focus(),30)}
 function closeDrawer(){open=null;renderDrawer()}
@@ -394,8 +394,8 @@ async function persist(r,msg){
   data.orcamento.itens=data.orcamento.itens.map(i=>({desc:i.desc||'',qtd:num(i.qtd),unit:num(i.unit)}));
   try{
     let id=open.id;
-    if(open.isNew){id=crypto.randomUUID();const {error}=await sb.from('registros').insert({id,dados:data});if(error)throw error;open.id=id;open.isNew=false}
-    else{const {error}=await sb.from('registros').update({dados:data,atualizado_em:data.atualizadoEm}).eq('id',id);if(error)throw error}
+    if(open.isNew){id=crypto.randomUUID();const {error}=await sb.from('pedidos').insert({id,dados:data});if(error)throw error;open.id=id;open.isNew=false}
+    else{const {error}=await sb.from('pedidos').update({dados:data,atualizado_em:data.atualizadoEm}).eq('id',id);if(error)throw error}
     recs[id]=data;open.draft=norm(clone(data));open.dirty=false;if(msg)toast(msg);renderAll();renderDrawer();return true
   }catch(e){
     console.error(e);
@@ -448,7 +448,7 @@ document.addEventListener('click',async ev=>{
       if(k==='encerrar'||k==='naoaceito'){const m=$('#cf_motivo').value,d=$('#cf_det').value.trim();r.motivo=m+(d?' — '+d:'');r.etapaAnterior=r.etapa;r.etapa='arquivo';r.novo=false;r.resultado=k==='encerrar'?'contato_encerrado':'orcamento_recusado';sysNote(r,(k==='encerrar'?'Contato encerrado: ':'Orçamento não aceito: ')+r.motivo);await persist(r,k==='encerrar'?'Contato encerrado':'Orçamento marcado como não aceito')}
       else if(k==='contratar'){r.etapa='evento';r.evento.contratadoEm=today();sysNote(r,'Orçamento contratado — '+brl(total(r)));await persist(r,'Orçamento contratado. Agora em Eventos contratados.')}
       else if(k==='entregue'){r.etapaAnterior='evento';r.etapa='arquivo';r.resultado='entregue';r.motivo='';r.evento.entregueEm=today();sysNote(r,'Evento entregue com sucesso');await persist(r,'Evento entregue com sucesso')}
-      else if(k==='excluir'){const id=open.id;const {error}=await sb.from('registros').delete().eq('id',id);if(error){toast('Não foi possível excluir.');break}
+      else if(k==='excluir'){const id=open.id;const {error}=await sb.from('pedidos').delete().eq('id',id);if(error){toast('Não foi possível excluir.');break}
         const pdf=recs[id]?.solicitacao?.pdfUrl;if(pdf)sb.storage.from(C.bucketPdf).remove([id+'.pdf']).then(()=>{});
         delete recs[id];closeDrawer();renderAll();toast('Registro excluído')}
       break}
@@ -482,13 +482,13 @@ $('#btnExport').addEventListener('click',()=>{
 let channel=null;
 async function carregar(){
   loaded=false;renderAll();
-  const {data,error}=await sb.from('registros').select('id,dados').order('criado_em',{ascending:false});
+  const {data,error}=await sb.from('pedidos').select('id,dados').order('criado_em',{ascending:false});
   if(error){loaded=true;notice('Não foi possível carregar os registros. '+esc(error.message));renderAll();return}
   const n={};data.forEach(x=>{n[x.id]=x.dados});recs=n;loaded=true;
-  if(!data.length){const {data:adm}=await sb.from('admins').select('email').limit(1);if(!adm||!adm.length){canWrite=false;notice('Seu e-mail (<b>'+esc(userEmail)+'</b>) ainda não está na lista de sócios autorizados. Peça para incluir na tabela <b>admins</b> do Supabase.')}}
+  if(!data.length){const {data:adm}=await sb.from('pedidos_admins').select('email').limit(1);if(!adm||!adm.length){canWrite=false;notice('Seu e-mail (<b>'+esc(userEmail)+'</b>) ainda não está na lista de sócios autorizados. Peça para incluir na tabela <b>pedidos_admins</b> do Supabase.')}}
   renderAll();
   if(channel)sb.removeChannel(channel);
-  channel=sb.channel('registros-live').on('postgres_changes',{event:'*',schema:'public',table:'registros'},payload=>{
+  channel=sb.channel('pedidos-live').on('postgres_changes',{event:'*',schema:'public',table:'pedidos'},payload=>{
     if(payload.eventType==='DELETE'){delete recs[payload.old.id]}
     else{const chegou=payload.eventType==='INSERT'&&!recs[payload.new.id];recs[payload.new.id]=payload.new.dados;if(chegou&&payload.new.dados&&payload.new.dados.novo)toast('Novo pedido da landing: '+(payload.new.dados.nome||''))}
     renderAll();

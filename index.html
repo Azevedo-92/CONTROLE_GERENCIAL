@@ -525,7 +525,7 @@ document.addEventListener("DOMContentLoaded", function () {
           orcamento: { dataEvento: p.data, local: p.local, modo: entrega === "Entrega no local" ? "Entrega no local" : "Retirada na loja", obs: p.obs },
           solicitacao: { protocolo: p.protocolo, enviadoEm: p.criadoEm, ocasiao: p.ocasiao, data: p.data, quantidade: p.quantidade, entrega, local: p.local, necessidades: p.necessidades, pacote: p.pacote ? { id: p.pacote.id, nome: p.pacote.nome, detalhe: p.pacote.detalhe, valor: p.pacote.valor } : null, obs: p.obs, pdfUrl: pdfPublico, utm }
         };
-        const ins = await sb.from("registros").insert({ id, dados });
+        const ins = await sb.from("pedidos").insert({ id, dados });
         salvo = !ins.error;
         if (ins.error) console.error("registro", ins.error);
       } catch (e) { console.error("banco", e); }

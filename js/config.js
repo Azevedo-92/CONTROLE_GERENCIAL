@@ -21,8 +21,8 @@ window.CHOWDER = {
 
   // Banco de dados (Supabase). Enquanto estiver vazio, a landing funciona
   // só com PDF + WhatsApp e o painel mostra o aviso de configuração.
-  supabaseUrl:     "",                   // ex.: "https://abcd1234.supabase.co"
-  supabaseAnonKey: "",                   // chave "anon public" do projeto
+  supabaseUrl:     "https://tfqeczqknakuovzswrrv.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmcWVjenFrbmFrdW92enN3cnJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NDE3MTYsImV4cCI6MjEwNDIxNzcxNn0.w5hPIpfdjpiq6PewloiPfTF_C-xBfg2O_9Q2FDkUQd0",
   bucketPdf:       "pedidos-pdf",
 
   // Listas compartilhadas entre landing e painel
