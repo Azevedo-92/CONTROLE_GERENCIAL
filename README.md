@@ -30,6 +30,9 @@ Para montar em outro projeto do zero:
 3. Em **Authentication → Users → Add user**, crie o usuário de cada sócio (mesmo e-mail da lista, com senha). Só os e-mails da tabela `pedidos_admins` acessam os pedidos, mesmo que outras pessoas tenham conta no projeto.
 4. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public**.
 
+### Sócios (acesso ao painel)
+No painel, botão **Sócios**: adicionar (só e-mail se a pessoa já tem conta no Academy; senão, e-mail + senha inicial), trocar senha e remover acesso. Isso roda na Edge Function [`supabase/functions/pedidos-socios`](supabase/functions/pedidos-socios/index.ts), que guarda a chave de administrador no servidor e só atende sócios autorizados. Remover o acesso não apaga a conta do Academy.
+
 ### 2. Arquivo de configuração
 Já preenchido. Para trocar de projeto, abra [`js/config.js`](js/config.js) e ajuste:
 

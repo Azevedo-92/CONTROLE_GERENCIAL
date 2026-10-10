@@ -158,6 +158,14 @@ table.items td.r,table.items th.r{text-align:right}
 .confirm .btns{display:flex;gap:8px;flex-wrap:wrap}
 .pay{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
 .pay b{font-family:var(--f-display);font-weight:600;font-size:22px;display:block}
+.soc-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.soc-row:last-child{border-bottom:0}
+.soc-row .who2{flex:1 1 220px;min-width:0}
+.soc-row .who2 b{display:block;overflow-wrap:anywhere}
+.soc-row .acts{display:flex;gap:6px;flex-wrap:wrap}
+.inline{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;width:100%;padding-top:6px}
+.inline .f{flex:1 1 200px}
+.msg-err{color:var(--crit);font-size:13px;margin:0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#F5EFE6;padding:10px 18px;border-radius:999px;font-weight:600;z-index:20;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 0 0 1px var(--gold)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
 </style>
@@ -167,6 +175,7 @@ table.items td.r,table.items th.r{text-align:right}
   <div class="brand"><img src="../assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="84" height="48"><h1>Pedidos e eventos<small>Contatos, orçamentos e eventos contratados</small></h1></div>
   <div class="top-actions" id="topActions" hidden>
     <span class="who" id="who"></span>
+    <button class="btn" id="btnSocios">Sócios</button>
     <button class="btn" id="btnExport">Exportar planilha (CSV)</button>
     <button class="btn" id="btnSair">Sair</button>
     <button class="btn primary" id="btnNovo">+ Novo contato</button>
@@ -191,6 +200,7 @@ table.items td.r,table.items th.r{text-align:right}
   </div>
 </div>
 <div id="drawerRoot"></div>
+<div id="socRoot"></div>
 <div id="toast" class="toast" hidden></div>
 
 <script src="../js/config.js"></script>
@@ -466,6 +476,52 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{if(open&&ev.target.dataset.f==='tipo'){renderDrawer()}});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&open){if(open.pending){open.pending=null;renderDrawer()}else if(!open.dirty||open.isNew)closeDrawer()}if(ev.key==='Enter'&&(ev.target.id==='nc_txt')){ev.preventDefault();document.querySelector('[data-act="addconv"]')?.click()}});
 $('#btnNovo').addEventListener('click',()=>{if(!canWrite){toast('Você não tem permissão para editar.');return}openNew()});
+
+/* ---------- Sócios ---------- */
+let soc=null; // {lista,voce,carregando,erro,edit:{email,tipo},ocupado}
+async function chamarSocios(body){
+  const {data,error}=await sb.functions.invoke('pedidos-socios',{body});
+  if(error){let msg='Não foi possível falar com o servidor. Tente de novo.';try{const j=await error.context.json();if(j&&j.erro)msg=j.erro}catch(e){}throw new Error(msg)}
+  if(data&&data.erro)throw new Error(data.erro);
+  return data;
+}
+async function abrirSocios(){soc={lista:[],voce:'',carregando:true,erro:'',edit:null,ocupado:false};renderSocios();await carregarSocios()}
+async function carregarSocios(){try{const d=await chamarSocios({acao:'listar'});soc.lista=d.socios;soc.voce=d.voce;soc.erro=''}catch(e){soc.erro=e.message}soc.carregando=false;renderSocios()}
+function fecharSocios(){soc=null;renderSocios()}
+function renderSocios(){
+  const root=$('#socRoot');if(!soc){root.innerHTML='';return}
+  const ult=s=>s?'Último acesso: '+new Date(s).toLocaleDateString('pt-BR'):'Ainda não entrou';
+  const linhas=soc.lista.map(x=>{const eu=x.email===soc.voce;const ed=soc.edit&&soc.edit.email===x.email?soc.edit.tipo:'';
+    return `<div class="soc-row"><div class="who2"><b>${esc(x.email)}${eu?' <span class="chip gold">você</span>':''}</b><span class="meta">${x.temConta?ult(x.ultimoAcesso):'Sem conta criada'}</span></div>
+    <div class="acts"><button class="btn sm" data-soc="senha" data-email="${esc(x.email)}">Trocar senha</button>${eu?'':`<button class="btn sm danger" data-soc="remover" data-email="${esc(x.email)}">Remover</button>`}</div>
+    ${ed==='senha'?`<div class="inline"><label class="f">Nova senha (mín. 8 caracteres)<input id="soc_nova" type="password" autocomplete="new-password" minlength="8"></label><button class="btn sm primary" data-soc="salvarsenha" data-email="${esc(x.email)}" ${soc.ocupado?'disabled':''}>Salvar senha</button><button class="btn sm ghost" data-soc="cancelar">Cancelar</button></div>`:''}
+    ${ed==='remover'?`<div class="inline"><p style="margin:0;flex:1 1 220px">Remover o acesso de <b>${esc(x.email)}</b> ao painel? A conta dele no Academy continua normal.</p><button class="btn sm danger" data-soc="confirmaremover" data-email="${esc(x.email)}" ${soc.ocupado?'disabled':''}>Remover acesso</button><button class="btn sm ghost" data-soc="cancelar">Voltar</button></div>`:''}</div>`}).join('');
+  root.innerHTML=`<div class="scrim" data-soc="fechar"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Sócios">
+   <div class="dhead"><div><div class="stage">Acesso ao painel</div><h2>Sócios</h2></div><button class="close" data-soc="fechar" aria-label="Fechar">×</button></div>
+   <div class="dbody">
+    <section class="box"><h3>Quem tem acesso</h3>${soc.carregando?'<p class="meta" style="margin:0">Carregando…</p>':soc.erro&&!soc.lista.length?`<p class="msg-err">${esc(soc.erro)}</p>`:`<div>${linhas}</div>`}</section>
+    <section class="box"><h3>Adicionar sócio</h3>
+     <p class="meta" style="margin:0">Se a pessoa já tem conta no Chef Chowder Academy, basta o e-mail: ela entra com a senha que já usa. Se não tem, defina uma senha inicial e passe para ela.</p>
+     <div class="grid"><label class="f">E-mail<input id="soc_email" type="email" autocomplete="off" placeholder="nome@email.com"></label><label class="f">Senha inicial <span style="font-weight:400">(se ainda não tiver conta)</span><input id="soc_senha" type="password" autocomplete="new-password" minlength="8"></label></div>
+     ${soc.erro&&soc.lista.length?`<p class="msg-err">${esc(soc.erro)}</p>`:''}
+     <div><button class="btn primary" data-soc="adicionar" ${soc.ocupado?'disabled':''}>${soc.ocupado?'Salvando…':'Adicionar sócio'}</button></div>
+    </section>
+   </div></aside>`;
+}
+$('#socRoot').addEventListener('click',async ev=>{
+  const t=ev.target.closest('[data-soc]');if(!t||!soc)return;const a=t.dataset.soc,email=t.dataset.email;
+  if(a==='fechar'){fecharSocios();return}
+  if(a==='cancelar'){soc.edit=null;soc.erro='';renderSocios();return}
+  if(a==='senha'||a==='remover'){soc.edit={email,tipo:a};soc.erro='';renderSocios();if(a==='senha')setTimeout(()=>$('#soc_nova')?.focus(),20);return}
+  const run=async(fn,okMsg)=>{soc.ocupado=true;soc.erro='';renderSocios();try{await fn();soc.edit=null;toast(okMsg);await carregarSocios()}catch(e){soc.erro=e.message;toast(e.message)}soc.ocupado=false;renderSocios()};
+  if(a==='salvarsenha'){const nova=$('#soc_nova').value;if(nova.length<8){toast('A senha precisa ter pelo menos 8 caracteres.');return}await run(()=>chamarSocios({acao:'senha',email,senha:nova}),'Senha trocada')}
+  if(a==='confirmaremover')await run(()=>chamarSocios({acao:'remover',email}),'Acesso removido')
+  if(a==='adicionar'){const em=$('#soc_email').value.trim(),se=$('#soc_senha').value;if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){toast('Informe um e-mail válido.');$('#soc_email').focus();return}
+    let criou=false;await run(async()=>{const d=await chamarSocios({acao:'adicionar',email:em,senha:se});criou=d.criouConta},'Sócio adicionado');
+    if(!soc.erro)toast(criou?'Conta criada. Passe o e-mail e a senha inicial para o sócio.':'Acesso liberado. Ele entra com a senha que já usa.')}
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&soc&&!open)fecharSocios()});
+$('#btnSocios').addEventListener('click',()=>{if(!sb)return;abrirSocios()});
 
 /* ---------- CSV ---------- */
 $('#btnExport').addEventListener('click',()=>{
