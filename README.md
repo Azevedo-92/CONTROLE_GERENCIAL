@@ -28,7 +28,7 @@ Para montar em outro projeto do zero:
 1. Crie um projeto em <https://supabase.com> (região *South America (São Paulo)*).
 2. Abra **SQL Editor → New query**, cole todo o arquivo [`supabase/schema.sql`](supabase/schema.sql), **troque os e-mails de exemplo pelos e-mails dos sócios** e clique em **Run**.
 3. Em **Authentication → Users → Add user**, crie o usuário de cada sócio (mesmo e-mail da lista, com senha). Só os e-mails da tabela `pedidos_admins` acessam os pedidos, mesmo que outras pessoas tenham conta no projeto.
-5. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public**.
+4. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public**.
 
 ### 2. Arquivo de configuração
 Já preenchido. Para trocar de projeto, abra [`js/config.js`](js/config.js) e ajuste:
