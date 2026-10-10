@@ -326,7 +326,7 @@ function secSite(r){const s=r.solicitacao;if(!s)return '';
    ${s.obs?`<div class="full"><dt>Observações</dt><dd style="white-space:pre-wrap">${esc(s.obs)}</dd></div>`:''}
    ${utm?`<div class="full"><dt>Campanha</dt><dd>${esc(utm)}</dd></div>`:''}
   </dl>
-  <div class="chips" style="gap:8px">${s.pdfUrl?`<a class="btn sm" href="${esc(s.pdfUrl)}" target="_blank" rel="noopener">Abrir PDF do pedido</a>`:'<span class="chip">PDF não foi salvo</span>'}<a class="btn sm wa" href="${esc(waLink(r.telefone,'Olá, '+(r.nome.split(' ')[0]||'')+'! Aqui é da Chef Chowder. Recebemos seu pedido '+(s.protocolo||'')+' e já estamos preparando sua proposta.'))}" target="_blank" rel="noopener">Responder no WhatsApp</a></div></section>`}
+  <div class="chips" style="gap:8px">${s.pdfUrl?`<a class="btn sm" href="${esc(s.pdfPath?'/pdf/'+s.pdfPath.replace(/\.pdf$/,''):s.pdfUrl)}" target="_blank" rel="noopener">Abrir PDF do pedido</a>`:'<span class="chip">PDF não foi salvo</span>'}<a class="btn sm wa" href="${esc(waLink(r.telefone,'Olá, '+(r.nome.split(' ')[0]||'')+'! Aqui é da Chef Chowder. Recebemos seu pedido '+(s.protocolo||'')+' e já estamos preparando sua proposta.'))}" target="_blank" rel="noopener">Responder no WhatsApp</a></div></section>`}
 function secContato(r){return `<section class="box"><h3>Contato</h3><div class="grid">
   ${fld('Nome','nome',r.nome)}${fld('Telefone / WhatsApp','telefone',r.telefone,'tel')}
   ${sel('Tipo de pedido','tipo',TIPOS,r.tipo)}${sel('Ocasião','categoria',CATEGORIAS,r.categoria)}
@@ -459,7 +459,7 @@ document.addEventListener('click',async ev=>{
       else if(k==='contratar'){r.etapa='evento';r.evento.contratadoEm=today();sysNote(r,'Orçamento contratado — '+brl(total(r)));await persist(r,'Orçamento contratado. Agora em Eventos contratados.')}
       else if(k==='entregue'){r.etapaAnterior='evento';r.etapa='arquivo';r.resultado='entregue';r.motivo='';r.evento.entregueEm=today();sysNote(r,'Evento entregue com sucesso');await persist(r,'Evento entregue com sucesso')}
       else if(k==='excluir'){const id=open.id;const {error}=await sb.from('pedidos').delete().eq('id',id);if(error){toast('Não foi possível excluir.');break}
-        const pdf=recs[id]?.solicitacao?.pdfUrl;if(pdf)sb.storage.from(C.bucketPdf).remove([id+'.pdf']).then(()=>{});
+        const sol=recs[id]?.solicitacao;if(sol&&sol.pdfUrl)sb.storage.from(C.bucketPdf).remove([sol.pdfPath||id+'.pdf']).then(()=>{});
         delete recs[id];closeDrawer();renderAll();toast('Registro excluído')}
       break}
     case 'reabrir':{const back=r.etapaAnterior||'contato';r.etapa=back;r.resultado='';r.motivo='';if(back==='evento')r.evento.entregueEm='';sysNote(r,'Reaberto em '+STAGE_TITLE[back]);await persist(r,'Registro reaberto');break}

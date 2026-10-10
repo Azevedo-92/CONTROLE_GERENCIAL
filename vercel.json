@@ -1,7 +1,33 @@
 {
   "cleanUrls": true,
   "headers": [
-    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] },
-    { "source": "/admin/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
+      ]
+    },
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/pedido/:t",
+      "destination": "/pedido"
+    },
+    {
+      "source": "/pdf/:t",
+      "destination": "https://tfqeczqknakuovzswrrv.supabase.co/storage/v1/object/public/pedidos-pdf/:t.pdf"
+    }
   ]
 }

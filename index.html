@@ -476,6 +476,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ---------- Envio ----------
   function erro(id, on) { const i = $("#" + id), e = $("#err-" + id); i.setAttribute("aria-invalid", on ? "true" : "false"); e.hidden = !on; }
+  function token(n) { const a = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789", r = crypto.getRandomValues(new Uint8Array(n)); return Array.from(r, x => a[x % a.length]).join(""); }
   function uuid() { return (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))); }
   const fdata = s => s ? s.split("-").reverse().join("/") : "A definir";
 
@@ -506,15 +507,16 @@ document.addEventListener("DOMContentLoaded", function () {
       obs: $("#obs").value.trim()
     };
 
-    let blob = null, pdfPublico = "", salvo = false;
+    let blob = null, pdfPublico = "", pdfLink = "", salvo = false;
+    const tk = token(12);
     try { blob = await window.ChowderPDF.gerar(p); } catch (e) { console.error("PDF", e); }
 
     if (sb) {
       try {
         if (blob) {
-          const path = id + ".pdf";
+          const path = tk + ".pdf";
           const up = await sb.storage.from(C.bucketPdf).upload(path, blob, { contentType: "application/pdf", upsert: false });
-          if (!up.error) pdfPublico = sb.storage.from(C.bucketPdf).getPublicUrl(path).data.publicUrl;
+          if (!up.error) { pdfPublico = sb.storage.from(C.bucketPdf).getPublicUrl(path).data.publicUrl; pdfLink = location.origin + "/pedido/" + tk; }
         }
         const hojeIso = iso(new Date());
         const dados = {
@@ -523,7 +525,7 @@ document.addEventListener("DOMContentLoaded", function () {
           etapa: "contato", novo: true, criadoEm: hojeIso,
           conversas: [{ data: hojeIso, texto: "Pedido recebido pela landing page (" + p.protocolo + ")", sistema: true }],
           orcamento: { dataEvento: p.data, local: p.local, modo: entrega === "Entrega no local" ? "Entrega no local" : "Retirada na loja", obs: p.obs },
-          solicitacao: { protocolo: p.protocolo, enviadoEm: p.criadoEm, ocasiao: p.ocasiao, data: p.data, quantidade: p.quantidade, entrega, local: p.local, necessidades: p.necessidades, pacote: p.pacote ? { id: p.pacote.id, nome: p.pacote.nome, detalhe: p.pacote.detalhe, valor: p.pacote.valor } : null, obs: p.obs, pdfUrl: pdfPublico, utm }
+          solicitacao: { protocolo: p.protocolo, enviadoEm: p.criadoEm, ocasiao: p.ocasiao, data: p.data, quantidade: p.quantidade, entrega, local: p.local, necessidades: p.necessidades, pacote: p.pacote ? { id: p.pacote.id, nome: p.pacote.nome, detalhe: p.pacote.detalhe, valor: p.pacote.valor } : null, obs: p.obs, pdfUrl: pdfPublico, pdfPath: pdfPublico ? tk + ".pdf" : "", pdfLink, utm }
         };
         const ins = await sb.from("pedidos").insert({ id, dados });
         salvo = !ins.error;
@@ -545,7 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
     if (p.pacote) L.push("*Pacote:* " + p.pacote.nome + " (" + p.pacote.detalhe + ")");
     if (p.obs) L.push("*Observações:* " + p.obs);
-    if (pdfPublico) { L.push(""); L.push("📄 PDF do pedido: " + pdfPublico); }
+    if (pdfLink) { L.push(""); L.push("*Pedido completo em PDF:*"); L.push(pdfLink); }
     const waMsg = waBase + "?text=" + encodeURIComponent(L.join("\n"));
 
     // Tela de conclusão
