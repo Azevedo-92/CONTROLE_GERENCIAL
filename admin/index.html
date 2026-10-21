@@ -167,6 +167,9 @@ a{color:inherit}
 .dbody{flex:1;overflow-y:auto;padding:16px 20px 24px;display:flex;flex-direction:column;gap:16px}
 .dfoot{padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--surface);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .dfoot .grow{flex:1}
+.dh-acts{display:flex;gap:8px;align-items:center;flex:none}
+.mover{display:flex;flex-direction:column;gap:2px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.mover select{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--ink)}
 .close{border:none;background:var(--surface-2);border-radius:999px;width:34px;height:34px;font-size:18px;flex:none}
 section.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 section.box.site{border-color:var(--gold);background:linear-gradient(var(--gold-soft),var(--surface) 70%)}
@@ -414,7 +417,7 @@ function card(x){const r=x.r;let body='';
   else if(r.etapa==='evento'){const s=saldo(r);body=`<div class="row"><span class="meta num">Pago ${brl(pago(r))} de ${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${eventChip(r)}${s>0.005?`<span class="chip warn">saldo ${brl(s)}</span>`:'<span class="chip ok">quitado</span>'}</div>`}
   else{const R=RESULT[r.resultado]||{t:'Arquivado',c:''};body=`<div class="chips"><span class="chip ${R.c}">${R.t}</span><span class="chip">${esc(r.categoria)}</span>${r.resultado==='entregue'?`<span class="chip num">${brl(total(r))}</span>`:''}</div>${r.motivo?`<div class="meta">Motivo: ${esc(r.motivo)}</div>`:''}`}
   body+=fuChips(r);
-  return `<button class="card${r.novo?' novo':''}" data-open="${esc(x.id)}"${r.etapa==='contato'||r.etapa==='orcamento'?` draggable="true" data-drag="${esc(x.id)}"`:''}><div class="row"><span class="name">${esc(r.nome)||'Sem nome'}</span><span class="meta num">${esc(r.telefone)}</span></div>${body}</button>`}
+  return `<button class="card${r.novo?' novo':''}" data-open="${esc(x.id)}"${r.etapa!=='arquivo'?` draggable="true" data-drag="${esc(x.id)}"`:''}><div class="row"><span class="name">${esc(r.nome)||'Sem nome'}</span><span class="meta num">${esc(r.telefone)}</span></div>${body}</button>`}
 function sorted(list,k){
   if(k==='contato')return list.sort((a,b)=>(b.r.novo?1:0)-(a.r.novo?1:0)||lastTouch(b.r).localeCompare(lastTouch(a.r)));
   if(k==='orcamento')return list.sort((a,b)=>(a.r.orcamento.prazoResposta||'9').localeCompare(b.r.orcamento.prazoResposta||'9'));
@@ -426,7 +429,7 @@ const EMPTY={
   orcamento:['Nenhum orçamento em aberto','Abra um contato e toque em "Criar orçamento" para montar itens, valores, pagamento e prazo de resposta.'],
   evento:['Nenhum evento contratado','Quando o cliente aceitar um orçamento, toque em "Orçamento contratado" e ele chega aqui para acompanhar pagamentos e conversas.'],
   arquivo:['Arquivo vazio','Contatos encerrados, orçamentos não aceitos e eventos entregues ficam guardados aqui.']};
-const EMPTY_COL={contato:'Pedidos da landing chegam aqui sozinhos. Conversas do WhatsApp: “+ Novo contato”.',orcamento:'Arraste um contato para cá ou use “Criar orçamento”.',evento:'Arraste um orçamento aceito para cá ou use “Orçamento contratado”.'};
+const EMPTY_COL={contato:'Pedidos da landing chegam aqui sozinhos. Conversas do WhatsApp: “+ Novo contato”.',orcamento:'Arraste um cartão para cá ou use “Criar orçamento”.',evento:'Arraste um cartão para cá ou use “Orçamento contratado”.'};
 function renderBoard(){
   if(!loaded){$('#board').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
   if(tab==='hoje'){renderHoje();return}
@@ -547,7 +550,7 @@ function renderDrawer(){
   if(!open.isNew)body+=secConversas(r);
   if(open.pending)body=confirmBox(open.pending,r)+body;
   root.innerHTML=`<div class="scrim" data-act="close"></div><aside class="drawer${canWrite?'':' readonly'}" role="dialog" aria-modal="true" aria-label="${esc(st)}">
-   <div class="dhead"><div><div class="stage">${esc(st)}</div><h2>${esc(r.nome)||'Sem nome'}</h2>${R?`<div class="chips" style="margin-top:6px"><span class="chip ${R.c}">${R.t}</span>${r.motivo?`<span class="chip">${esc(r.motivo)}</span>`:''}</div>`:''}</div><button class="close" data-act="close" aria-label="Fechar">×</button></div>
+   <div class="dhead"><div><div class="stage">${esc(st)}</div><h2>${esc(r.nome)||'Sem nome'}</h2>${R?`<div class="chips" style="margin-top:6px"><span class="chip ${R.c}">${R.t}</span>${r.motivo?`<span class="chip">${esc(r.motivo)}</span>`:''}</div>`:''}</div><div class="dh-acts">${!open.isNew&&r.etapa!=='arquivo'&&canWrite?`<label class="mover"><span>Mover para</span><select id="moverPara" aria-label="Mover para outra etapa"><option value="">Escolher…</option>${Object.entries(ETAPA_NOME).filter(([k])=>k!==r.etapa).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label>`:''}<button class="close" data-act="close" aria-label="Fechar">×</button></div></div>
    <div class="dbody">${body}</div><div class="dfoot">${footer(r)}</div></aside>`;
   root.querySelector('.dbody').scrollTop=open.pending?0:keepScroll;
 }
@@ -655,6 +658,20 @@ document.addEventListener('change',ev=>{if(!open)return;const f=ev.target.datase
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&msgAberto&&!open){msgAberto=false;renderMsgs();return}if(ev.key==='Escape'&&open){if(open.pending){open.pending=null;renderDrawer()}else if(!open.dirty||open.isNew)closeDrawer()}if(ev.key==='Enter'&&(ev.target.id==='nc_txt')){ev.preventDefault();document.querySelector('[data-act="addconv"]')?.click()}});
 $('#btnNovo').addEventListener('click',()=>{if(!canWrite){toast('Você não tem permissão para editar.');return}openNew()});
 
+/* ---------- Mover entre etapas (qualquer direção) ---------- */
+const ETAPA_NOME={contato:'Contatos',orcamento:'Orçamentos',evento:'Eventos contratados'};
+async function moverPara(id,to){
+  if(!canWrite){toast('Você não tem permissão para editar.');return}
+  if(!open||open.id!==id)openRec(id);
+  const r=open.draft,from=r.etapa;if(from===to)return;
+  if(to==='evento'){open.pending={kind:'contratar'};renderDrawer();return}   // pede confirmação
+  if(to==='orcamento'&&from==='contato'){document.querySelector('.dfoot [data-act="toorc"]')?.click();return}
+  r.etapa=to;r.novo=false;
+  sysNote(r,`Movido de ${ETAPA_NOME[from]} para ${ETAPA_NOME[to]}.`);
+  await persist(r,'Movido para '+ETAPA_NOME[to]);
+}
+document.addEventListener('change',ev=>{if(ev.target.id!=='moverPara'||!open)return;const to=ev.target.value;ev.target.value='';if(to)moverPara(open.id,to)});
+
 /* ---------- Arrastar entre colunas ---------- */
 let dragId=null;
 document.addEventListener('dragstart',ev=>{const c=ev.target.closest&&ev.target.closest('[data-drag]');if(!c)return;dragId=c.dataset.drag;c.classList.add('dragging');ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',dragId)}catch(e){}});
@@ -663,9 +680,7 @@ document.addEventListener('dragover',ev=>{if(!dragId)return;const col=ev.target.
 document.addEventListener('drop',ev=>{const col=ev.target.closest&&ev.target.closest('[data-drop]');if(!col||!dragId)return;ev.preventDefault();
   const id=dragId,to=col.dataset.drop,from=recs[id]&&recs[id].etapa;col.classList.remove('drop');dragId=null;if(!from||from===to)return;
   if(!canWrite){toast('Você não tem permissão para editar.');return}
-  if(from==='contato'&&to==='orcamento'){openRec(id);document.querySelector('.dfoot [data-act="toorc"]')?.click();return}
-  if(from==='orcamento'&&to==='evento'){openRec(id);open.pending={kind:'contratar'};renderDrawer();return}
-  toast(to==='contato'?'Para voltar um passo, abra o cartão e ajuste por lá.':'Avance uma etapa por vez: contato → orçamento → evento.');
+  moverPara(id,to);
 });
 
 /* ---------- Sócios ---------- */
