@@ -66,7 +66,7 @@ a{color:inherit}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-@media (max-width:560px){.summary{grid-template-columns:1fr 1fr}.sum .val{font-size:22px}.search{width:100%}.band .who{display:none}.brand h1{font-size:22px}}
+@media (max-width:560px){.search{width:100%}.band .who{display:none}.brand h1{font-size:20px}.brand small{display:none}.brand img{height:24px}.top-actions{gap:6px}.top-actions .btn{padding:6px 12px;font-size:13px}}
 .sum{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
 .sum::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
 .sum.hot::before{background:var(--bord)}
@@ -86,6 +86,32 @@ a{color:inherit}
 
 /* Quadro (Kanban) */
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.views{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px}
+.views button{border:0;background:none;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.views button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.views .n{background:var(--bord);color:#fff;border-radius:999px;padding:0 7px;font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:0;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.kpi.hot::before{background:var(--bord)}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.kpi .v{font-family:var(--f-display);font-size:26px;font-weight:600;line-height:1.15}
+.kpi.hot .v{color:var(--wine)}
+.kpi .s{font-size:12px;color:var(--muted)}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi .v{font-size:22px}}
+.hoje{display:flex;flex-direction:column;gap:18px}
+.hoje h3{font-size:20px;margin:0 0 8px;display:flex;gap:8px;align-items:baseline}
+.hoje h3 .c{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:600}
+.fu-steps{display:grid;gap:8px}
+.fu-step{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface-2)}
+.fu-step.due{border-color:var(--crit);background:var(--crit-soft)}
+.fu-step.dim{opacity:.6}
+.fu-step .top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.fu-step .top b{font-size:14px}
+.fu-msg{white-space:pre-wrap;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0}
+.fu-note{font-size:14px;margin:0}
+.fu-alert{background:var(--crit-soft);color:var(--crit);border-radius:10px;padding:10px 12px;font-size:14px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.dup{color:var(--warn);font-size:13px;margin:0}
 .toolbar .search{flex:1 1 260px;width:auto;margin:0}
 .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
 .col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
@@ -197,6 +223,7 @@ table.items td.r,table.items th.r{text-align:right}
   <div class="brand"><img src="../assets/img/logo-h-clara.webp" alt="Chowder Macarons" width="211" height="30"><h1>Pedidos e eventos<small>Contatos, orçamentos e eventos contratados</small></h1></div>
   <div class="top-actions" id="topActions" hidden>
     <span class="who" id="who"></span>
+    <button class="btn" id="btnMsgs">Mensagens</button>
     <button class="btn" id="btnSocios">Sócios</button>
     <button class="btn" id="btnExport">Exportar planilha (CSV)</button>
     <button class="btn" id="btnSair">Sair</button>
@@ -216,12 +243,14 @@ table.items td.r,table.items th.r{text-align:right}
 <div class="wrap" id="app">
   <div id="notice" class="notice" hidden></div>
   <div id="main" hidden>
+    <div class="kpis" id="kpis"></div>
     <div class="toolbar" id="toolbar"></div>
     <div id="board" style="margin-top:14px"></div>
   </div>
 </div>
 <div id="drawerRoot"></div>
 <div id="socRoot"></div>
+<div id="msgRoot"></div>
 <div id="toast" class="toast" hidden></div>
 
 <script src="../js/config.js"></script>
@@ -236,20 +265,27 @@ const STAGES=[
   {k:'arquivo',label:'Arquivo'}
 ];
 const STAGE_TITLE={contato:'Contato (lead)',orcamento:'Orçamento',evento:'Evento contratado',arquivo:'Arquivado'};
-const ORIGENS=['WhatsApp','Instagram','Site','Indicação','Loja','Outro'];
+const ORIGENS=['Site','Instagram','Meta Ads (Instagram/Facebook)','Google Ads','Instagram orgânico','WhatsApp','Indicação','Fábrica','Outro'];
+const REUNIAO_TIPOS=['Degustação na fábrica','Presencial na fábrica','Videochamada','Ligação','No local do evento'];
 const TIPOS=['Evento','Pronta entrega'];
 const CATEGORIAS=[...new Set([...C.ocasioes.filter(o=>o!=='Outro'),'Presente','Pronta entrega','Outro'])];
 const FORMAS=['PIX','Cartão de crédito','Cartão de débito','Dinheiro','Transferência','Boleto'];
 const MODOS=['Entrega no local','Retirada na fábrica'];
 const MOT_ENCERRAR=['Só pesquisando preço','Parou de responder','Data indisponível','Fora do orçamento do cliente','Fechou com outro fornecedor','Outro'];
 const MOT_RECUSA=['Achou caro','Fechou com outro fornecedor','Desistiu do evento','Sem resposta no prazo','Mudou a data','Outro'];
-const RESULT={contato_encerrado:{t:'Contato encerrado',c:'warn'},orcamento_recusado:{t:'Orçamento não aceito',c:'crit'},entregue:{t:'Entregue com sucesso',c:'ok'}};
+const RESULT={contato_encerrado:{t:'Contato encerrado',c:'warn'},orcamento_recusado:{t:'Orçamento não aceito',c:'crit'},sem_resposta:{t:'Desistência (sem resposta)',c:'warn'},entregue:{t:'Entregue com sucesso',c:'ok'}};
 
 let sb=null, canWrite=true, userEmail='';
 let recs={}; let loaded=false;
-let tab='contato'; let q='';
+let tab='hoje'; let q='';
+const DIA=864e5;
+const FU=[{k:'h24',ms:DIA,label:'24 horas'},{k:'d3',ms:3*DIA,label:'3 dias'},{k:'d7',ms:7*DIA,label:'7 dias · última'}];
+const MSG_PADRAO={
+ h24:'Oi, {nome}! Tudo bem? Aqui é da Chowder Macarons.\nPassando para saber se você conseguiu ver o orçamento para o seu {evento}. Ficou alguma dúvida sobre sabores, cores ou embalagens? Posso te ajudar a ajustar o que for preciso.',
+ d3:'Oi, {nome}! Como nossa produção é toda artesanal, trabalhamos com agenda limitada e as datas vão sendo reservadas.\nSe quiser, consigo segurar {data} por mais alguns dias, ou adaptar o orçamento (quantidade, sabores ou embalagem) para ficar do jeitinho que você imaginou. O que acha?',
+ d7:'Oi, {nome}! Essa é minha última mensagem para não te incomodar.\nSe ainda fizer sentido ter os macarons da Chowder no seu {evento}, é só responder aqui que retomamos de onde paramos. Se os planos mudaram, tudo bem também! Obrigado pelo contato e conte com a gente quando precisar.'};
+let mensagens={...MSG_PADRAO};
 let open=null; // {id,isNew,draft,dirty,pending}
-tab='board';
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -268,8 +304,8 @@ const waLink=(tel,txt)=>{let d=String(tel||'').replace(/\D/g,'');if(d.length<=11
 
 function blank(){return{nome:'',telefone:'',origem:'WhatsApp',tipo:'Evento',categoria:CATEGORIAS[0],interesse:'',etapa:'contato',resultado:'',motivo:'',etapaAnterior:'',conversas:[],
   orcamento:{itens:[],taxaEntrega:0,desconto:0,formaPgto:'PIX',condicoes:'50% de sinal na contratação e 50% até a entrega',dataEvento:'',horario:'',local:'',modo:'Entrega no local',dataEnvio:'',prazoResposta:'',obs:''},
-  evento:{contratadoEm:'',pagamentos:[],entregueEm:''},criadoEm:today(),atualizadoEm:new Date().toISOString()}}
-function norm(r){const b=blank();const o=Object.assign(b,r||{});o.orcamento=Object.assign(blank().orcamento,(r||{}).orcamento||{});o.evento=Object.assign(blank().evento,(r||{}).evento||{});o.conversas=Array.isArray(o.conversas)?o.conversas:[];o.orcamento.itens=Array.isArray(o.orcamento.itens)?o.orcamento.itens:[];o.evento.pagamentos=Array.isArray(o.evento.pagamentos)?o.evento.pagamentos:[];return o}
+  evento:{contratadoEm:'',pagamentos:[],entregueEm:''},aguardandoDesde:null,followups:{},respondidoEm:'',reuniao:{em:'',tipo:'',obs:''},criadoEm:today(),atualizadoEm:new Date().toISOString()}}
+function norm(r){const b=blank();const o=Object.assign(b,r||{});o.orcamento=Object.assign(blank().orcamento,(r||{}).orcamento||{});o.evento=Object.assign(blank().evento,(r||{}).evento||{});o.conversas=Array.isArray(o.conversas)?o.conversas:[];o.orcamento.itens=Array.isArray(o.orcamento.itens)?o.orcamento.itens:[];o.evento.pagamentos=Array.isArray(o.evento.pagamentos)?o.evento.pagamentos:[];o.followups=o.followups&&typeof o.followups==='object'?o.followups:{};o.reuniao=Object.assign({em:'',tipo:'',obs:''},o.reuniao||{});return o}
 const subtotal=r=>r.orcamento.itens.reduce((a,i)=>a+num(i.qtd)*num(i.unit),0);
 const total=r=>subtotal(r)+num(r.orcamento.taxaEntrega)-num(r.orcamento.desconto);
 const pago=r=>r.evento.pagamentos.reduce((a,p)=>a+num(p.valor),0);
@@ -278,6 +314,77 @@ const lastTouch=r=>{const c=r.conversas.filter(x=>!x.sistema).map(x=>x.data).sor
 
 function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)}
 function notice(msg){const n=$('#notice');n.hidden=!msg;n.innerHTML=msg||''}
+
+/* ---------- Follow-up, reunião e prazo ---------- */
+const aberto=r=>r.etapa==='contato'||r.etapa==='orcamento';
+const pad2=n=>String(n).padStart(2,'0');
+const fdt=isoStr=>{if(!isoStr)return '—';const d=new Date(isoStr);return pad2(d.getDate())+'/'+pad2(d.getMonth()+1)+' '+pad2(d.getHours())+':'+pad2(d.getMinutes())};
+const rel=ms=>{ms=Math.abs(ms);if(ms<36e5)return Math.max(1,Math.round(ms/6e4))+' min';if(ms<DIA)return Math.round(ms/36e5)+'h';const d=Math.round(ms/DIA);return d+(d===1?' dia':' dias')};
+function cadence(r,now=Date.now()){
+  if(!r.aguardandoDesde||!aberto(r))return null;
+  const t0=new Date(r.aguardandoDesde).getTime();
+  const steps=FU.map(f=>{const due=t0+f.ms,sent=r.followups[f.k];return {...f,due,sent,state:sent?'sent':now>=due?'due':'wait'}});
+  const dues=steps.filter(x=>x.state==='due');dues.slice(0,-1).forEach(x=>x.state='skip');
+  const d7=steps[2];const endAt=(d7.sent?new Date(d7.sent).getTime():d7.due)+2*DIA;
+  const ended=(d7.state==='sent'||d7.state==='due')&&now>=endAt;
+  const next=steps.find(x=>x.state==='due')||steps.find(x=>x.state==='wait')||null;
+  return {steps,ended,next,t0};
+}
+const reuniaoEstado=r=>{const em=r.reuniao&&r.reuniao.em;if(!em||r.etapa==='arquivo')return null;const d=em.slice(0,10),h=today();return d===h?'hoje':d>h?'futura':null};
+const prazoEstado=r=>{const p=r.orcamento.prazoResposta;if(!p||r.etapa!=='orcamento')return null;const h=today();return p<h?'vencido':p===h?'hoje':'futuro'};
+const primeiroContato=r=>r.etapa==='contato'&&!r.aguardandoDesde&&!r.respondidoEm;
+function acao(r){
+  if(reuniaoEstado(r)==='hoje')return 'meet';
+  if(primeiroContato(r))return 'first';
+  const pz=prazoEstado(r);if(pz==='vencido'||pz==='hoje')return 'prazo';
+  const c=cadence(r);if(c&&c.ended)return 'end';
+  if(c&&c.next&&c.next.state==='due')return 'fu';
+  return null;
+}
+function preencher(tpl,r){
+  const cat=r.categoria||'';const ev=!cat||cat==='Outro'?'evento':cat==='Presente'?'presente':cat.toLowerCase();
+  const data=r.orcamento.dataEvento?'o dia '+fd(r.orcamento.dataEvento):'a data do seu evento';
+  return String(tpl||'').split('{nome}').join((r.nome||'').trim().split(/\s+/)[0]||'').split('{evento}').join(ev).split('{data}').join(data);
+}
+function fuChips(r){
+  let h='';
+  if(primeiroContato(r))h+='<span class="chip crit">Responder 1º contato</span>';
+  else{const c=cadence(r);
+    if(c){if(c.ended)h+='<span class="chip crit">Sem resposta: dar desistência?</span>';
+      else if(c.next&&c.next.state==='due')h+=`<span class="chip crit">Enviar follow-up ${c.next.label.split(' ·')[0]}</span>`;
+      else if(c.next){const falta=c.next.due-Date.now();h+=`<span class="chip ${falta<DIA?'warn':''}">Follow-up ${c.next.label.split(' ·')[0]} em ${rel(falta)}</span>`}
+      else h+='<span class="chip warn">Aguardando resposta</span>'}}
+  const re=reuniaoEstado(r);if(re){const em=r.reuniao.em;h+=re==='hoje'?`<span class="chip crit">Reunião hoje às ${em.slice(11,16)}</span>`:`<span class="chip">Reunião ${fds(em.slice(0,10))} às ${em.slice(11,16)}</span>`}
+  return h?`<div class="chips">${h}</div>`:'';
+}
+function renderKpis(){
+  const ls=all();const now=Date.now();const mes=today().slice(0,7);
+  const acoes=ls.filter(x=>acao(x.r)).length;
+  const aguard=ls.filter(x=>x.r.aguardandoDesde&&aberto(x.r)).length;
+  const abertos=ls.filter(x=>aberto(x.r));const vOrc=abertos.filter(x=>x.r.etapa==='orcamento').reduce((a,x)=>a+total(x.r),0);
+  const fech=ls.filter(x=>(x.r.etapa==='evento'||(x.r.etapa==='arquivo'&&x.r.resultado==='entregue'))&&(x.r.evento.contratadoEm||'').startsWith(mes));
+  const vF=fech.reduce((a,x)=>a+total(x.r),0);
+  $('#kpis').innerHTML=`<div class="kpi hot"><div class="l">Ações para hoje</div><div class="v num">${acoes}</div><div class="s">${acoes?'veja a aba Para hoje':'tudo em dia'}</div></div>
+   <div class="kpi"><div class="l">Aguardando resposta</div><div class="v num">${aguard}</div><div class="s">com lembretes ativos</div></div>
+   <div class="kpi"><div class="l">Em aberto</div><div class="v num">${abertos.length}</div><div class="s">${brl(vOrc)} em orçamentos</div></div>
+   <div class="kpi"><div class="l">Fechado no mês</div><div class="v num">${brl(vF)}</div><div class="s">${fech.length} pedido${fech.length===1?'':'s'}</div></div>`;
+}
+function renderHoje(){
+  const ls=all().filter(matches);const now=Date.now();
+  const grupos={meet:[],first:[],prazo:[],fu:[],end:[],prox:[],eventos:[]};
+  ls.forEach(x=>{const a=acao(x.r);if(a){grupos[a].push(x);return}
+    const c=cadence(x.r);if(c&&c.next&&c.next.due-now<DIA)grupos.prox.push(x);
+    if(x.r.etapa==='evento'){const d=diff(x.r.orcamento.dataEvento);if(d!==null&&d>=0&&d<=7)grupos.eventos.push(x)}});
+  const by=(f)=>(a,b)=>String(f(a.r)).localeCompare(String(f(b.r)));
+  grupos.meet.sort(by(r=>r.reuniao.em));grupos.first.sort(by(r=>r.criadoEm));grupos.prazo.sort(by(r=>r.orcamento.prazoResposta));
+  grupos.fu.sort((a,b)=>cadence(a.r).next.due-cadence(b.r).next.due);grupos.prox.sort((a,b)=>cadence(a.r).next.due-cadence(b.r).next.due);
+  grupos.eventos.sort(by(r=>r.orcamento.dataEvento));
+  const secs=[['meet','Reuniões de hoje'],['first','Responder primeiro contato'],['prazo','Prazo de resposta vencendo'],['fu','Follow-ups para enviar'],['end','Sem resposta após 7 dias'],['prox','Próximas 24 horas'],['eventos','Eventos nos próximos 7 dias']];
+  const html=secs.filter(([k])=>grupos[k].length).map(([k,t])=>`<section><h3>${t}<span class="c">${grupos[k].length}</span></h3><div class="list">${grupos[k].map(card).join('')}</div></section>`).join('');
+  if(html){$('#board').innerHTML=`<div class="hoje">${html}</div>`;return}
+  $('#board').innerHTML=all().length?`<div class="empty"><h3>${q?'Nada encontrado':'Tudo em dia'}</h3><p style="margin:0">${q?'Nenhuma ação de hoje corresponde à busca.':'Nenhum follow-up vence agora. Veja o Quadro para a lista completa.'}</p></div>`
+    :'<div class="empty"><h3>Nenhum contato ainda</h3><p style="margin:0">Os pedidos da landing chegam aqui sozinhos. Conversas do WhatsApp você cadastra em “+ Novo contato”: só nome e telefone.</p></div>';
+}
 
 /* ---------- Lista ---------- */
 function all(){return Object.entries(recs).map(([id,r])=>({id,r:norm(r)}))}
@@ -292,7 +399,9 @@ function colHead(k,list){
 function renderToolbar(){
   const had=document.activeElement&&document.activeElement.id==='search';
   const nArq=inStage('arquivo').length;
-  $('#toolbar').innerHTML=`<input class="search" id="search" type="search" placeholder="Buscar nome, telefone, protocolo" value="${esc(q)}" aria-label="Buscar">`
+  const nHoje=all().filter(x=>acao(x.r)).length;
+  $('#toolbar').innerHTML=`<div class="views" role="group" aria-label="Visualização"><button data-view="hoje" aria-pressed="${tab==='hoje'}">Para hoje${nHoje?` <span class="n num">${nHoje}</span>`:''}</button><button data-view="board" aria-pressed="${tab==='board'}">Quadro</button></div>`
+   +`<input class="search" id="search" type="search" placeholder="Buscar nome, telefone, protocolo" value="${esc(q)}" aria-label="Buscar">`
    +(tab==='arquivo'?'<button class="btn" data-view="board">← Voltar ao quadro</button>':`<button class="btn" data-view="arquivo">Arquivo <span class="chip num" style="padding:0 7px">${nArq}</span></button>`);
   if(had){const e=$('#search');e.focus();e.setSelectionRange(e.value.length,e.value.length)}
 }
@@ -304,6 +413,7 @@ function card(x){const r=x.r;let body='';
   else if(r.etapa==='orcamento'){body=`<div class="row"><span class="meta">${r.orcamento.dataEvento?'Evento '+fd(r.orcamento.dataEvento):'Data a definir'}</span><span class="money num">${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${dueChip(r)}</div>`}
   else if(r.etapa==='evento'){const s=saldo(r);body=`<div class="row"><span class="meta num">Pago ${brl(pago(r))} de ${brl(total(r))}</span></div><div class="chips"><span class="chip accent">${esc(r.categoria)}</span>${eventChip(r)}${s>0.005?`<span class="chip warn">saldo ${brl(s)}</span>`:'<span class="chip ok">quitado</span>'}</div>`}
   else{const R=RESULT[r.resultado]||{t:'Arquivado',c:''};body=`<div class="chips"><span class="chip ${R.c}">${R.t}</span><span class="chip">${esc(r.categoria)}</span>${r.resultado==='entregue'?`<span class="chip num">${brl(total(r))}</span>`:''}</div>${r.motivo?`<div class="meta">Motivo: ${esc(r.motivo)}</div>`:''}`}
+  body+=fuChips(r);
   return `<button class="card${r.novo?' novo':''}" data-open="${esc(x.id)}"${r.etapa==='contato'||r.etapa==='orcamento'?` draggable="true" data-drag="${esc(x.id)}"`:''}><div class="row"><span class="name">${esc(r.nome)||'Sem nome'}</span><span class="meta num">${esc(r.telefone)}</span></div>${body}</button>`}
 function sorted(list,k){
   if(k==='contato')return list.sort((a,b)=>(b.r.novo?1:0)-(a.r.novo?1:0)||lastTouch(b.r).localeCompare(lastTouch(a.r)));
@@ -319,6 +429,7 @@ const EMPTY={
 const EMPTY_COL={contato:'Pedidos da landing chegam aqui sozinhos. Conversas do WhatsApp: “+ Novo contato”.',orcamento:'Arraste um contato para cá ou use “Criar orçamento”.',evento:'Arraste um orçamento aceito para cá ou use “Orçamento contratado”.'};
 function renderBoard(){
   if(!loaded){$('#board').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
+  if(tab==='hoje'){renderHoje();return}
   if(tab==='arquivo'){const list=sorted(inStage('arquivo').filter(matches),'arquivo');
     $('#board').innerHTML=`<h2 style="font-size:26px;margin:4px 0 12px">Arquivo</h2>`+(list.length?`<div class="list">${list.map(card).join('')}</div>`:`<div class="empty"><h3>${q?'Nada encontrado':EMPTY.arquivo[0]}</h3><p style="margin:0">${q?'Nenhum registro arquivado corresponde à busca.':EMPTY.arquivo[1]}</p></div>`);return}
   $('#board').innerHTML='<div class="board">'+['contato','orcamento','evento'].map(k=>{
@@ -326,7 +437,7 @@ function renderBoard(){
     return `<section class="col" data-k="${k}" data-drop="${k}" aria-label="${h.lbl}"><div class="col-head"><div class="top"><span class="lbl">${h.lbl}</span><span class="n num">${all_.length}</span></div><span class="val num">${h.val}</span><span class="sub">${h.sub}</span></div>
      <div class="col-body">${list.length?list.map(card).join(''):`<div class="col-empty">${q?'Nada encontrado.':EMPTY_COL[k]}</div>`}</div></section>`}).join('')+'</div>';
 }
-function renderAll(){renderToolbar();renderBoard();if(open&&!open.dirty&&!open.isNew&&recs[open.id]){open.draft=norm(clone(recs[open.id]));renderDrawer()} if(open&&!open.isNew&&!recs[open.id]){closeDrawer()}}
+function renderAll(){renderKpis();renderToolbar();renderBoard();if(open&&!open.dirty&&!open.isNew&&recs[open.id]){open.draft=norm(clone(recs[open.id]));renderDrawer()} if(open&&!open.isNew&&!recs[open.id]){closeDrawer()}}
 
 /* ---------- Gaveta ---------- */
 function opt(list,v){const l=list.includes(v)||!v?list:[v,...list];return l.map(o=>`<option${o===v?' selected':''}>${esc(o)}</option>`).join('')}
@@ -349,9 +460,43 @@ function secSite(r){const s=r.solicitacao;if(!s)return '';
   <div class="chips" style="gap:8px">${s.pdfUrl?`<a class="btn sm" href="${esc(s.pdfPath?'/pdf/'+s.pdfPath.replace(/\.pdf$/,''):s.pdfUrl)}" target="_blank" rel="noopener">Abrir PDF do pedido</a>`:'<span class="chip">PDF não foi salvo</span>'}<a class="btn sm wa" href="${esc(waLink(r.telefone,'Olá, '+(r.nome.split(' ')[0]||'')+'! Aqui é da Chowder Macarons. Recebemos seu pedido '+(s.protocolo||'')+' e já estamos preparando sua proposta.'))}" target="_blank" rel="noopener">Responder no WhatsApp</a></div></section>`}
 function secContato(r){return `<section class="box"><h3>Contato</h3><div class="grid">
   ${fld('Nome','nome',r.nome)}${fld('Telefone / WhatsApp','telefone',r.telefone,'tel')}
+  ${open&&open.isNew?'<p class="dup full" id="dupWarn" hidden></p>':''}
   ${sel('Tipo de pedido','tipo',TIPOS,r.tipo)}${sel('Ocasião','categoria',CATEGORIAS,r.categoria)}
   ${sel('Como chegou','origem',ORIGENS,r.origem)}${fld('Primeiro contato em','criadoEm',r.criadoEm,'date')}
   ${area('Interesse demonstrado','interesse',r.interesse)}</div></section>`}
+function secFollow(r){
+  if(open.isNew)return '';
+  if(r.etapa==='arquivo'&&r.resultado==='sem_resposta')return `<section class="box"><h3>Follow-up</h3><p class="fu-note">Marcado como desistência por falta de resposta. Se a pessoa voltar a falar, reabra o registro.</p></section>`;
+  if(!aberto(r))return '';
+  const wa=`<a class="btn sm wa" href="${esc(waLink(r.telefone))}" target="_blank" rel="noopener">Abrir conversa no WhatsApp</a>`;
+  if(!r.aguardandoDesde){
+    const novo=primeiroContato(r);
+    return `<section class="box"><h3>Follow-up <span class="hint">lembretes de 24h, 3 e 7 dias</span></h3>
+     <p class="fu-note">${novo?'Ainda não respondemos este contato. Depois de mandar a resposta inicial ou o orçamento, toque no botão abaixo para iniciar os lembretes.':'Conversa em andamento. Quando você mandar uma mensagem e ficar esperando retorno, inicie os lembretes.'}</p>
+     <div class="chips" style="gap:8px"><button class="btn sm primary" data-fu="iniciar">${novo?'Enviei a resposta inicial':'Enviei mensagem, aguardando retorno'}</button>${wa}</div></section>`}
+  const c=cadence(r);const now=Date.now();
+  const steps=c.steps.map(st=>{
+    const pill=st.state==='sent'?`<span class="chip ok">Enviado ${fdt(st.sent)}</span>`:st.state==='due'?'<span class="chip crit">Enviar agora</span>':st.state==='skip'?'<span class="chip">Pulado</span>':`<span class="chip">em ${rel(st.due-now)}</span>`;
+    const mostra=st.state==='due'||(c.next&&c.next.k===st.k);
+    const txt=preencher(mensagens[st.k],r);
+    return `<div class="fu-step ${st.state==='due'?'due':''} ${st.state==='sent'||st.state==='skip'?'dim':''}"><div class="top"><b>${st.label}</b><span class="meta num">${fdt(new Date(st.due).toISOString())}</span>${pill}</div>
+      ${mostra?`<pre class="fu-msg" id="fumsg_${st.k}">${esc(txt)}</pre><div class="chips" style="gap:8px"><a class="btn sm wa" href="${esc(waLink(r.telefone,txt))}" target="_blank" rel="noopener">Abrir no WhatsApp</a><button class="btn sm" data-fu="copiar" data-k="${st.k}">Copiar texto</button><button class="btn sm" data-fu="enviado" data-k="${st.k}">Marcar como enviado</button></div>`:''}</div>`}).join('');
+  return `<section class="box"><h3>Follow-up <span class="hint">aguardando desde ${fdt(r.aguardandoDesde)}</span></h3>
+   <div class="chips" style="gap:8px"><button class="btn sm ok" data-fu="respondeu">Cliente respondeu</button><button class="btn sm" data-fu="iniciar">Reiniciar contagem</button>${wa}</div>
+   ${c.ended?'<div class="fu-alert"><span><b>Sete dias sem resposta.</b> A última abordagem já foi feita. Pode encerrar como desistência.</span><button class="btn sm danger" data-fu="desistir">Marcar desistência</button></div>':''}
+   <div class="fu-steps">${steps}</div>
+   ${!c.ended&&r.followups.d7?'<div><button class="btn sm ghost" data-fu="desistir">Marcar desistência agora</button></div>':''}</section>`;
+}
+function secReuniao(r){
+  if(r.etapa==='arquivo')return '';
+  const pz=r.orcamento.prazoResposta;let info='';
+  if(pz&&r.etapa==='orcamento'){const d=diff(pz);info=d<0?'<span class="chip crit">Prazo vencido</span>':d===0?'<span class="chip warn">Vence hoje</span>':`<span class="chip">Faltam ${d} dia${d===1?'':'s'}</span>`}
+  return `<section class="box"><h3>Reunião e prazo de resposta</h3><div class="grid">
+   ${fld('Reunião marcada (data e hora)','reuniao.em',r.reuniao.em,'datetime-local')}${sel('Formato','reuniao.tipo',['',...REUNIAO_TIPOS],r.reuniao.tipo)}
+   ${fld('Pauta ou observação da reunião','reuniao.obs',r.reuniao.obs,'text','full')}
+   ${r.etapa!=='evento'?`<label class="f">Prazo para resposta do cliente<input id="f_orcamento_prazoResposta" data-f="orcamento.prazoResposta" type="date" value="${esc(pz)}"></label><div style="display:flex;align-items:flex-end">${info}</div>`:''}
+  </div></section>`;
+}
 function secOrc(r){const o=r.orcamento;const ev=r.tipo==='Pronta entrega'?'Data de entrega/retirada':'Data do evento';
   const rows=o.itens.map((it,i)=>`<tr><td><input class="cell" id="it_d_${i}" data-it="${i}" data-k="desc" value="${esc(it.desc)}" placeholder="Ex.: Macarons sortidos"></td><td style="width:80px"><input class="cell num" id="it_q_${i}" data-it="${i}" data-k="qtd" inputmode="numeric" value="${esc(it.qtd)}"></td><td style="width:110px"><input class="cell num" id="it_u_${i}" data-it="${i}" data-k="unit" inputmode="decimal" value="${esc(it.unit)}"></td><td class="r num" data-linetotal="${i}" style="width:110px">${brl(num(it.qtd)*num(it.unit))}</td><td style="width:34px"><button class="x" data-delit="${i}" aria-label="Remover item">×</button></td></tr>`).join('');
   return `<section class="box"><h3>Orçamento <span class="hint">${r.etapa==='evento'?'dados contratados':''}</span></h3>
@@ -363,7 +508,7 @@ function secOrc(r){const o=r.orcamento;const ev=r.tipo==='Pronta entrega'?'Data 
    ${sel('Forma de pagamento','orcamento.formaPgto',FORMAS,o.formaPgto)}${fld('Condições de pagamento','orcamento.condicoes',o.condicoes)}
    ${fld(ev,'orcamento.dataEvento',o.dataEvento,'date')}${fld('Horário','orcamento.horario',o.horario,'time')}
    ${sel('Entrega','orcamento.modo',MODOS,o.modo)}${fld('Local / endereço','orcamento.local',o.local)}
-   ${fld('Orçamento enviado em','orcamento.dataEnvio',o.dataEnvio,'date')}${fld('Prazo para o cliente responder','orcamento.prazoResposta',o.prazoResposta,'date')}
+   ${fld('Orçamento enviado em','orcamento.dataEnvio',o.dataEnvio,'date')}
    ${area('Observações (sabores, cores, embalagem, personalização)','orcamento.obs',o.obs)}</div></section>`}
 function secEvento(r){const e=r.evento;const s=saldo(r);
   const rows=e.pagamentos.map((p,i)=>`<li><span class="d num">${fd(p.data)}</span><span class="t"><b class="num">${brl(num(p.valor))}</b> · ${esc(p.forma)}${p.obs?' · '+esc(p.obs):''}</span><button class="x" data-delpay="${i}" aria-label="Remover pagamento">×</button></li>`).join('');
@@ -395,7 +540,7 @@ function renderDrawer(){
   const r=open.draft;const st=open.isNew?'Novo contato':STAGE_TITLE[r.etapa];
   const R=r.etapa==='arquivo'?RESULT[r.resultado]:null;
   const keepScroll=root.querySelector('.dbody')?.scrollTop||0;
-  let body=(r.etapa==='contato'?secSite(r):'')+secContato(r);
+  let body=(r.etapa==='contato'?secSite(r):'')+secFollow(r)+secContato(r)+secReuniao(r);
   if(r.etapa==='orcamento'||r.etapa==='evento'||(r.etapa==='arquivo'&&r.orcamento.itens.length))body+=secOrc(r);
   if(r.etapa==='evento'||(r.etapa==='arquivo'&&r.resultado==='entregue'))body+=secEvento(r);
   if(r.etapa!=='contato')body+=secSite(r);
@@ -409,7 +554,7 @@ function renderDrawer(){
 function openRec(id){
   open={id,isNew:false,draft:norm(clone(recs[id])),dirty:false,pending:null};renderDrawer();
   // Marca como visto o pedido novo da landing
-  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('pedidos').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderBoard()}
+  if(recs[id].novo&&canWrite&&sb){const d=clone(recs[id]);d.novo=false;recs[id]=d;sb.from('pedidos').update({dados:d,atualizado_em:new Date().toISOString()}).eq('id',id).then(()=>{});open.draft.novo=false;renderAll()}
 }
 function openNew(){open={id:null,isNew:true,draft:blank(),dirty:true,pending:null};renderDrawer();setTimeout(()=>$('#f_nome')?.focus(),30)}
 function closeDrawer(){open=null;renderDrawer()}
@@ -451,6 +596,15 @@ function waText(r){const o=r.orcamento;const L=[];
 
 /* ---------- Eventos ---------- */
 document.addEventListener('click',async ev=>{
+  const fu=ev.target.closest('[data-fu]');
+  if(fu&&open&&!open.isNew){const r=open.draft,a=fu.dataset.fu,k=fu.dataset.k;const agora=new Date().toISOString();
+    if(!canWrite){toast('Você não tem permissão para editar.');return}
+    if(a==='copiar'){const txt=preencher(mensagens[k],r);try{await navigator.clipboard.writeText(txt);toast('Texto copiado')}catch(e){const el=$('#fumsg_'+k);if(el){const rg=document.createRange();rg.selectNodeContents(el);const sl=getSelection();sl.removeAllRanges();sl.addRange(rg)}toast('Texto selecionado. Copie com o menu do aparelho.')}return}
+    if(a==='iniciar'){const era=primeiroContato(r);r.aguardandoDesde=agora;r.followups={};r.respondidoEm=r.respondidoEm||agora;r.novo=false;sysNote(r,era?'Resposta inicial enviada. Lembretes iniciados.':'Mensagem enviada. Aguardando retorno.');await persist(r,'Lembretes de 24h, 3 e 7 dias iniciados');return}
+    if(a==='respondeu'){r.aguardandoDesde=null;r.followups={};r.respondidoEm=r.respondidoEm||agora;sysNote(r,'Cliente respondeu.');await persist(r,'Lembretes pausados');return}
+    if(a==='enviado'){r.followups={...r.followups,[k]:agora};const f=FU.find(x=>x.k===k);sysNote(r,'Follow-up '+f.label+' enviado.');await persist(r,'Follow-up registrado');return}
+    if(a==='desistir'){r.etapaAnterior=r.etapa;r.etapa='arquivo';r.resultado='sem_resposta';r.motivo='Sem resposta após 7 dias';r.aguardandoDesde=null;r.novo=false;sysNote(r,'Sem resposta após 7 dias. Marcado como desistência.');await persist(r,'Marcado como desistência');return}
+  }
   const t=ev.target.closest('[data-view],[data-open],[data-act],[data-delit],[data-delpay],[data-delconv],[data-addpac]');if(!t)return;
   if(t.dataset.view){tab=t.dataset.view;renderAll();return}
   if(t.dataset.open){openRec(t.dataset.open);return}
@@ -475,14 +629,14 @@ document.addEventListener('click',async ev=>{
     case 'encerrar':case 'naoaceito':case 'entregue':case 'contratar':case 'excluir':open.pending={kind:t.dataset.act};renderDrawer();break;
     case 'cf_no':open.pending=null;renderDrawer();break;
     case 'cf_ok':{const k=open.pending.kind;open.pending=null;
-      if(k==='encerrar'||k==='naoaceito'){const m=$('#cf_motivo').value,d=$('#cf_det').value.trim();r.motivo=m+(d?' — '+d:'');r.etapaAnterior=r.etapa;r.etapa='arquivo';r.novo=false;r.resultado=k==='encerrar'?'contato_encerrado':'orcamento_recusado';sysNote(r,(k==='encerrar'?'Contato encerrado: ':'Orçamento não aceito: ')+r.motivo);await persist(r,k==='encerrar'?'Contato encerrado':'Orçamento marcado como não aceito')}
-      else if(k==='contratar'){r.etapa='evento';r.evento.contratadoEm=today();sysNote(r,'Orçamento contratado — '+brl(total(r)));await persist(r,'Orçamento contratado. Agora em Eventos contratados.')}
+      if(k==='encerrar'||k==='naoaceito'){const m=$('#cf_motivo').value,d=$('#cf_det').value.trim();r.motivo=m+(d?' — '+d:'');r.etapaAnterior=r.etapa;r.etapa='arquivo';r.novo=false;r.aguardandoDesde=null;r.resultado=k==='encerrar'?'contato_encerrado':'orcamento_recusado';sysNote(r,(k==='encerrar'?'Contato encerrado: ':'Orçamento não aceito: ')+r.motivo);await persist(r,k==='encerrar'?'Contato encerrado':'Orçamento marcado como não aceito')}
+      else if(k==='contratar'){r.etapa='evento';r.aguardandoDesde=null;r.evento.contratadoEm=today();sysNote(r,'Orçamento contratado — '+brl(total(r)));await persist(r,'Orçamento contratado. Agora em Eventos contratados.')}
       else if(k==='entregue'){r.etapaAnterior='evento';r.etapa='arquivo';r.resultado='entregue';r.motivo='';r.evento.entregueEm=today();sysNote(r,'Evento entregue com sucesso');await persist(r,'Evento entregue com sucesso')}
       else if(k==='excluir'){const id=open.id;const {error}=await sb.from('pedidos').delete().eq('id',id);if(error){toast('Não foi possível excluir.');break}
         const sol=recs[id]?.solicitacao;if(sol&&sol.pdfUrl)sb.storage.from(C.bucketPdf).remove([sol.pdfPath||id+'.pdf']).then(()=>{});
         delete recs[id];closeDrawer();renderAll();toast('Registro excluído')}
       break}
-    case 'reabrir':{const back=r.etapaAnterior||'contato';r.etapa=back;r.resultado='';r.motivo='';if(back==='evento')r.evento.entregueEm='';sysNote(r,'Reaberto em '+STAGE_TITLE[back]);await persist(r,'Registro reaberto');break}
+    case 'reabrir':{const back=r.etapaAnterior||'contato';r.etapa=back;r.aguardandoDesde=null;r.followups={};r.resultado='';r.motivo='';if(back==='evento')r.evento.entregueEm='';sysNote(r,'Reaberto em '+STAGE_TITLE[back]);await persist(r,'Registro reaberto');break}
     case 'copy':{const txt=waText(r);try{await navigator.clipboard.writeText(txt);toast('Texto copiado. Cole no WhatsApp.')}catch(e){const root=$('.dbody');root.insertAdjacentHTML('afterbegin',`<section class="box"><h3>Copie o texto abaixo</h3><textarea class="cell" id="copyArea" rows="10" readonly>${esc(txt)}</textarea></section>`);const a=$('#copyArea');a.focus();a.select();root.scrollTop=0}break}
   }
 });
@@ -490,11 +644,15 @@ document.addEventListener('input',ev=>{
   const t=ev.target;
   if(t.id==='search'){q=t.value;renderBoard();return}
   if(!open)return;
+  if(t.dataset.f==='telefone'&&open.isNew){let d=t.value.replace(/\D/g,'');if(d.startsWith('55')&&(d.length===12||d.length===13))d=d.slice(2);const w=$('#dupWarn');
+    if(w){const ach=d.length>=10&&all().find(x=>String(x.r.telefone).replace(/\D/g,'').endsWith(d.slice(-9)));w.hidden=!ach;if(ach)w.textContent=`Já existe um contato com este número: ${ach.r.nome} (${STAGE_TITLE[ach.r.etapa]}).`}}
   if(t.dataset.f){setPath(open.draft,t.dataset.f,t.value);markDirty();if(t.dataset.f==='nome')document.querySelector('.dhead h2').textContent=t.value||'Sem nome';if(/taxa|desconto/.test(t.dataset.f))refreshTotals();if(t.dataset.f==='orcamento.dataEnvio'&&!open.draft.orcamento.prazoResposta){open.draft.orcamento.prazoResposta=addDays(t.value,3);const p=$('#f_orcamento_prazoResposta');if(p)p.value=open.draft.orcamento.prazoResposta}return}
   if(t.dataset.it!==undefined){open.draft.orcamento.itens[+t.dataset.it][t.dataset.k]=t.value;markDirty();refreshTotals()}
 });
-document.addEventListener('change',ev=>{if(open&&ev.target.dataset.f==='tipo'){renderDrawer()}});
-document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&open){if(open.pending){open.pending=null;renderDrawer()}else if(!open.dirty||open.isNew)closeDrawer()}if(ev.key==='Enter'&&(ev.target.id==='nc_txt')){ev.preventDefault();document.querySelector('[data-act="addconv"]')?.click()}});
+document.addEventListener('change',ev=>{if(!open)return;const f=ev.target.dataset.f;if(f==='tipo')renderDrawer();
+  if(f==='reuniao.em'&&!open.isNew){const v=ev.target.value;sysNote(open.draft,v?`Reunião marcada para ${fd(v.slice(0,10))} às ${v.slice(11,16)}.`:'Reunião desmarcada.')}
+  if(f==='orcamento.prazoResposta'&&!open.isNew&&ev.target.value)sysNote(open.draft,`Prazo para resposta do cliente: ${fd(ev.target.value)}.`)});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&msgAberto&&!open){msgAberto=false;renderMsgs();return}if(ev.key==='Escape'&&open){if(open.pending){open.pending=null;renderDrawer()}else if(!open.dirty||open.isNew)closeDrawer()}if(ev.key==='Enter'&&(ev.target.id==='nc_txt')){ev.preventDefault();document.querySelector('[data-act="addconv"]')?.click()}});
 $('#btnNovo').addEventListener('click',()=>{if(!canWrite){toast('Você não tem permissão para editar.');return}openNew()});
 
 /* ---------- Arrastar entre colunas ---------- */
@@ -556,13 +714,32 @@ $('#socRoot').addEventListener('click',async ev=>{
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&soc&&!open)fecharSocios()});
 $('#btnSocios').addEventListener('click',()=>{if(!sb)return;abrirSocios()});
 
+/* ---------- Mensagens de follow-up ---------- */
+let msgAberto=false;
+function renderMsgs(){
+  const root=$('#msgRoot');if(!msgAberto){root.innerHTML='';return}
+  root.innerHTML=`<div class="scrim" data-msg="fechar"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Mensagens de follow-up">
+   <div class="dhead"><div><div class="stage">Textos prontos</div><h2>Mensagens de follow-up</h2></div><button class="close" data-msg="fechar" aria-label="Fechar">×</button></div>
+   <div class="dbody"><p class="meta" style="margin:0">Use {nome}, {evento} e {data}. Elas são preenchidas com os dados de cada contato.</p>
+    ${FU.map(f=>`<label class="f">${f.k==='d7'?'7 dias (última abordagem)':f.label}<textarea id="msg_${f.k}" rows="6">${esc(mensagens[f.k])}</textarea></label>`).join('')}</div>
+   <div class="dfoot"><button class="btn ghost" data-msg="padrao">Restaurar padrão</button><span class="grow"></span><button class="btn ghost" data-msg="fechar">Cancelar</button><button class="btn primary" data-msg="salvar">Salvar mensagens</button></div></aside>`;
+}
+$('#msgRoot').addEventListener('click',async ev=>{const b=ev.target.closest('[data-msg]');if(!b)return;const a=b.dataset.msg;
+  if(a==='fechar'){msgAberto=false;renderMsgs();return}
+  if(a==='padrao'){FU.forEach(f=>{$('#msg_'+f.k).value=MSG_PADRAO[f.k]});return}
+  if(a==='salvar'){const v={};FU.forEach(f=>{v[f.k]=$('#msg_'+f.k).value.trim()||MSG_PADRAO[f.k]});
+    const {error}=await sb.from('pedidos_config').upsert({chave:'mensagens',valor:v,atualizado_em:new Date().toISOString()});
+    if(error){toast('Não foi possível salvar as mensagens.');return}mensagens={...MSG_PADRAO,...v};msgAberto=false;renderMsgs();if(open&&!open.dirty)renderDrawer();toast('Mensagens salvas')}});
+$('#btnMsgs').addEventListener('click',()=>{msgAberto=true;renderMsgs()});
+setInterval(()=>{if(!loaded||!sb)return;renderKpis();if(document.activeElement&&document.activeElement.id==='search')return;renderToolbar();renderBoard();if(open&&!open.dirty&&!open.isNew&&!open.pending&&!document.activeElement?.closest?.('.drawer'))renderDrawer()},60000);
+
 /* ---------- CSV ---------- */
 $('#btnExport').addEventListener('click',()=>{
-  const cols=['Etapa','Resultado','Protocolo','Nome','Telefone','Origem','Tipo','Ocasião','Interesse','Primeiro contato','Data do evento','Horário','Entrega','Local','Itens','Total','Forma de pagamento','Condições','Orçamento enviado','Prazo resposta','Contratado em','Pago','Saldo','Entregue em','Motivo','PDF do pedido','Conversas'];
+  const cols=['Etapa','Resultado','Protocolo','Nome','Telefone','Origem','Tipo','Ocasião','Interesse','Primeiro contato','Data do evento','Horário','Entrega','Local','Itens','Total','Forma de pagamento','Condições','Orçamento enviado','Prazo resposta','Contratado em','Pago','Saldo','Entregue em','Motivo','PDF do pedido','Reunião','Formato da reunião','Aguardando resposta desde','Conversas'];
   const cell=v=>{const s=String(v??'');return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
   const money=n=>(Number(n)||0).toFixed(2).replace('.',',');
   const lines=[cols.join(';')];
-  all().forEach(({r})=>{const o=r.orcamento;lines.push([STAGE_TITLE[r.etapa],RESULT[r.resultado]?.t||'',r.solicitacao?.protocolo||'',r.nome,r.telefone,r.origem,r.tipo,r.categoria,r.interesse,fd(r.criadoEm),fd(o.dataEvento),o.horario,o.modo,o.local,o.itens.map(i=>`${num(i.qtd)}x ${i.desc} (${money(i.unit)})`).join(' | '),money(total(r)),o.formaPgto,o.condicoes,fd(o.dataEnvio),fd(o.prazoResposta),fd(r.evento.contratadoEm),money(pago(r)),money(saldo(r)),fd(r.evento.entregueEm),r.motivo,r.solicitacao?.pdfUrl||'',r.conversas.map(c=>fd(c.data)+': '+c.texto).join(' | ')].map(cell).join(';'))});
+  all().forEach(({r})=>{const o=r.orcamento;lines.push([STAGE_TITLE[r.etapa],RESULT[r.resultado]?.t||'',r.solicitacao?.protocolo||'',r.nome,r.telefone,r.origem,r.tipo,r.categoria,r.interesse,fd(r.criadoEm),fd(o.dataEvento),o.horario,o.modo,o.local,o.itens.map(i=>`${num(i.qtd)}x ${i.desc} (${money(i.unit)})`).join(' | '),money(total(r)),o.formaPgto,o.condicoes,fd(o.dataEnvio),fd(o.prazoResposta),fd(r.evento.contratadoEm),money(pago(r)),money(saldo(r)),fd(r.evento.entregueEm),r.motivo,r.solicitacao?.pdfUrl||'',r.reuniao.em?fd(r.reuniao.em.slice(0,10))+' '+r.reuniao.em.slice(11,16):'',r.reuniao.tipo,r.aguardandoDesde?fdt(r.aguardandoDesde):'',r.conversas.map(c=>fd(c.data)+': '+c.texto).join(' | ')].map(cell).join(';'))});
   const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chowder-pedidos-'+today()+'.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('Planilha salva');
 });
@@ -574,6 +751,7 @@ async function carregar(){
   const {data,error}=await sb.from('pedidos').select('id,dados').order('criado_em',{ascending:false});
   if(error){loaded=true;notice('Não foi possível carregar os registros. '+esc(error.message));renderAll();return}
   const n={};data.forEach(x=>{n[x.id]=x.dados});recs=n;loaded=true;
+  sb.from('pedidos_config').select('valor').eq('chave','mensagens').maybeSingle().then(({data:cfg})=>{if(cfg&&cfg.valor)mensagens={...MSG_PADRAO,...cfg.valor}});
   if(!data.length){const {data:adm}=await sb.from('pedidos_admins').select('email').limit(1);if(!adm||!adm.length){canWrite=false;notice('Seu e-mail (<b>'+esc(userEmail)+'</b>) ainda não está na lista de sócios autorizados. Peça para incluir na tabela <b>pedidos_admins</b> do Supabase.')}}
   renderAll();
   if(channel)sb.removeChannel(channel);

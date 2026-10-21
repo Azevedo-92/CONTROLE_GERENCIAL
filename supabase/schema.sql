@@ -83,3 +83,21 @@ drop policy if exists "pedidos: admin apaga pdf" on storage.objects;
 create policy "pedidos: admin apaga pdf" on storage.objects
   for delete to authenticated
   using (bucket_id = 'pedidos-pdf' and public.pedidos_is_admin());
+
+-- 7) Configurações do painel (ex.: textos de follow-up), compartilhadas entre os sócios.
+create table if not exists public.pedidos_config (
+  chave text primary key,
+  valor jsonb not null,
+  atualizado_em timestamptz not null default now()
+);
+alter table public.pedidos_config enable row level security;
+drop policy if exists "admin le config" on public.pedidos_config;
+drop policy if exists "admin cria config" on public.pedidos_config;
+drop policy if exists "admin altera config" on public.pedidos_config;
+create policy "admin le config" on public.pedidos_config for select to authenticated using (public.pedidos_is_admin());
+create policy "admin cria config" on public.pedidos_config for insert to authenticated with check (public.pedidos_is_admin());
+create policy "admin altera config" on public.pedidos_config for update to authenticated using (public.pedidos_is_admin()) with check (public.pedidos_is_admin());
+grant select, insert, update on public.pedidos_config to authenticated;
+grant select, insert, update, delete on public.pedidos_admins to service_role;
+grant select, insert, update, delete on public.pedidos to service_role;
+grant select, insert, update, delete on public.pedidos_config to service_role;
