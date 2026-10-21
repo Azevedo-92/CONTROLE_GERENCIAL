@@ -1,18 +1,21 @@
 // =====================================================================
-//  Chef Chowder bake shop — configuração única da landing e do painel
+//  Chowder Macarons — configuração única da landing e do painel
 //  Altere aqui: links, textos de prazo, preços e a conexão com o banco.
 // =====================================================================
 window.CHOWDER = {
+  marca: "Chowder Macarons",
+
   // Contatos e links
   whatsapp:  "5527988590855",           // só números, com 55 + DDD
   whatsappExibicao: "(27) 98859-0855",
   instagram: "https://instagram.com/chowdermacarons",
   instagramUser: "@chowdermacarons",
   ifood:     "https://www.ifood.com.br/delivery/vitoria-es/confeitaria-chowder-macarons-enseada-do-sua/447e4137-8254-44de-9143-e015cbc459f1?utm_medium=share",
-  maps:      "https://goo.gl/maps/4Exfw2Ujws6unYYh7",
-  video:     "https://www.instagram.com/reel/DXmqRrfDsN1/?igsh=MW9sOXkxeWYzbHl2eg==",
-  endereco:  "Av. Américo Buaiz, 200, Shopping Vitória",
-  bairro:    "Enseada do Suá, Vitória, ES, 29050-420",
+  maps:      "https://www.google.com/maps/search/?api=1&query=Av.+C%C3%A9zar+Hilal%2C+570%2C+loja+4%2C+Bento+Ferreira%2C+Vit%C3%B3ria+-+ES%2C+29050-657",
+  video:     "",                       // vídeo de como chegar ("" esconde o botão)
+  endereco:  "Av. Cézar Hilal, 570, loja 4",
+  bairro:    "Bento Ferreira, Vitória-ES, 29050-657",
+  horarios:  [["Segunda a sexta", "10h às 17h"]],
 
   // Pontos que os sócios ainda vão decidir (deixe "" para esconder da página)
   prazoResposta: "até 24 horas úteis",
@@ -26,8 +29,9 @@ window.CHOWDER = {
   bucketPdf:       "pedidos-pdf",
 
   // Listas compartilhadas entre landing e painel
-  ocasioes: ["Casamento", "Aniversário", "Festa corporativa", "Batizado", "Chá de bebê", "Outro"],
-  necessidades: ["Torre de macarons", "Mesa de doces", "Lembrancinhas", "Macarons avulsos", "Brownies", "Cookies"],
+  ocasioes: ["Casamento", "Aniversário", "Corporativo", "Batizado", "Chá de bebê", "Maternidade", "Presente", "Outro"],
+  necessidades: ["Torre de macarons", "Mesa de doces", "Ateliê de macarons ao vivo", "Lembrancinhas", "Macarons avulsos", "Brownies", "Cookies"],
+  atelie: "Ateliê de macarons ao vivo: um carrinho na festa onde os convidados montam os próprios macarons.",
   pacotes: [
     { id: "torre4",  nome: "Torre de 4 andares",  detalhe: "cerca de 50 macarons",  qtd: 1, valor: 410 },
     { id: "torre6",  nome: "Torre de 6 andares",  detalhe: "cerca de 100 macarons", qtd: 1, valor: 750, destaque: "Mais pedido" },
@@ -39,6 +43,16 @@ window.CHOWDER = {
     { nome: "Macaron acima de 200 unidades", valor: "R$ 6,50 cada" },
     { nome: "Entrega até 10 km / até 20 km", valor: "R$ 80 / R$ 120" },
     { nome: "Montagem da torre", valor: "R$ 40,00" }
+  ],
+  // Portfólio (carrossel). Para trocar fotos: coloque o arquivo em assets/img/portfolio/ e ajuste aqui.
+  portfolio: [
+    { src: "assets/img/mesa-rosas.webp",            legenda: "Mesa de doces com rosas",      tipo: "Eventos" },
+    { src: "assets/img/torre-flores.webp",          legenda: "Torre de macarons em casamento", tipo: "Eventos" },
+    { src: "assets/img/torre-bolo.webp",            legenda: "Torre ao lado do bolo",         tipo: "Eventos" },
+    { src: "assets/img/torre-cores.webp",           legenda: "Cores da sua paleta",          tipo: "Personalizados" },
+    { src: "assets/img/caixinhas-tag.webp",         legenda: "Tag com logo ou mensagem",     tipo: "Personalizados" },
+    { src: "assets/img/lembrancinhas-brownie.webp", legenda: "Lembrancinhas em volume",      tipo: "Lembrancinhas" },
+    { src: "assets/img/caixa-5-macarons.webp",      legenda: "Caixinha com 5 macarons",      tipo: "Lembrancinhas" }
   ],
   sabores: ["Framboesa", "Blueberry", "Café", "Morango", "Manga com maracujá", "Limão siciliano", "Pistache", "Chocolate"]
 };

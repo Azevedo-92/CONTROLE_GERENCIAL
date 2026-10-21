@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Chef Chowder bake shop | Encomendas e orçamento</title>
+<title>Chowder Macarons | Encomendas e orçamento</title>
 <meta name="description" content="Torres de macarons, mesas de doces e lembrancinhas pelo Chef Daniel Souza. Peça seu orçamento pelo WhatsApp.">
 <meta name="theme-color" content="#131F37">
-<meta property="og:title" content="Chef Chowder bake shop | Peça seu orçamento">
-<meta property="og:description" content="Todo grande momento merece um final à altura. Torres de macarons, mesas de doces e lembrancinhas.">
+<meta property="og:title" content="Chowder Macarons | Peça seu orçamento">
+<meta property="og:description" content="Todo grande momento merece um doce fino. Torres de macarons, mesas de doces e lembrancinhas.">
 <meta property="og:image" content="assets/img/torre-flores.webp">
 <link rel="icon" href="assets/img/icone.png">
 <link rel="apple-touch-icon" href="assets/img/icone.png">
@@ -191,17 +191,41 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .closing h2{font-size:clamp(1.9rem,6vw,2.5rem);font-weight:500}
 .closing .btn{max-width:420px;margin:18px auto 0;background:var(--gold);color:var(--navy);box-shadow:none}
 .closing .btn.wa{background:transparent;color:var(--on-dark);box-shadow:inset 0 0 0 1px rgba(245,239,230,.5);margin-top:10px}
-footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(96px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
+footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(200px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
 footer img{height:54px;width:auto;margin-bottom:12px}
 footer a{color:var(--gold)}
-.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:99px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.fab{display:flex;align-items:center;gap:8px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:99px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
 .fab svg{width:22px;height:22px}
+/* Carrossel do portfólio */
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.filtros button{font:600 .9rem var(--f-body);padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer}
+.filtros button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.car{position:relative}
+.car-track{display:grid;grid-auto-flow:column;grid-auto-columns:72%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding-bottom:4px;scrollbar-width:none;outline:none}
+.car-track::-webkit-scrollbar{display:none}
+@media (min-width:700px){.car-track{grid-auto-columns:calc((100% - 20px)/3)}}
+.car-track figure{margin:0;position:relative;scroll-snap-align:start;border-radius:12px;overflow:hidden;background:var(--line)}
+.car-track img{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;display:block}
+.car-track figcaption{position:absolute;left:8px;bottom:8px;right:8px;background:rgba(19,31,55,.85);color:var(--on-dark);font-size:.84rem;font-weight:600;padding:6px 12px;border-radius:99px;width:fit-content;max-width:calc(100% - 16px)}
+.car-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:44px;height:44px;border-radius:50%;border:1px solid rgba(196,162,101,.7);background:rgba(19,31,55,.85);color:#fff;font-size:1.6rem;line-height:1;cursor:pointer;display:none}
+.car-nav.prev{left:-6px}.car-nav.next{right:-6px}
+@media (hover:hover) and (min-width:700px){.car-nav{display:grid;place-items:center}}
+.car-dots{display:flex;justify-content:center;gap:6px;margin-top:12px}
+.car-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.car-dots i.on{background:var(--bord);width:18px;border-radius:99px}
+/* Botões flutuantes */
+.fabs{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:row;align-items:center;gap:8px}
+.fab-mini{width:46px;height:46px;flex:none;border-radius:50%;display:grid;place-items:center;color:#fff;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.fab-mini svg{width:24px;height:24px}
+.fab-mini.ifood{background:#EA1D2C;font:800 .78rem/1 var(--f-body);letter-spacing:-.02em}
+.fab-mini.ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+
 @media (prefers-reduced-motion:no-preference){.reveal{animation:up .5s ease both}@keyframes up{from{opacity:0;transform:translateY(10px)}}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a href="#topo" aria-label="Chef Chowder bake shop, início"><img src="assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="70" height="40"></a>
+  <a href="#topo" aria-label="Chowder Macarons, início"><img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="70" height="40"></a>
   <nav aria-label="Seções"><a href="#duvidas">Dúvidas</a><a class="cta" href="#orcamento">Orçamento</a></nav>
 </div></header>
 
@@ -210,7 +234,7 @@ footer a{color:var(--gold)}
     <div class="wrap">
       <img class="logo" src="assets/img/logo-branca.webp" alt="" width="230" height="131">
       <div class="rule" aria-hidden="true"><i></i></div>
-      <h1>Todo grande momento merece um <em>final à altura.</em></h1>
+      <h1>Todo grande momento merece um <em>doce fino.</em></h1>
       <p class="tags"><b>Mesas de doces</b> <span>•</span> <b>Torres de macarons</b> <span>•</span> <b>Lembrancinhas</b></p>
       <p class="lead">pelo Chef Daniel Souza</p>
       <div class="strip">
@@ -254,7 +278,7 @@ footer a{color:var(--gold)}
         <div class="lbl" id="lbl-entrega">Como prefere receber?</div>
         <div class="seg" role="radiogroup" aria-labelledby="lbl-entrega">
           <label class="chip"><input type="radio" name="entrega" value="Entrega no local" checked><span>Entrega no local</span></label>
-          <label class="chip"><input type="radio" name="entrega" value="Retirada no quiosque"><span>Retirada no quiosque</span></label>
+          <label class="chip"><input type="radio" name="entrega" value="Retirada na fábrica"><span>Retirada na fábrica</span></label>
         </div>
         <div id="wrap-local"><label class="f" for="local">Local ou bairro do evento</label><input id="local" maxlength="160" placeholder="Ex.: Buffet X, Praia do Canto"></div>
 
@@ -296,28 +320,18 @@ footer a{color:var(--gold)}
     </div>
   </div>
 
-  <!-- GALERIAS -->
-  <section class="blk"><div class="wrap">
+  <!-- PORTFÓLIO -->
+  <section class="blk" id="portfolio"><div class="wrap">
     <span class="eyebrow">Portfólio</span>
     <h2>Celebrações com a nossa assinatura</h2>
-    <p class="sub">Torres de macarons em casamentos e celebrações.</p>
-    <div class="gal">
-      <figure class="wide"><img loading="lazy" src="assets/img/mesa-rosas.webp" width="700" height="466" alt="Torre de macarons em mesa de doces com rosas"></figure>
-      <figure><img loading="lazy" src="assets/img/torre-flores.webp" width="520" height="693" alt="Torre de macarons com flores cor-de-rosa"></figure>
-      <figure><img loading="lazy" src="assets/img/torre-bolo.webp" width="520" height="693" alt="Torre de macarons ao lado do bolo de casamento"></figure>
+    <p class="sub">Torres, mesas de doces, lembrancinhas e embalagens personalizadas.</p>
+    <div class="filtros" id="filtros" role="tablist" aria-label="Filtrar portfólio"></div>
+    <div class="car" aria-roledescription="carrossel">
+      <button class="car-nav prev" id="car-prev" type="button" aria-label="Foto anterior">‹</button>
+      <div class="car-track" id="car-track" tabindex="0"></div>
+      <button class="car-nav next" id="car-next" type="button" aria-label="Próxima foto">›</button>
     </div>
-  </div></section>
-
-  <section class="blk"><div class="wrap">
-    <span class="eyebrow">Personalização</span>
-    <h2>Feito sob medida</h2>
-    <p class="sub">Cores, embalagens, fitas e tags personalizadas para o seu evento.</p>
-    <div class="gal four">
-      <figure><img loading="lazy" src="assets/img/torre-cores.webp" width="520" height="693" alt="Torre de macarons em verde e chocolate"><figcaption>Cores da sua paleta</figcaption></figure>
-      <figure><img loading="lazy" src="assets/img/caixinhas-tag.webp" width="520" height="693" alt="Caixinhas de macarons com laço azul e tag personalizada"><figcaption>Tag com logo ou mensagem</figcaption></figure>
-      <figure><img loading="lazy" src="assets/img/lembrancinhas-brownie.webp" width="520" height="693" alt="Mesa de lembrancinhas de brownie com laços"><figcaption>Lembrancinhas em volume</figcaption></figure>
-      <figure><img loading="lazy" src="assets/img/caixa-5-macarons.webp" width="460" height="818" alt="Caixa com 5 macarons e laço azul"><figcaption>Caixinha com 5 macarons</figcaption></figure>
-    </div>
+    <div class="car-dots" id="car-dots" aria-hidden="true"></div>
     <a class="btn" href="#orcamento" style="margin-top:16px">Pedir meu orçamento</a>
   </div></section>
 
@@ -325,12 +339,12 @@ footer a{color:var(--gold)}
   <section class="blk" id="duvidas"><div class="wrap">
     <span class="eyebrow">Antes de pedir</span>
     <h2>Dúvidas frequentes</h2>
-    <p class="sub">Tudo para você conhecer a Chef Chowder.</p>
+    <p class="sub">Tudo para você conhecer a Chowder Macarons.</p>
     <div class="faq">
       <details>
         <summary><span class="ic" aria-hidden="true">✦</span>Quem somos</summary>
         <div class="dd">
-          <p>Da cozinha das avós à pâtisserie francesa: o Chef Daniel Souza deixou o Direito para seguir a confeitaria, formou-se pela Le Cordon Bleu São Paulo em 2021 e hoje produz tudo em cozinha profissional própria. Em 2024 abriu o quiosque no Shopping Vitória e passou a atender eventos.</p>
+          <p>Da cozinha das avós à pâtisserie francesa: o Chef Daniel Souza deixou o Direito para seguir a confeitaria, formou-se pela Le Cordon Bleu São Paulo em 2021 e hoje produz tudo em cozinha profissional própria. Em 2024 passou a atender eventos e hoje produz tudo na própria fábrica, em Bento Ferreira, Vitória.</p>
           <div class="chef">
             <img loading="lazy" src="assets/img/chef-daniel.webp" width="720" height="1174" alt="Chef Daniel Souza segurando um macaron">
             <div><h3 style="font-size:1.4rem">O Chef</h3><p style="margin-top:6px">Daniel Souza une a precisão da técnica francesa aos sabores e ao afeto brasileiro. As receitas são autorais, e ele é fundador da Chef Chowder Academy, onde ensina a técnica do macaron.</p></div>
@@ -338,11 +352,12 @@ footer a{color:var(--gold)}
         </div>
       </details>
       <details>
-        <summary><span class="ic" aria-hidden="true">⌖</span>Onde estamos e horários</summary>
+        <summary><span class="ic" aria-hidden="true">⌖</span>Onde estamos e horário</summary>
         <div class="dd">
           <p id="end"></p>
-          <ul class="list"><li>Segunda a sábado<b>10h às 22h</b></li><li>Domingo<b>13h às 21h</b></li></ul>
-          <div class="mini2">
+          <p style="margin-top:4px;color:var(--mute);font-size:.92rem">Fábrica e ponto de retirada das encomendas.</p>
+          <ul class="list" id="horarios"></ul>
+          <div class="mini2" id="mapas">
             <a class="btn navy" id="l-maps" href="#" target="_blank" rel="noopener">Abrir no mapa</a>
             <a class="btn navy" id="l-video" href="#" target="_blank" rel="noopener">Vídeo: como chegar</a>
           </div>
@@ -373,7 +388,7 @@ footer a{color:var(--gold)}
             <li><div><b>Conversa</b><span>Você envia o pedido por aqui e falamos pelo WhatsApp sobre a ocasião.</span></div></li>
             <li><div><b>Proposta</b><span id="passo-prop">Enviamos a proposta personalizada com valores, sabores e embalagens.</span></div></li>
             <li><div><b>Produção</b><span>Com o sinal confirmado, produzimos tudo artesanalmente.</span></div></li>
-            <li><div><b>Entrega</b><span>Entregamos e montamos no local, ou você retira no quiosque.</span></div></li>
+            <li><div><b>Entrega</b><span>Entregamos e montamos no local, ou você retira na fábrica.</span></div></li>
           </ol>
         </div>
       </details>
@@ -391,16 +406,20 @@ footer a{color:var(--gold)}
 </main>
 
 <footer><div class="wrap">
-  <img src="assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="95" height="54" loading="lazy">
+  <img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="95" height="54" loading="lazy">
   <div id="f-end"></div>
   <div>WhatsApp <span id="f-wa"></span></div>
   <a id="l-ig" href="#" target="_blank" rel="noopener"></a>
 </div></footer>
 
+<div class="fabs">
+<a class="fab-mini ifood" id="f-ifood" href="#" target="_blank" rel="noopener" aria-label="Pedir no iFood">iFood</a>
+<a class="fab-mini ig" id="f-ig" href="#" target="_blank" rel="noopener" aria-label="Instagram da Chowder Macarons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
 <a class="fab" id="l-fab" href="#" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.5.4.1.1.1.7-.1 1.3Z"/></svg>
   WhatsApp
 </a>
+</div>
 
 <script src="js/config.js"></script>
 <script src="assets/vendor/jspdf.umd.min.js" defer></script>
@@ -415,16 +434,38 @@ document.addEventListener("DOMContentLoaded", function () {
   const waBase = "https://wa.me/" + C.whatsapp;
 
   // ---------- Conteúdo vindo da configuração ----------
-  $("#l-maps").href = C.maps; $("#l-video").href = C.video; $("#l-ifood").href = C.ifood;
+  $("#l-maps").href = C.maps; $("#l-ifood").href = C.ifood; $("#f-ifood").href = C.ifood; $("#f-ig").href = C.instagram;
+  if (C.video) $("#l-video").href = C.video; else { $("#l-video").remove(); $("#mapas").style.gridTemplateColumns = "1fr"; }
+  $("#horarios").innerHTML = (C.horarios || []).map(h => `<li>${esc(h[0])}<b>${esc(h[1])}</b></li>`).join("");
   $("#l-ig").href = C.instagram; $("#l-ig").textContent = C.instagramUser;
   $("#f-wa").textContent = C.whatsappExibicao;
   $("#end").innerHTML = esc(C.endereco) + "<br>" + esc(C.bairro);
   $("#f-end").textContent = C.endereco + ", " + C.bairro;
-  const duvida = waBase + "?text=" + encodeURIComponent("Olá! Vim pela página da Chef Chowder e tenho uma dúvida.");
+  const duvida = waBase + "?text=" + encodeURIComponent("Olá! Vim pela página da Chowder Macarons e tenho uma dúvida.");
   $("#l-wa").href = duvida; $("#l-fab").href = duvida;
 
   $("#ocasioes").innerHTML = C.ocasioes.map((o, i) => `<label class="chip"><input type="radio" name="ocasiao" value="${esc(o)}"${i === 0 ? " checked" : ""}><span>${esc(o)}</span></label>`).join("");
   $("#necessidades").innerHTML = C.necessidades.map(o => `<label class="chip"><input type="checkbox" name="nec" value="${esc(o)}"><span>${esc(o)}</span></label>`).join("");
+  if (C.atelie) $("#necessidades").insertAdjacentHTML("afterend", `<p class="hint" style="margin-top:8px"><b style="color:var(--gold-ink)">Novidade.</b> ${esc(C.atelie)}</p>`);
+
+  // ---------- Carrossel do portfólio ----------
+  const fotos = C.portfolio || [], track = $("#car-track"), dots = $("#car-dots");
+  const tipos = ["Todos", ...new Set(fotos.map(f => f.tipo).filter(Boolean))];
+  let filtro = "Todos";
+  function montar() {
+    const lista = fotos.filter(f => filtro === "Todos" || f.tipo === filtro);
+    track.innerHTML = lista.map((f, i) => `<figure><img src="${esc(f.src)}" alt="${esc(f.legenda)}" width="520" height="650" loading="${i < 3 ? "eager" : "lazy"}"><figcaption>${esc(f.legenda)}</figcaption></figure>`).join("");
+    dots.innerHTML = lista.map((_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("");
+    track.scrollLeft = 0;
+  }
+  $("#filtros").innerHTML = tipos.length > 2 ? tipos.map(t => `<button type="button" role="tab" aria-selected="${t === filtro}" data-f="${esc(t)}">${esc(t)}</button>`).join("") : "";
+  $("#filtros").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (!b) return; filtro = b.dataset.f; document.querySelectorAll("#filtros button").forEach(x => x.setAttribute("aria-selected", x === b)); montar(); });
+  const passo = () => (track.firstElementChild ? track.firstElementChild.getBoundingClientRect().width + 10 : 300);
+  $("#car-prev").addEventListener("click", () => track.scrollBy({ left: -passo(), behavior: "smooth" }));
+  $("#car-next").addEventListener("click", () => track.scrollBy({ left: passo(), behavior: "smooth" }));
+  track.addEventListener("keydown", e => { if (e.key === "ArrowRight") track.scrollBy({ left: passo() }); if (e.key === "ArrowLeft") track.scrollBy({ left: -passo() }); });
+  track.addEventListener("scroll", () => { const i = Math.round(track.scrollLeft / passo()); dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k === i)); }, { passive: true });
+  montar();
   $("#pacotes").innerHTML = `<label class="pac"><input type="radio" name="pacote" value="" checked><span class="box"><span class="nm">Ainda não sei</span><span class="dt">O Chef te ajuda a escolher</span></span></label>`
     + C.pacotes.map(p => `<label class="pac"><input type="radio" name="pacote" value="${esc(p.id)}"><span class="box">${p.destaque ? `<span class="tag">${esc(p.destaque)}</span>` : ""}<span class="nm">${esc(p.nome)}</span><span class="dt">${esc(p.detalhe)}</span>${C.mostrarPrecos ? `<span class="vl">a partir de ${brl(p.valor)}</span>` : ""}</span></label>`).join("");
   $("#hint-pac").textContent = C.mostrarPrecos ? "Valores de referência, sem entrega e montagem. O orçamento final é personalizado." : "O valor final vem na proposta personalizada.";
@@ -524,7 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
           interesse: [p.necessidades.join(", "), p.pacote ? p.pacote.nome : "", p.quantidade].filter(Boolean).join(" · "),
           etapa: "contato", novo: true, criadoEm: hojeIso,
           conversas: [{ data: hojeIso, texto: "Pedido recebido pela landing page (" + p.protocolo + ")", sistema: true }],
-          orcamento: { dataEvento: p.data, local: p.local, modo: entrega === "Entrega no local" ? "Entrega no local" : "Retirada na loja", obs: p.obs },
+          orcamento: { dataEvento: p.data, local: p.local, modo: entrega === "Entrega no local" ? "Entrega no local" : "Retirada na fábrica", obs: p.obs },
           solicitacao: { protocolo: p.protocolo, enviadoEm: p.criadoEm, ocasiao: p.ocasiao, data: p.data, quantidade: p.quantidade, entrega, local: p.local, necessidades: p.necessidades, pacote: p.pacote ? { id: p.pacote.id, nome: p.pacote.nome, detalhe: p.pacote.detalhe, valor: p.pacote.valor } : null, obs: p.obs, pdfUrl: pdfPublico, pdfPath: pdfPublico ? tk + ".pdf" : "", pdfLink, utm }
         };
         const ins = await sb.from("pedidos").insert({ id, dados });
@@ -535,7 +576,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Mensagem do WhatsApp
     const L = [
-      "Olá! Acabei de pedir um orçamento pela página da Chef Chowder.",
+      "Olá! Acabei de pedir um orçamento pela página da Chowder Macarons.",
       "",
       "*Protocolo:* " + p.protocolo,
       "*Nome:* " + p.nome,
@@ -552,7 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Tela de conclusão
     if (pdfUrlLocal) URL.revokeObjectURL(pdfUrlLocal);
-    const nomeArq = "Pedido-Chef-Chowder-" + p.protocolo + ".pdf";
+    const nomeArq = "Pedido-Chowder-Macarons-" + p.protocolo + ".pdf";
     pdfUrlLocal = blob ? URL.createObjectURL(blob) : null;
     pdfFile = blob ? new File([blob], nomeArq, { type: "application/pdf" }) : null;
     ultimo = p;
@@ -570,7 +611,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   $("#d-share").addEventListener("click", async () => {
-    try { await navigator.share({ files: [pdfFile], title: "Pedido " + (ultimo ? ultimo.protocolo : ""), text: "Pedido de orçamento — Chef Chowder" }); } catch (e) {}
+    try { await navigator.share({ files: [pdfFile], title: "Pedido " + (ultimo ? ultimo.protocolo : ""), text: "Pedido de orçamento — Chowder Macarons" }); } catch (e) {}
   });
   $("#d-novo").addEventListener("click", () => {
     $("#form").reset(); $("#wrap-local").hidden = false; $("#done").hidden = true; $("#form").hidden = false; $("#nome").focus();

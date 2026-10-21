@@ -194,7 +194,7 @@ table.items td.r,table.items th.r{text-align:right}
 </head>
 <body>
 <div class="band"><div class="in">
-  <div class="brand"><img src="../assets/img/logo-branca.webp" alt="Chef Chowder bake shop" width="84" height="48"><h1>Pedidos e eventos<small>Contatos, orçamentos e eventos contratados</small></h1></div>
+  <div class="brand"><img src="../assets/img/logo-branca.webp" alt="Chowder Macarons" width="84" height="48"><h1>Pedidos e eventos<small>Contatos, orçamentos e eventos contratados</small></h1></div>
   <div class="top-actions" id="topActions" hidden>
     <span class="who" id="who"></span>
     <button class="btn" id="btnSocios">Sócios</button>
@@ -206,7 +206,7 @@ table.items td.r,table.items th.r{text-align:right}
 
 <form class="login" id="login" hidden>
   <h2>Entrar no painel</h2>
-  <p>Acesso restrito aos sócios da Chef Chowder.</p>
+  <p>Acesso restrito aos sócios da Chowder Macarons.</p>
   <label class="f">E-mail<input id="lg_email" type="email" autocomplete="username" required></label>
   <label class="f">Senha<input id="lg_senha" type="password" autocomplete="current-password" required></label>
   <button class="btn primary" type="submit" style="justify-content:center;padding:10px">Entrar</button>
@@ -240,7 +240,7 @@ const ORIGENS=['WhatsApp','Instagram','Site','Indicação','Loja','Outro'];
 const TIPOS=['Evento','Pronta entrega'];
 const CATEGORIAS=[...new Set([...C.ocasioes.filter(o=>o!=='Outro'),'Presente','Pronta entrega','Outro'])];
 const FORMAS=['PIX','Cartão de crédito','Cartão de débito','Dinheiro','Transferência','Boleto'];
-const MODOS=['Entrega no local','Retirada na loja'];
+const MODOS=['Entrega no local','Retirada na fábrica'];
 const MOT_ENCERRAR=['Só pesquisando preço','Parou de responder','Data indisponível','Fora do orçamento do cliente','Fechou com outro fornecedor','Outro'];
 const MOT_RECUSA=['Achou caro','Fechou com outro fornecedor','Desistiu do evento','Sem resposta no prazo','Mudou a data','Outro'];
 const RESULT={contato_encerrado:{t:'Contato encerrado',c:'warn'},orcamento_recusado:{t:'Orçamento não aceito',c:'crit'},entregue:{t:'Entregue com sucesso',c:'ok'}};
@@ -346,7 +346,7 @@ function secSite(r){const s=r.solicitacao;if(!s)return '';
    ${s.obs?`<div class="full"><dt>Observações</dt><dd style="white-space:pre-wrap">${esc(s.obs)}</dd></div>`:''}
    ${utm?`<div class="full"><dt>Campanha</dt><dd>${esc(utm)}</dd></div>`:''}
   </dl>
-  <div class="chips" style="gap:8px">${s.pdfUrl?`<a class="btn sm" href="${esc(s.pdfPath?'/pdf/'+s.pdfPath.replace(/\.pdf$/,''):s.pdfUrl)}" target="_blank" rel="noopener">Abrir PDF do pedido</a>`:'<span class="chip">PDF não foi salvo</span>'}<a class="btn sm wa" href="${esc(waLink(r.telefone,'Olá, '+(r.nome.split(' ')[0]||'')+'! Aqui é da Chef Chowder. Recebemos seu pedido '+(s.protocolo||'')+' e já estamos preparando sua proposta.'))}" target="_blank" rel="noopener">Responder no WhatsApp</a></div></section>`}
+  <div class="chips" style="gap:8px">${s.pdfUrl?`<a class="btn sm" href="${esc(s.pdfPath?'/pdf/'+s.pdfPath.replace(/\.pdf$/,''):s.pdfUrl)}" target="_blank" rel="noopener">Abrir PDF do pedido</a>`:'<span class="chip">PDF não foi salvo</span>'}<a class="btn sm wa" href="${esc(waLink(r.telefone,'Olá, '+(r.nome.split(' ')[0]||'')+'! Aqui é da Chowder Macarons. Recebemos seu pedido '+(s.protocolo||'')+' e já estamos preparando sua proposta.'))}" target="_blank" rel="noopener">Responder no WhatsApp</a></div></section>`}
 function secContato(r){return `<section class="box"><h3>Contato</h3><div class="grid">
   ${fld('Nome','nome',r.nome)}${fld('Telefone / WhatsApp','telefone',r.telefone,'tel')}
   ${sel('Tipo de pedido','tipo',TIPOS,r.tipo)}${sel('Ocasião','categoria',CATEGORIAS,r.categoria)}
@@ -436,13 +436,13 @@ async function persist(r,msg){
 function sysNote(r,texto){r.conversas.push({data:today(),texto,sistema:true})}
 
 function waText(r){const o=r.orcamento;const L=[];
-  L.push(`Olá, ${r.nome.split(' ')[0]||''}! Segue o orçamento da Chef Chowder:`);L.push('');
+  L.push(`Olá, ${r.nome.split(' ')[0]||''}! Segue o orçamento da Chowder Macarons:`);L.push('');
   o.itens.forEach(i=>L.push(`• ${i.desc||'Item'}: ${num(i.qtd)} × ${brl(num(i.unit))} = ${brl(num(i.qtd)*num(i.unit))}`));
   if(num(o.taxaEntrega))L.push(`• Taxa de entrega: ${brl(num(o.taxaEntrega))}`);
   if(num(o.desconto))L.push(`• Desconto: -${brl(num(o.desconto))}`);
   L.push('');L.push(`*Total: ${brl(total(r))}*`);L.push('');
   if(o.dataEvento)L.push(`${r.tipo==='Pronta entrega'?'Entrega/retirada':'Data do evento'}: ${fd(o.dataEvento)}${o.horario?' às '+o.horario:''}`);
-  L.push(`${o.modo}${o.local&&o.modo!=='Retirada na loja'?': '+o.local:''}`);
+  L.push(`${o.modo}${o.local&&!/^Retirada/.test(o.modo)?': '+o.local:''}`);
   L.push(`Pagamento: ${o.formaPgto}${o.condicoes?' — '+o.condicoes:''}`);
   if(o.obs)L.push(`Obs.: ${o.obs}`);
   if(r.etapa==='orcamento'&&o.prazoResposta){L.push('');L.push(`Este orçamento vale até ${fd(o.prazoResposta)}.`)}

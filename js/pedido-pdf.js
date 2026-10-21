@@ -31,7 +31,7 @@
     doc.setFillColor(...BORD); doc.rect(W / 2, 0, W / 2, 46, "F");
     doc.setFillColor(...GOLD); doc.rect(0, 46, W, 1.2, "F");
     if (logo) doc.addImage(logo, "PNG", M, 8, 52, 30);
-    else { doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(22); doc.text("Chef Chowder", M, 26); }
+    else { doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(22); doc.text(C.marca || "Chowder Macarons", M, 26); }
     doc.setTextColor(255, 255, 255); doc.setFont("times", "normal"); doc.setFontSize(20);
     doc.text("Pedido de orçamento", W - M, 21, { align: "right" });
     doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(...GOLD);
