@@ -29,5 +29,18 @@
       "source": "/pdf/:t",
       "destination": "https://tfqeczqknakuovzswrrv.supabase.co/storage/v1/object/public/pedidos-pdf/:t.pdf"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "chef-chowder-bakeshop.vercel.app"
+        }
+      ],
+      "destination": "https://chowder-macarons.vercel.app/:path*",
+      "permanent": true
+    }
   ]
 }

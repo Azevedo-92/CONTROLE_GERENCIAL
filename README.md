@@ -52,7 +52,7 @@ No mesmo arquivo ficam os pontos que os sócios ainda vão decidir:
 ### 3. Publicar (Vercel)
 1. Em <https://vercel.com>, **Add New → Project → Import** este repositório.
 2. Framework: **Other**. Sem comando de build. **Deploy**.
-3. O link do anúncio fica `https://SEU-PROJETO.vercel.app/?utm_source=instagram&utm_campaign=NOME`. Os parâmetros `utm_*` aparecem no painel em cada pedido.
+3. Endereço do site: **https://chowder-macarons.vercel.app** (o antigo chef-chowder-bakeshop.vercel.app redireciona para ele). Link do anúncio: `https://chowder-macarons.vercel.app/?utm_source=instagram&utm_campaign=NOME`. Os parâmetros `utm_*` aparecem no painel em cada pedido.
 4. Domínio próprio: **Project → Settings → Domains**.
 
 ## Estrutura
