@@ -33,7 +33,8 @@
   --gold-ink:#D9BC85; --err:#F08A8F; --ok:#5CC48E; --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.35); color-scheme:dark}
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:72px}
+html{scroll-behavior:smooth;scroll-padding-top:118px}
+@media (min-width:900px){html{scroll-padding-top:76px}}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.08;margin:0;text-wrap:balance}
 a{color:inherit}
@@ -48,11 +49,19 @@ img{max-width:100%;display:block}
 
 /* Cabeçalho */
 header.top{position:sticky;top:0;z-index:20;background:var(--navy);color:var(--on-dark);padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid rgba(196,162,101,.35)}
-header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px}
-header.top img{height:40px;width:auto}
-header.top nav{display:flex;gap:4px}
-header.top nav a{padding:8px 12px;border-radius:99px;text-decoration:none;font-weight:600;font-size:.92rem;color:var(--on-dark-mute)}
-header.top nav a.cta{background:var(--bord);color:#fff;box-shadow:inset 0 0 0 1px rgba(196,162,101,.5)}
+header.top .wrap{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"logo . cta" "menu menu menu";align-items:center;column-gap:12px}
+header.top .logo-l{grid-area:logo;padding:8px 0}
+header.top img{height:40px;width:auto;display:block}
+header.top .cta{grid-area:cta;padding:8px 14px;border-radius:99px;text-decoration:none;font-weight:700;font-size:.92rem;background:var(--bord);color:#fff;box-shadow:inset 0 0 0 1px rgba(196,162,101,.5);white-space:nowrap}
+header.top .menu{grid-area:menu;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 6px;mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 24px),transparent)}
+header.top .menu::-webkit-scrollbar{display:none}
+header.top .menu a{flex:none;padding:7px 11px;text-decoration:none;font-weight:600;font-size:.88rem;color:var(--on-dark-mute);border-bottom:2px solid transparent;white-space:nowrap}
+header.top .menu a:hover{color:#fff}
+header.top .menu a.on{color:#fff;border-bottom-color:var(--gold)}
+@media (min-width:900px){
+  header.top .wrap{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"logo menu cta";height:64px;max-width:1160px}
+  header.top .menu{margin:0;padding:0;justify-content:center;mask-image:none}
+}
 
 /* Abertura */
 .hero{position:relative;color:var(--on-dark);background:radial-gradient(120% 70% at 85% 100%,var(--bord) 0,color-mix(in srgb,var(--bord) 55%,transparent) 38%,transparent 70%),var(--navy);overflow:hidden;padding:46px 0 120px;text-align:center}
@@ -225,8 +234,16 @@ footer a{color:var(--gold)}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a href="#topo" aria-label="Chowder Macarons, início"><img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="70" height="40"></a>
-  <nav aria-label="Seções"><a href="#duvidas">Dúvidas</a><a class="cta" href="#orcamento">Orçamento</a></nav>
+  <a class="logo-l" href="#topo" aria-label="Chowder Macarons, início"><img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="70" height="40"></a>
+  <a class="cta" href="#orcamento">Pedir orçamento</a>
+  <nav class="menu" id="menu" aria-label="Seções da página">
+    <a href="#portfolio">Portfólio</a>
+    <a href="#quem-somos">Quem somos</a>
+    <a href="#sabores">Sabores</a>
+    <a href="#valores" id="m-valores">Valores</a>
+    <a href="#onde-estamos">Onde estamos</a>
+    <a href="#como-funciona">Como funciona</a>
+  </nav>
 </div></header>
 
 <main id="topo">
@@ -341,7 +358,7 @@ footer a{color:var(--gold)}
     <h2>Dúvidas frequentes</h2>
     <p class="sub">Tudo para você conhecer a Chowder Macarons.</p>
     <div class="faq">
-      <details>
+      <details id="quem-somos">
         <summary><span class="ic" aria-hidden="true">✦</span>Quem somos</summary>
         <div class="dd">
           <p>Da cozinha das avós à pâtisserie francesa: o Chef Daniel Souza deixou o Direito para seguir a confeitaria, formou-se pela Le Cordon Bleu São Paulo em 2021 e hoje produz tudo em cozinha profissional própria. Em 2024 passou a atender eventos e hoje produz tudo na própria fábrica, em Bento Ferreira, Vitória.</p>
@@ -351,7 +368,7 @@ footer a{color:var(--gold)}
           </div>
         </div>
       </details>
-      <details>
+      <details id="onde-estamos">
         <summary><span class="ic" aria-hidden="true">⌖</span>Onde estamos e horário</summary>
         <div class="dd">
           <p id="end"></p>
@@ -364,7 +381,7 @@ footer a{color:var(--gold)}
           <a class="btn" id="l-ifood" href="#" target="_blank" rel="noopener">Pedir pronta entrega no iFood</a>
         </div>
       </details>
-      <details>
+      <details id="sabores">
         <summary><span class="ic" aria-hidden="true">❀</span>Personalização e sabores</summary>
         <div class="dd">
           <p>Cada pedido é montado para o seu evento. Fazemos lembrancinhas, brindes corporativos e presentes com acabamento pensado para a identidade da ocasião.</p>
@@ -374,14 +391,14 @@ footer a{color:var(--gold)}
           <p class="hint" style="margin-top:10px">Também produzimos brownies e cookies.</p>
         </div>
       </details>
-      <details id="faq-valores">
+      <details id="valores">
         <summary><span class="ic" aria-hidden="true">R$</span>Valores de referência</summary>
         <div class="dd">
           <p style="color:var(--mute)">Para planejar. O orçamento final é sempre personalizado.</p>
           <ul class="list" id="tabela-valores"></ul>
         </div>
       </details>
-      <details>
+      <details id="como-funciona">
         <summary><span class="ic" aria-hidden="true">↻</span>Como funciona</summary>
         <div class="dd">
           <ol class="steps">
@@ -448,6 +465,34 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#necessidades").innerHTML = C.necessidades.map(o => `<label class="chip"><input type="checkbox" name="nec" value="${esc(o)}"><span>${esc(o)}</span></label>`).join("");
   if (C.atelie) $("#necessidades").insertAdjacentHTML("afterend", `<p class="hint" style="margin-top:8px"><b style="color:var(--gold-ink)">Novidade.</b> ${esc(C.atelie)}</p>`);
 
+  // ---------- Menu: abre o bloco certo e destaca a seção visível ----------
+  function irPara(hash, suave) {
+    const alvo = hash && document.getElementById(hash.slice(1));
+    if (!alvo) return;
+    if (alvo.tagName === "DETAILS") alvo.open = true;
+    alvo.scrollIntoView({ behavior: suave ? "smooth" : "auto", block: "start" });
+  }
+  $("#menu").addEventListener("click", e => {
+    const a = e.target.closest("a[href^='#']"); if (!a) return;
+    e.preventDefault(); history.replaceState(null, "", a.getAttribute("href")); irPara(a.getAttribute("href"), true);
+  });
+  if (location.hash) setTimeout(() => irPara(location.hash, false), 50);
+  const links = [...document.querySelectorAll("#menu a")];
+  const secoes = links.map(a => document.getElementById(a.getAttribute("href").slice(1))).filter(Boolean);
+  if ("IntersectionObserver" in window) {
+    const vis = new Map();
+    const io = new IntersectionObserver(ents => {
+      ents.forEach(en => vis.set(en.target.id, en.isIntersecting));
+      const atual = secoes.find(sx => vis.get(sx.id));
+      links.forEach(a => {
+        const on = !!atual && a.getAttribute("href") === "#" + atual.id;
+        if (on && !a.classList.contains("on")) { const m = $("#menu"); if (m.scrollWidth > m.clientWidth) m.scrollTo({ left: a.offsetLeft - (m.clientWidth - a.offsetWidth) / 2, behavior: "smooth" }); }
+        a.classList.toggle("on", on);
+      });
+    }, { rootMargin: "-130px 0px -55% 0px" });
+    secoes.forEach(sx => io.observe(sx));
+  }
+
   // ---------- Carrossel do portfólio ----------
   const fotos = C.portfolio || [], track = $("#car-track"), dots = $("#car-dots");
   const tipos = ["Todos", ...new Set(fotos.map(f => f.tipo).filter(Boolean))];
@@ -473,7 +518,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (C.mostrarPrecos) {
     $("#tabela-valores").innerHTML = C.pacotes.map(p => `<li>${esc(p.nome)} (${esc(p.detalhe.replace("cerca de ", "≈ "))})<b>${brl(p.valor)}</b></li>`).join("")
       + C.precosAvulsos.map(p => `<li>${esc(p.nome)}<b>${esc(p.valor)}</b></li>`).join("");
-  } else $("#faq-valores").hidden = true;
+  } else { $("#valores").hidden = true; $("#m-valores").remove(); }
   const notas = [];
   if (C.prazoResposta) notas.push("Respondemos " + C.prazoResposta + ".");
   if (C.antecedencia) notas.push("Antecedência recomendada: " + C.antecedencia + ".");
