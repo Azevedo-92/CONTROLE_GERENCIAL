@@ -387,7 +387,7 @@ footer a{color:var(--gold)}
           <p>Cada pedido é montado para o seu evento. Fazemos lembrancinhas, brindes corporativos e presentes com acabamento pensado para a identidade da ocasião.</p>
           <ul class="list"><li>Cores dos macarons de acordo com a paleta do evento</li><li>Diferentes tipos de embalagens e caixinhas</li><li>Fitas em diferentes cores</li><li>Tag personalizada com logo ou mensagem</li></ul>
           <h3 style="font-size:1.35rem;margin-top:16px">Sabores da casa</h3>
-          <div class="sab" id="sabores"></div>
+          <div class="sab" id="lista-sabores"></div>
           <p class="hint" style="margin-top:10px">Também produzimos brownies e cookies.</p>
         </div>
       </details>
@@ -514,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#pacotes").innerHTML = `<label class="pac"><input type="radio" name="pacote" value="" checked><span class="box"><span class="nm">Ainda não sei</span><span class="dt">O Chef te ajuda a escolher</span></span></label>`
     + C.pacotes.map(p => `<label class="pac"><input type="radio" name="pacote" value="${esc(p.id)}"><span class="box">${p.destaque ? `<span class="tag">${esc(p.destaque)}</span>` : ""}<span class="nm">${esc(p.nome)}</span><span class="dt">${esc(p.detalhe)}</span>${C.mostrarPrecos ? `<span class="vl">a partir de ${brl(p.valor)}</span>` : ""}</span></label>`).join("");
   $("#hint-pac").textContent = C.mostrarPrecos ? "Valores de referência, sem entrega e montagem. O orçamento final é personalizado." : "O valor final vem na proposta personalizada.";
-  $("#sabores").innerHTML = C.sabores.map(s => `<span>${esc(s)}</span>`).join("");
+  $("#lista-sabores").innerHTML = C.sabores.map(s => `<span>${esc(s)}</span>`).join("");
   if (C.mostrarPrecos) {
     $("#tabela-valores").innerHTML = C.pacotes.map(p => `<li>${esc(p.nome)} (${esc(p.detalhe.replace("cerca de ", "≈ "))})<b>${brl(p.valor)}</b></li>`).join("")
       + C.precosAvulsos.map(p => `<li>${esc(p.nome)}<b>${esc(p.valor)}</b></li>`).join("");
