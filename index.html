@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600;700&display=swap">
-<link rel="preload" as="image" href="assets/img/logo-branca.webp">
+<link rel="preload" as="image" href="assets/img/logo-h-clara.webp">
 <style>
 :root{
   --navy:#131F37; --navy-2:#1C2B4A; --bord:#591524; --bord-2:#6E1F30; --gold:#C4A265; --gold-ink:#7A5C26;
@@ -51,7 +51,8 @@ img{max-width:100%;display:block}
 header.top{position:sticky;top:0;z-index:20;background:var(--navy);color:var(--on-dark);padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid rgba(196,162,101,.35)}
 header.top .wrap{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"logo . cta" "menu menu menu";align-items:center;column-gap:12px}
 header.top .logo-l{grid-area:logo;padding:8px 0}
-header.top img{height:40px;width:auto;display:block}
+header.top img{height:26px;width:auto;display:block}
+@media (min-width:900px){header.top img{height:30px}}
 header.top .cta{grid-area:cta;padding:8px 14px;border-radius:99px;text-decoration:none;font-weight:700;font-size:.92rem;background:var(--bord);color:#fff;box-shadow:inset 0 0 0 1px rgba(196,162,101,.5);white-space:nowrap}
 header.top .menu{grid-area:menu;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 6px;mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 24px),transparent)}
 header.top .menu::-webkit-scrollbar{display:none}
@@ -68,7 +69,7 @@ header.top .menu a.on{color:#fff;border-bottom-color:var(--gold)}
 .hero::before{content:"";position:absolute;left:50%;top:50%;width:min(620px,140vw);aspect-ratio:1;transform:translate(-50%,-46%);border:1px solid rgba(196,162,101,.55);border-radius:50%;pointer-events:none}
 .hero::after{content:"";position:absolute;left:50%;top:50%;width:min(560px,126vw);aspect-ratio:1;transform:translate(-50%,-46%);border:1px solid rgba(196,162,101,.2);border-radius:50%;pointer-events:none}
 .hero .wrap{position:relative}
-.hero .logo{width:min(230px,58vw);height:auto;margin:0 auto 6px}
+.hero .logo{width:min(260px,64vw);height:auto;margin:0 auto 22px}
 .hero .rule{max-width:280px;margin:12px auto 18px}
 .hero h1{font-size:clamp(2.2rem,8.4vw,3.5rem);font-weight:500;max-width:15ch;margin:0 auto}
 .hero h1 em{color:var(--gold);font-style:italic}
@@ -201,7 +202,7 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .closing .btn{max-width:420px;margin:18px auto 0;background:var(--gold);color:var(--navy);box-shadow:none}
 .closing .btn.wa{background:transparent;color:var(--on-dark);box-shadow:inset 0 0 0 1px rgba(245,239,230,.5);margin-top:10px}
 footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(200px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
-footer img{height:54px;width:auto;margin-bottom:12px}
+footer img{height:30px;width:auto;margin-bottom:14px}
 footer a{color:var(--gold)}
 .fab{display:flex;align-items:center;gap:8px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:99px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
 .fab svg{width:22px;height:22px}
@@ -234,7 +235,7 @@ footer a{color:var(--gold)}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="logo-l" href="#topo" aria-label="Chowder Macarons, início"><img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="70" height="40"></a>
+  <a class="logo-l" href="#topo" aria-label="Chowder Macarons, início"><img src="assets/img/logo-h-clara.webp" alt="Chowder Macarons" width="183" height="26"></a>
   <a class="cta" href="#orcamento">Pedir orçamento</a>
   <nav class="menu" id="menu" aria-label="Seções da página">
     <a href="#portfolio">Portfólio</a>
@@ -249,8 +250,7 @@ footer a{color:var(--gold)}
 <main id="topo">
   <div class="hero">
     <div class="wrap">
-      <img class="logo" src="assets/img/logo-branca.webp" alt="" width="230" height="131">
-      <div class="rule" aria-hidden="true"><i></i></div>
+      <img class="logo" src="assets/img/logo-v-clara.webp" alt="Chowder Macarons" width="260" height="167">
       <h1>Todo grande momento merece um <em>doce fino.</em></h1>
       <p class="tags"><b>Mesas de doces</b> <span>•</span> <b>Torres de macarons</b> <span>•</span> <b>Lembrancinhas</b></p>
       <p class="lead">pelo Chef Daniel Souza</p>
@@ -423,7 +423,7 @@ footer a{color:var(--gold)}
 </main>
 
 <footer><div class="wrap">
-  <img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="95" height="54" loading="lazy">
+  <img src="assets/img/logo-h-clara.webp" alt="Chowder Macarons" width="211" height="30" loading="lazy">
   <div id="f-end"></div>
   <div>WhatsApp <span id="f-wa"></span> · aberto 24h</div>
   <a id="l-ig" href="#" target="_blank" rel="noopener"></a>

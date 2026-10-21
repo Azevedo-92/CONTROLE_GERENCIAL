@@ -66,3 +66,10 @@ supabase/schema.sql     Tabelas, permissões e pasta dos PDFs
 assets/img/             Logo e fotos otimizadas
 assets/vendor/          jsPDF 2.5.1 e supabase-js 2.45.4 (sem depender de CDN)
 ```
+
+## Marca
+Arquivos da logo **Chowder Macarons** (navy, recheio bordô, linhas douradas):
+- `assets/img/logo-v-clara.*` e `logo-h-clara.*`: para fundo escuro (vertical e horizontal)
+- `assets/img/logo-v-escura.*` e `logo-h-escura.*`: para fundo claro
+- `assets/marca/*.svg`: versões vetoriais com a fonte embutida, para gráfica e redes sociais
+- `assets/img/icone.png`: ícone do site (favicon)

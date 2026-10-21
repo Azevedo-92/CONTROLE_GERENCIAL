@@ -8,7 +8,7 @@
   let logoPromise = null;
   function loadLogo(base) {
     if (!logoPromise) {
-      logoPromise = fetch((base || "") + "assets/img/logo-branca.png")
+      logoPromise = fetch((base || "") + "assets/img/logo-pdf.png")
         .then(r => r.ok ? r.blob() : null)
         .then(b => b && new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(null); fr.readAsDataURL(b); }))
         .catch(() => null);
@@ -30,7 +30,7 @@
     doc.setFillColor(...NAVY); doc.rect(0, 0, W, 46, "F");
     doc.setFillColor(...BORD); doc.rect(W / 2, 0, W / 2, 46, "F");
     doc.setFillColor(...GOLD); doc.rect(0, 46, W, 1.2, "F");
-    if (logo) doc.addImage(logo, "PNG", M, 8, 52, 30);
+    if (logo) doc.addImage(logo, "PNG", M, 8, 47, 30.2);
     else { doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(22); doc.text(C.marca || "Chowder Macarons", M, 26); }
     doc.setTextColor(255, 255, 255); doc.setFont("times", "normal"); doc.setFontSize(20);
     doc.text("Pedido de orçamento", W - M, 21, { align: "right" });
