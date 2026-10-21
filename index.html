@@ -269,7 +269,7 @@ footer a{color:var(--gold)}
       <form id="form" novalidate>
         <span class="eyebrow">Encomendas e eventos</span>
         <h2>Peça seu orçamento</h2>
-        <p class="sub">Leva 1 minuto. Ao finalizar, geramos um PDF com o seu pedido e abrimos a conversa com o Chef no WhatsApp.</p>
+        <p class="sub">Leva 1 minuto. Ao finalizar, geramos um PDF com o seu pedido e abrimos a conversa com o Chef no WhatsApp, que fica aberto 24h.</p>
 
         <div class="step"><b>1</b><span>Seus dados</span></div>
         <div class="row">
@@ -372,7 +372,7 @@ footer a{color:var(--gold)}
         <summary><span class="ic" aria-hidden="true">⌖</span>Onde estamos e horário</summary>
         <div class="dd">
           <p id="end"></p>
-          <p style="margin-top:4px;color:var(--mute);font-size:.92rem">Fábrica e ponto de retirada das encomendas.</p>
+          <p style="margin-top:4px;color:var(--mute);font-size:.92rem">Fábrica e ponto de retirada das encomendas. Pelo WhatsApp, você fala com a gente a qualquer hora e respondemos o mais breve possível.</p>
           <ul class="list" id="horarios"></ul>
           <div class="mini2" id="mapas">
             <a class="btn navy" id="l-maps" href="#" target="_blank" rel="noopener">Abrir no mapa</a>
@@ -425,7 +425,7 @@ footer a{color:var(--gold)}
 <footer><div class="wrap">
   <img src="assets/img/logo-branca.webp" alt="Chowder Macarons" width="95" height="54" loading="lazy">
   <div id="f-end"></div>
-  <div>WhatsApp <span id="f-wa"></span></div>
+  <div>WhatsApp <span id="f-wa"></span> · aberto 24h</div>
   <a id="l-ig" href="#" target="_blank" rel="noopener"></a>
 </div></footer>
 
@@ -520,10 +520,10 @@ document.addEventListener("DOMContentLoaded", function () {
       + C.precosAvulsos.map(p => `<li>${esc(p.nome)}<b>${esc(p.valor)}</b></li>`).join("");
   } else { $("#valores").hidden = true; $("#m-valores").remove(); }
   const notas = [];
-  if (C.prazoResposta) notas.push("Respondemos " + C.prazoResposta + ".");
+  if (C.atendimento) notas.push(C.atendimento); else if (C.prazoResposta) notas.push("Respondemos " + C.prazoResposta + ".");
   if (C.antecedencia) notas.push("Antecedência recomendada: " + C.antecedencia + ".");
   $("#nota-prazo").textContent = notas.join(" ");
-  if (C.prazoResposta) $("#passo-prop").textContent = "Enviamos a proposta personalizada " + C.prazoResposta + ", com valores, sabores e embalagens.";
+  if (C.prazoResposta) $("#passo-prop").textContent = "Enviamos " + C.prazoResposta + " a proposta personalizada, com valores, sabores e embalagens.";
 
   // Escolher um pacote marca "Torre de macarons" automaticamente
   $("#pacotes").addEventListener("change", e => {

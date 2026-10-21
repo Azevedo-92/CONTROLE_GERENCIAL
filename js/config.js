@@ -15,10 +15,11 @@ window.CHOWDER = {
   video:     "",                       // vídeo de como chegar ("" esconde o botão)
   endereco:  "Av. Cézar Hilal, 570, loja 4",
   bairro:    "Bento Ferreira, Vitória-ES, 29050-657",
-  horarios:  [["Segunda a sexta", "10h às 17h"]],
+  horarios:  [["Fábrica: segunda a sexta", "10h às 17h"], ["Atendimento no WhatsApp", "aberto 24h"]],
+  atendimento: "WhatsApp aberto 24h. Respondemos o mais breve possível.",
 
   // Pontos que os sócios ainda vão decidir (deixe "" para esconder da página)
-  prazoResposta: "até 24 horas úteis",
+  prazoResposta: "o mais breve possível",
   antecedencia:  "",                     // ex.: "15 dias"
   mostrarPrecos: true,                   // false esconde valores da página e do PDF
 

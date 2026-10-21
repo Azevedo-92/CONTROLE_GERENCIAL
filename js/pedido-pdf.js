@@ -95,7 +95,7 @@
     doc.text("Próximos passos", M + 6, y + 9);
     doc.setTextColor(240, 236, 230); doc.setFont("helvetica", "normal"); doc.setFontSize(9.5);
     const passos = [
-      "1. O Chef Daniel analisa o seu pedido" + (C.prazoResposta ? " e responde " + C.prazoResposta : "") + " pelo WhatsApp.",
+      "1. O Chef Daniel analisa o seu pedido e responde pelo WhatsApp" + (C.prazoResposta ? " " + C.prazoResposta : "") + ".",
       "2. Você recebe a proposta personalizada com sabores, cores e embalagens.",
       "3. Com o sinal confirmado, produzimos tudo artesanalmente e combinamos a entrega."
     ];

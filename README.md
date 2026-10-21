@@ -44,7 +44,7 @@ supabaseAnonKey: "SUA-CHAVE-ANON-PUBLIC",
 A chave *anon* pode ficar no código: as regras do banco só deixam visitantes **criar** pedidos. Ler, alterar e apagar exige login de um sócio autorizado.
 
 No mesmo arquivo ficam os pontos que os sócios ainda vão decidir:
-- `prazoResposta` — hoje "até 24 horas úteis";
+- `atendimento` e `prazoResposta` — hoje "WhatsApp aberto 24h. Respondemos o mais breve possível.";
 - `antecedencia` — vazio esconde a frase (ex.: `"15 dias"`);
 - `mostrarPrecos` — `false` esconde valores da página e do PDF;
 - pacotes, preços, sabores, links (WhatsApp, iFood, Maps, vídeo, Instagram).
