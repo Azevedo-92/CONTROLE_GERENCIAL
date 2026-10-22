@@ -68,8 +68,9 @@ assets/vendor/          jsPDF 2.5.1 e supabase-js 2.45.4 (sem depender de CDN)
 ```
 
 ## Marca
-Arquivos da logo **Chowder Macarons** (navy, recheio bordô, linhas douradas):
-- `assets/img/logo-v-clara.*` e `logo-h-clara.*`: para fundo escuro (vertical e horizontal)
-- `assets/img/logo-v-escura.*` e `logo-h-escura.*`: para fundo claro
-- `assets/marca/*.svg`: versões vetoriais com a fonte embutida, para gráfica e redes sociais
-- `assets/img/icone.png`: ícone do site (favicon)
+Logo atual **Chowder Macarons** (letreiro "Chowder" com "MACARONS" entre linhas):
+- `assets/img/logo-v-clara.*` / `logo-h-clara.*`: para fundo escuro (creme + dourado)
+- `assets/img/logo-v-escura.*` / `logo-h-escura.*`: para fundo claro (navy + bordô)
+- `assets/img/logo-pdf.png`: versão usada no PDF do pedido
+- `assets/img/icone.png`: ícone do site (o "C" da logo)
+- `assets/marca/*.svg`: versão anterior (macaron), guardada como referência
