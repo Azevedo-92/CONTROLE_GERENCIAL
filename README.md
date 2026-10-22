@@ -52,6 +52,7 @@ No mesmo arquivo ficam os pontos que os sócios ainda vão decidir:
 ### Pixel de anúncios (Meta / Google)
 Cole o ID em `js/config.js` (`pixelMeta` para o Pixel do Meta, `googleTag` para Google Analytics/Ads). Vazio = desligado.
 Eventos enviados pela landing: **PageView** (visita), **Lead** (pedido de orçamento enviado, com valor do pacote quando houver) e **Contact** (clique em WhatsApp, iFood ou Instagram). O painel `/admin` não é rastreado.
+LGPD: os pixels só carregam depois que o visitante toca em **Aceitar** no aviso de cookies (a escolha fica salva no navegador; "Preferências de cookies" no rodapé reabre o aviso). A política fica em [`privacidade.html`](privacidade.html) (`/privacidade`); o campo `cnpj` do config aparece nela quando preenchido.
 
 ### 3. Publicar (Vercel)
 1. Em <https://vercel.com>, **Add New → Project → Import** este repositório.

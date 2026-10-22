@@ -15,6 +15,7 @@ window.CHOWDER = {
   video:     "",                       // vídeo de como chegar ("" esconde o botão)
   endereco:  "Av. Cézar Hilal, 570, loja 4",
   bairro:    "Bento Ferreira, Vitória-ES, 29050-657",
+  cnpj:      "",                       // aparece na Política de Privacidade quando preenchido
   horarios:  [["Fábrica: segunda a sexta", "10h às 17h"], ["Atendimento no WhatsApp", "aberto 24h"]],
   atendimento: "WhatsApp aberto 24h. Respondemos o mais breve possível.",
 

@@ -204,6 +204,8 @@ details[open] summary{border-bottom:1px solid var(--line)}
 footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(200px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
 footer img{height:40px;width:auto;margin-bottom:14px}
 footer a{color:var(--gold)}
+footer .legal{margin-top:14px;font-size:.85rem}
+footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(--gold);text-decoration:underline;cursor:pointer}
 .fab{display:flex;align-items:center;gap:8px;background:var(--ok);color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:99px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
 .fab svg{width:22px;height:22px}
 /* Carrossel do portfólio */
@@ -313,6 +315,7 @@ footer a{color:var(--gold)}
         <div class="hp" aria-hidden="true"><label>Empresa<input id="empresa" tabindex="-1" autocomplete="off"></label></div>
 
         <button class="btn" type="submit" id="enviar">Finalizar e enviar pelo WhatsApp</button>
+        <p class="note">Usamos seus dados só para responder ao seu pedido. <a href="/privacidade">Política de privacidade</a></p>
         <p class="note" id="nota-prazo"></p>
       </form>
 
@@ -427,6 +430,7 @@ footer a{color:var(--gold)}
   <div id="f-end"></div>
   <div>WhatsApp <span id="f-wa"></span> · aberto 24h</div>
   <a id="l-ig" href="#" target="_blank" rel="noopener"></a>
+  <div class="legal"><a href="/privacidade">Política de privacidade</a> · <button type="button" id="l-cookies">Preferências de cookies</button></div>
 </div></footer>
 
 <div class="fabs">
@@ -457,6 +461,8 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#horarios").innerHTML = (C.horarios || []).map(h => `<li>${esc(h[0])}<b>${esc(h[1])}</b></li>`).join("");
   $("#l-ig").href = C.instagram; $("#l-ig").textContent = C.instagramUser;
   $("#f-wa").textContent = C.whatsappExibicao;
+  if (C.pixelMeta || C.googleTag) $("#l-cookies").onclick = () => window.ChowderRastreio && ChowderRastreio.preferencias();
+  else $("#l-cookies").remove();
   $("#end").innerHTML = esc(C.endereco) + "<br>" + esc(C.bairro);
   $("#f-end").textContent = C.endereco + ", " + C.bairro;
   const duvida = waBase + "?text=" + encodeURIComponent("Olá! Vim pela página da Chowder Macarons e tenho uma dúvida.");
