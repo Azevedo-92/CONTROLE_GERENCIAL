@@ -454,7 +454,7 @@ function secSite(r){const s=r.solicitacao;if(!s)return '';
   return `<section class="box site"><h3>Pedido da landing page <span class="hint">${esc(s.protocolo||'')} · ${esc(quando)}</span></h3>
   <dl class="kv">
    <div><dt>Ocasião</dt><dd>${esc(s.ocasiao)}</dd></div><div><dt>Data do evento</dt><dd>${fd(s.data)}</dd></div>
-   <div><dt>Convidados / quantidade</dt><dd>${esc(s.quantidade)||'—'}</dd></div><div><dt>Entrega</dt><dd>${esc(s.entrega)}${s.local?' — '+esc(s.local):''}</dd></div>
+   <div><dt>Nº de convidados ou de macarons</dt><dd>${esc(s.quantidade)||'—'}</dd></div><div><dt>Entrega</dt><dd>${esc(s.entrega)}${s.local?' — '+esc(s.local):''}</dd></div>
    <div class="full"><dt>Interesse</dt><dd>${esc((s.necessidades||[]).join(', '))||'—'}</dd></div>
    ${s.pacote?`<div class="full"><dt>Pacote de referência</dt><dd>${esc(s.pacote.nome)} · ${esc(s.pacote.detalhe)} · ${brl(s.pacote.valor)}</dd></div>`:''}
    ${s.obs?`<div class="full"><dt>Observações</dt><dd style="white-space:pre-wrap">${esc(s.obs)}</dd></div>`:''}

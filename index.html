@@ -100,7 +100,7 @@ textarea{min-height:90px;resize:vertical}
 input:focus,textarea:focus{border-color:var(--gold);outline:2px solid color-mix(in srgb,var(--gold) 40%,transparent);outline-offset:0}
 input[aria-invalid="true"]{border-color:var(--err)}
 .err{color:var(--err);font-size:.88rem;margin:6px 0 0}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-items:end}
 @media (max-width:480px){.row{grid-template-columns:1fr}}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{position:relative}
@@ -290,7 +290,7 @@ footer a{color:var(--gold)}
         <div class="chips" role="radiogroup" aria-labelledby="lbl-ocasiao" id="ocasioes"></div>
         <div class="row">
           <div><label class="f" for="data">Data do evento <small>(aproximada)</small></label><input id="data" type="date"></div>
-          <div><label class="f" for="qtd">Convidados ou quantidade</label><input id="qtd" maxlength="60" placeholder="Ex.: 80 convidados"></div>
+          <div><label class="f" for="qtd">Número de convidados ou quantidade de macarons</label><input id="qtd" maxlength="60" placeholder="Ex.: 80 convidados ou 100 macarons"></div>
         </div>
         <div class="lbl" id="lbl-entrega">Como prefere receber?</div>
         <div class="seg" role="radiogroup" aria-labelledby="lbl-entrega">
@@ -627,7 +627,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "*Nome:* " + p.nome,
       "*Ocasião:* " + p.ocasiao,
       "*Data:* " + fdata(p.data),
-      "*Convidados/quantidade:* " + (p.quantidade || "A definir"),
+      "*Convidados ou macarons:* " + (p.quantidade || "A definir"),
       "*Entrega:* " + p.entrega + (p.local ? " — " + p.local : ""),
       "*Interesse:* " + (p.necessidades.join(", ") || "A definir")
     ];

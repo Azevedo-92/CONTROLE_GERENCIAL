@@ -68,7 +68,7 @@
 
     secao("Sobre o evento");
     par(["Ocasião", p.ocasiao], ["Data do evento", fdata(p.data)]);
-    par(["Convidados ou quantidade", p.quantidade || "A definir"], ["Entrega", p.entrega || "A combinar"]);
+    par(["Nº de convidados ou de macarons", p.quantidade || "A definir"], ["Entrega", p.entrega || "A combinar"]);
     if (p.local) y += campo("Local / bairro", p.local);
 
     secao("O que você precisa");
