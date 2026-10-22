@@ -23,6 +23,10 @@ window.CHOWDER = {
   antecedencia:  "",                     // ex.: "15 dias"
   mostrarPrecos: true,                   // false esconde valores da página e do PDF
 
+  // Rastreio de anúncios: cole aqui os IDs que a equipe de marketing passar ("" desliga)
+  pixelMeta: "",                         // ID do Pixel do Meta, só números (ex.: "123456789012345")
+  googleTag: "",                         // ID do Google Analytics/Ads (ex.: "G-ABC123XYZ" ou "AW-123456789")
+
   // Banco de dados (Supabase). Enquanto estiver vazio, a landing funciona
   // só com PDF + WhatsApp e o painel mostra o aviso de configuração.
   supabaseUrl:     "https://tfqeczqknakuovzswrrv.supabase.co",

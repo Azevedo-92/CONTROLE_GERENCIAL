@@ -439,6 +439,7 @@ footer a{color:var(--gold)}
 </div>
 
 <script src="js/config.js"></script>
+<script src="js/rastreio.js"></script>
 <script src="assets/vendor/jspdf.umd.min.js" defer></script>
 <script src="assets/vendor/supabase.min.js" defer></script>
 <script src="js/pedido-pdf.js" defer></script>
@@ -650,11 +651,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!pdfPublico && blob) { aviso.hidden = false; aviso.textContent = "Dica: depois de enviar a mensagem, toque em “Compartilhar PDF” ou “Baixar PDF” para anexar o arquivo na conversa."; }
     else aviso.hidden = true;
 
+    window.ChowderRastreio && ChowderRastreio.lead({ ocasiao: p.ocasiao, necessidades: p.necessidades, valor: p.pacote ? p.pacote.valor : 0 });
     $("#form").hidden = true; $("#done").hidden = false;
     btn.disabled = false; btn.textContent = "Finalizar e enviar pelo WhatsApp";
     $("#orcamento").scrollIntoView({ block: "start" }); $("#done").focus({ preventScroll: true });
   });
 
+  // Cliques nos canais de contato (para o pixel)
+  [["#l-fab", "WhatsApp"], ["#l-wa", "WhatsApp"], ["#d-wa", "WhatsApp (pedido)"], ["#f-ifood", "iFood"], ["#l-ifood", "iFood"], ["#f-ig", "Instagram"]].forEach(([sel, canal]) => {
+    const el = $(sel); if (el) el.addEventListener("click", () => window.ChowderRastreio && ChowderRastreio.contato(canal));
+  });
   $("#d-share").addEventListener("click", async () => {
     try { await navigator.share({ files: [pdfFile], title: "Pedido " + (ultimo ? ultimo.protocolo : ""), text: "Pedido de orçamento — Chowder Macarons" }); } catch (e) {}
   });

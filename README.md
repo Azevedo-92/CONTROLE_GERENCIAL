@@ -49,6 +49,10 @@ No mesmo arquivo ficam os pontos que os sócios ainda vão decidir:
 - `mostrarPrecos` — `false` esconde valores da página e do PDF;
 - pacotes, preços, sabores, links (WhatsApp, iFood, Maps, vídeo, Instagram).
 
+### Pixel de anúncios (Meta / Google)
+Cole o ID em `js/config.js` (`pixelMeta` para o Pixel do Meta, `googleTag` para Google Analytics/Ads). Vazio = desligado.
+Eventos enviados pela landing: **PageView** (visita), **Lead** (pedido de orçamento enviado, com valor do pacote quando houver) e **Contact** (clique em WhatsApp, iFood ou Instagram). O painel `/admin` não é rastreado.
+
 ### 3. Publicar (Vercel)
 1. Em <https://vercel.com>, **Add New → Project → Import** este repositório.
 2. Framework: **Other**. Sem comando de build. **Deploy**.
