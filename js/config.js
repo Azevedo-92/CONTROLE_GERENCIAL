@@ -52,7 +52,7 @@ window.CHOWDER = {
   // Portfólio (carrossel). Para trocar fotos: coloque o arquivo em assets/img/portfolio/ e ajuste aqui.
   portfolio: [
     { src: "assets/img/portfolio/piramide-macarons.webp",       legenda: "Macarons na mesa de doces",       tipo: "Eventos" },
-    { src: "assets/img/portfolio/carrinho-torre-colorida.webp", legenda: "Carrinho com torre colorida",     tipo: "Eventos" },
+    { src: "assets/img/portfolio/carrinho-torre-colorida.webp", legenda: "Ateliê de macarons ao vivo",      tipo: "Eventos" },
     { src: "assets/img/portfolio/bandeja-brownies.webp",        legenda: "Bandeja de brownies",             tipo: "Eventos" },
     { src: "assets/img/portfolio/brownies-tag-helena.webp",     legenda: "Brownies com tag personalizada",  tipo: "Lembrancinhas" },
     { src: "assets/img/portfolio/caixinhas-brownie-laco.webp",  legenda: "Caixinhas de brownie com laço",   tipo: "Lembrancinhas" },
