@@ -42,6 +42,17 @@ Pronto! A conexão fica salva; nas próximas vezes não precisa ler o QR Code de
 4. Se aparecer `Cannot find module`, a instalação foi corrompida (geralmente pelo OneDrive). Mova a pasta para `C:\notas-boletos` e abra o `iniciar.bat`: ele repara sozinho.
 5. Se ainda não abrir, tire um print da janela preta.
 
+## Sincronizar com uma pasta do computador
+
+Em **Configurações → Pasta do computador**, marque **Ativar sincronização** e informe uma pasta (ex.: `C:\Clientes`).
+
+- Cada **subpasta** vira um **cliente** no sistema (com o nome da pasta). Se já existir um cliente com o mesmo nome, ele é usado.
+- Todo arquivo salvo dentro da subpasta (inclusive em subpastas dela) é **copiado** para o cliente no sistema. Se o arquivo for alterado, a cópia é atualizada.
+- Clientes criados pelo sistema ganham uma subpasta lá também.
+- O sistema confere a pasta a cada 10 segundos (ou clique em **Sincronizar agora**).
+- Clientes criados pela pasta vêm **sem WhatsApp**: aparecem com ⚠ e é preciso informar o número em **Editar cliente** antes de enviar.
+- Arquivos apagados ou pastas renomeadas no computador **não apagam nada** no sistema.
+
 ## Personalizar a mensagem
 
 Na aba **Mensagem** você edita o texto padrão que vai junto com os arquivos. Variáveis disponíveis:

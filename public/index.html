@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Notas e Boletos</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <header>
@@ -16,7 +16,7 @@
     <button data-aba="pastas" class="ativa">Clientes e arquivos</button>
     <button data-aba="historico">Histórico de envios</button>
     <button data-aba="whatsapp">WhatsApp</button>
-    <button data-aba="config">Mensagem</button>
+    <button data-aba="config">Configurações</button>
   </nav>
 
   <main>
@@ -41,8 +41,10 @@
             <div>
               <h2 id="pasta-nome"></h2>
               <small class="sub" id="pasta-info"></small>
+              <small class="sem-telefone" id="pasta-sem-telefone" hidden>⚠ WhatsApp não cadastrado — clique em "Editar cliente" para informar o número.</small>
             </div>
             <div>
+              <button class="mini sec" id="btn-abrir-pasta-cliente" hidden>📂 Abrir pasta no computador</button>
               <button class="mini sec" id="btn-editar-cliente">Editar cliente</button>
               <button class="link" id="btn-excluir-cliente">Excluir</button>
             </div>
@@ -113,6 +115,27 @@
     <!-- CONFIG -->
     <section id="aba-config" hidden>
       <div class="card">
+        <h2>Pasta do computador</h2>
+        <p class="dica esquerda">
+          Escolha uma pasta do computador. Cada <b>subpasta</b> dela vira um <b>cliente</b> no sistema, e todo arquivo salvo
+          dentro da subpasta é <b>copiado automaticamente</b> para a pasta do cliente aqui (o sistema confere a cada 10 segundos).
+          Clientes criados no sistema também ganham uma subpasta lá. Arquivos apagados no computador continuam no sistema.
+        </p>
+        <form id="form-sync">
+          <label class="marcar-todos"><input type="checkbox" name="ativo"> Ativar sincronização com a pasta</label>
+          <label>Caminho da pasta
+            <input name="pasta" placeholder="C:\Clientes">
+          </label>
+          <p class="dica esquerda" id="sync-status"></p>
+          <div class="acoes">
+            <button type="button" class="sec" id="btn-abrir-pasta-principal">Abrir pasta</button>
+            <button type="button" class="sec" id="btn-sync-agora">Sincronizar agora</button>
+            <button type="submit">Salvar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
         <h2>Mensagem padrão</h2>
         <p class="dica esquerda">Este texto já vem preenchido em cada envio (dá para alterar na hora). Variáveis:
           <code>{cliente}</code> nome do cliente, <code>{arquivos}</code> lista dos arquivos enviados.</p>
@@ -142,6 +165,6 @@
   </dialog>
 
   <div id="aviso" hidden></div>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

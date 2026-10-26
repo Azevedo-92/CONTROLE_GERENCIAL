@@ -54,7 +54,7 @@ function renderClientes() {
   $('#lista-clientes').innerHTML = lista.length
     ? lista.map((c) => `
       <li class="${c.id === clienteAtual?.id ? 'ativa' : ''}" onclick="abrirPasta('${c.id}')">
-        <span>📁</span><span class="nome">${esc(c.nome)}</span><span class="qtd">${c.qtdArquivos}</span>
+        <span>📁</span><span class="nome">${esc(c.nome)}</span>${c.telefone ? '' : '<span class="alerta" title="WhatsApp não cadastrado">⚠</span>'}<span class="qtd">${c.qtdArquivos}</span>
       </li>`).join('')
     : `<li class="vazio">${clientes.length ? 'Nenhum cliente encontrado' : 'Nenhum cliente ainda'}</li>`;
 }
@@ -113,11 +113,19 @@ window.abrirPasta = async (id) => {
   $('#busca-arquivo').value = '';
   $('#pasta-vazia').hidden = true;
   $('#pasta').hidden = false;
-  $('#pasta-nome').textContent = clienteAtual.nome;
-  $('#pasta-info').textContent = 'WhatsApp: ' + clienteAtual.telefone + (clienteAtual.documento ? ' · ' + clienteAtual.documento : '');
+  mostrarCabecalhoPasta();
   renderClientes();
   await carregarArquivos();
 };
+
+function mostrarCabecalhoPasta() {
+  $('#pasta-nome').textContent = clienteAtual.nome;
+  $('#pasta-info').textContent = clienteAtual.telefone
+    ? 'WhatsApp: ' + clienteAtual.telefone + (clienteAtual.documento ? ' · ' + clienteAtual.documento : '')
+    : '';
+  $('#pasta-sem-telefone').hidden = !!clienteAtual.telefone;
+  $('#btn-abrir-pasta-cliente').hidden = !syncAtivo;
+}
 
 async function carregarArquivos() {
   arquivos = await api(`/api/clientes/${clienteAtual.id}/arquivos`);
@@ -327,8 +335,77 @@ $('#form-config').onsubmit = async (ev) => {
   } catch (e) { aviso(e.message, true); }
 };
 
+// ---------- Pasta do computador (sincronização) ----------
+let syncAtivo = false;
+
+function mostrarStatusSync(c) {
+  const e = c.estado || {};
+  const partes = [];
+  if (!c.ativo) partes.push('Sincronização desativada.');
+  else {
+    if (e.ultimaVez) partes.push('Última verificação: ' + dataHora(e.ultimaVez));
+    partes.push(`${e.clientesCriados || 0} cliente(s) criado(s) e ${e.arquivosCopiados || 0} arquivo(s) copiado(s) desde que o sistema abriu`);
+    if (e.erro) partes.push('⚠ Erro: ' + e.erro);
+  }
+  $('#sync-status').textContent = partes.join(' · ');
+}
+
+async function carregarSync(apenasStatus = false) {
+  const c = await api('/api/sync');
+  if (apenasStatus) return mostrarStatusSync(c);
+  syncAtivo = !!c.ativo;
+  const f = $('#form-sync');
+  f.ativo.checked = syncAtivo;
+  f.pasta.value = c.pasta || c.pastaSugerida;
+  f.pasta.placeholder = c.pastaSugerida;
+  mostrarStatusSync(c);
+  if (clienteAtual) mostrarCabecalhoPasta();
+}
+
+$('#form-sync').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target;
+  try {
+    const c = await api('/api/sync', { method: 'PUT', json: { ativo: f.ativo.checked, pasta: f.pasta.value } });
+    aviso(c.ativo ? 'Sincronização ativada' : 'Sincronização desativada');
+    await carregarSync();
+    atualizarDaPasta();
+  } catch (e) { aviso(e.message, true); }
+};
+
+$('#btn-sync-agora').onclick = async () => {
+  try {
+    await api('/api/sync/agora', { method: 'POST' });
+    await carregarSync();
+    await atualizarDaPasta();
+    aviso('Sincronizado');
+  } catch (e) { aviso(e.message, true); }
+};
+
+async function abrirPastaNoComputador(clienteId) {
+  try {
+    await api('/api/sync/abrir', { method: 'POST', json: { clienteId } });
+  } catch (e) { aviso(e.message, true); }
+}
+$('#btn-abrir-pasta-principal').onclick = () => abrirPastaNoComputador();
+$('#btn-abrir-pasta-cliente').onclick = () => abrirPastaNoComputador(clienteAtual.id);
+
+// Traz para a tela os clientes e arquivos que chegaram pela pasta do computador.
+async function atualizarDaPasta() {
+  if (!syncAtivo || $('#dlg-cliente').open) return;
+  await carregarClientes();
+  if (clienteAtual) {
+    clienteAtual = clientes.find((c) => c.id === clienteAtual.id) || clienteAtual;
+    mostrarCabecalhoPasta();
+    await carregarArquivos();
+  }
+}
+setInterval(() => atualizarDaPasta().catch(() => {}), 10000);
+setInterval(() => { if (!$('#aba-config').hidden) carregarSync(true).catch(() => {}); }, 10000);
+
 // ---------- Início ----------
 carregarConfig();
+carregarSync();
 carregarClientes();
 atualizarWhatsApp();
 setInterval(atualizarWhatsApp, 3000);

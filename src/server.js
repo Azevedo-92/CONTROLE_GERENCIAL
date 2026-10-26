@@ -5,6 +5,7 @@ const fs = require('fs');
 const { db, salvar, novoId, UPLOAD_DIR, MENSAGEM_PADRAO } = require('./db');
 require('./corrigir-whatsapp')();
 const whatsapp = require('./whatsapp');
+const sync = require('./sincronizar');
 
 const PORTA = process.env.PORTA || 3000;
 const app = express();
@@ -71,6 +72,7 @@ app.post('/api/clientes', (req, res) => {
   const dados = dadosCliente(req.body);
   if (!dados) return res.status(400).json({ erro: 'Informe nome e telefone' });
   const cliente = { id: novoId(), ...dados, criadoEm: agora() };
+  sync.criarPastaDoCliente(cliente);
   db.clientes.push(cliente);
   salvar();
   res.json(cliente);
@@ -163,6 +165,9 @@ function montarMensagem(cliente, arquivos) {
 async function realizarEnvio(clienteId, arquivoIds, mensagem) {
   const cliente = buscarCliente(clienteId);
   if (!cliente) throw Object.assign(new Error('Cliente não encontrado'), { status: 404 });
+  if (!cliente.telefone) {
+    throw Object.assign(new Error('Cadastre o WhatsApp deste cliente (botão "Editar cliente")'), { status: 400 });
+  }
   const arquivos = arquivoIds.map((id) => db.arquivos.find((a) => a.id === id && a.clienteId === clienteId)).filter(Boolean);
   if (!arquivos.length) throw Object.assign(new Error('Selecione ao menos um arquivo'), { status: 400 });
   if (mensagem === undefined) mensagem = montarMensagem(cliente, arquivos);
@@ -228,6 +233,51 @@ app.put('/api/config', (req, res) => {
   res.json(db.config);
 });
 
+// ---------- Sincronização com pasta do computador ----------
+const PASTA_SUGERIDA = process.platform === 'win32' ? 'C:\\Clientes' : path.join(require('os').homedir(), 'Clientes');
+
+app.get('/api/sync', (req, res) => {
+  res.json({ ativo: false, pasta: '', ...db.config.sync, pastaSugerida: PASTA_SUGERIDA, estado: sync.estado });
+});
+
+app.put('/api/sync', (req, res) => {
+  const ativo = !!req.body.ativo;
+  const pasta = String(req.body.pasta || '').trim().replace(/^"|"$/g, '');
+  if (ativo && !path.isAbsolute(pasta)) {
+    return res.status(400).json({ erro: 'Informe o caminho completo da pasta, por exemplo C:\\Clientes' });
+  }
+  if (ativo) {
+    try {
+      fs.mkdirSync(pasta, { recursive: true });
+    } catch (e) {
+      return res.status(400).json({ erro: 'Não foi possível usar essa pasta: ' + e.message });
+    }
+  }
+  db.config.sync = { ativo, pasta };
+  salvar();
+  sync.sincronizarAgora();
+  res.json({ ...db.config.sync, estado: sync.estado });
+});
+
+app.post('/api/sync/agora', (req, res) => {
+  sync.sincronizarAgora();
+  res.json(sync.estado);
+});
+
+// Abre no Windows Explorer a pasta principal ou a pasta de um cliente.
+app.post('/api/sync/abrir', (req, res) => {
+  const base = sync.pastaConfigurada();
+  if (!base) return res.status(400).json({ erro: 'A sincronização com pasta não está ativada' });
+  const cliente = req.body.clienteId && buscarCliente(req.body.clienteId);
+  if (cliente && !cliente.pastaOrigem) sync.criarPastaDoCliente(cliente), salvar();
+  const alvo = cliente?.pastaOrigem ? path.join(base, cliente.pastaOrigem) : base;
+  fs.mkdirSync(alvo, { recursive: true });
+  const { execFile } = require('child_process');
+  const programa = process.platform === 'win32' ? 'explorer' : process.platform === 'darwin' ? 'open' : 'xdg-open';
+  execFile(programa, [alvo], () => {});
+  res.json({ ok: true, pasta: alvo });
+});
+
 app.use((err, req, res, next) => {
   console.error(err);
   const erro = err.code === 'LIMIT_FILE_SIZE' ? 'Arquivo maior que 15 MB' : err.message;
@@ -247,6 +297,7 @@ const servidor = app.listen(PORTA, (err) => {
   console.log(`\n  Sistema aberto em: ${url}`);
   console.log('  Deixe esta janela aberta (pode minimizar). Fechar esta janela desliga o sistema.\n');
   abrirNavegador(url);
+  sync.iniciar();
   whatsapp.iniciar();
 });
 

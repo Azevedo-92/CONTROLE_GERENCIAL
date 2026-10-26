@@ -99,3 +99,6 @@ nav button { white-space: nowrap; }
   .envio { position: static; }
 }
 .aviso-janela { background: #fff8e1; border: 1px solid #f3d27a; border-radius: 8px; padding: 12px 16px; color: #6b5200; }
+.sem-telefone { display: block; color: #9b5c00; font-size: 13px; margin-top: 4px; font-weight: 600; }
+.lista-pastas li .alerta { color: #d68a00; font-size: 13px; }
+#form-sync { display: flex; flex-direction: column; gap: 12px; }
