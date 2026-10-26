@@ -282,11 +282,15 @@ let sb=null, canWrite=true, userEmail='';
 let recs={}; let loaded=false;
 let tab='hoje'; let q='';
 const DIA=864e5;
-const FU=[{k:'h24',ms:DIA,label:'24 horas'},{k:'d3',ms:3*DIA,label:'3 dias'},{k:'d7',ms:7*DIA,label:'7 dias · última'}];
+const FU=[{k:'h24',ms:DIA,label:'24 horas'},{k:'d3',ms:3*DIA,label:'3 dias'},{k:'d7',ms:7*DIA,label:'7 dias'},{k:'d30',ms:30*DIA,label:'30 dias'},{k:'d60',ms:60*DIA,label:'60 dias'},{k:'d90',ms:90*DIA,label:'90 dias · última'}];
+const ULTIMO=FU[FU.length-1];
 const MSG_PADRAO={
  h24:'Oi, {nome}! Tudo bem? Aqui é da Chowder Macarons.\nPassando para saber se você conseguiu ver o orçamento para o seu {evento}. Ficou alguma dúvida sobre sabores, cores ou embalagens? Posso te ajudar a ajustar o que for preciso.',
  d3:'Oi, {nome}! Como nossa produção é toda artesanal, trabalhamos com agenda limitada e as datas vão sendo reservadas.\nSe quiser, consigo segurar {data} por mais alguns dias, ou adaptar o orçamento (quantidade, sabores ou embalagem) para ficar do jeitinho que você imaginou. O que acha?',
- d7:'Oi, {nome}! Essa é minha última mensagem para não te incomodar.\nSe ainda fizer sentido ter os macarons da Chowder no seu {evento}, é só responder aqui que retomamos de onde paramos. Se os planos mudaram, tudo bem também! Obrigado pelo contato e conte com a gente quando precisar.'};
+ d7:'Oi, {nome}! Passando de novo por aqui para saber como estão os preparativos do seu {evento}.\nSe quiser, monto uma nova proposta com outra quantidade, sabores ou embalagem, sem compromisso. É só me dizer o que ficou melhor para você.',
+ d30:'Oi, {nome}! Faz um tempinho que conversamos sobre o seu {evento}.\nAinda estamos com algumas datas livres na agenda. Se os planos continuam de pé, consigo retomar o orçamento rapidinho. Posso te ajudar?',
+ d60:'Oi, {nome}! Tudo bem? Aqui é da Chowder Macarons.\nTemos sabores e opções de embalagem novos, que podem combinar com o seu {evento} ou com uma próxima comemoração. Quer que eu te mande algumas ideias?',
+ d90:'Oi, {nome}! Essa é minha última mensagem para não te incomodar.\nSe ainda fizer sentido ter os macarons da Chowder no seu {evento} ou em outra ocasião, é só responder aqui que retomamos de onde paramos. Obrigado pelo contato e conte com a gente quando precisar!'};
 let mensagens={...MSG_PADRAO};
 let open=null; // {id,isNew,draft,dirty,pending}
 
@@ -328,8 +332,8 @@ function cadence(r,now=Date.now()){
   const t0=new Date(r.aguardandoDesde).getTime();
   const steps=FU.map(f=>{const due=t0+f.ms,sent=r.followups[f.k];return {...f,due,sent,state:sent?'sent':now>=due?'due':'wait'}});
   const dues=steps.filter(x=>x.state==='due');dues.slice(0,-1).forEach(x=>x.state='skip');
-  const d7=steps[2];const endAt=(d7.sent?new Date(d7.sent).getTime():d7.due)+2*DIA;
-  const ended=(d7.state==='sent'||d7.state==='due')&&now>=endAt;
+  const ult=steps[steps.length-1];const endAt=(ult.sent?new Date(ult.sent).getTime():ult.due)+2*DIA;
+  const ended=(ult.state==='sent'||ult.state==='due')&&now>=endAt;
   const next=steps.find(x=>x.state==='due')||steps.find(x=>x.state==='wait')||null;
   return {steps,ended,next,t0};
 }
@@ -382,7 +386,7 @@ function renderHoje(){
   grupos.meet.sort(by(r=>r.reuniao.em));grupos.first.sort(by(r=>r.criadoEm));grupos.prazo.sort(by(r=>r.orcamento.prazoResposta));
   grupos.fu.sort((a,b)=>cadence(a.r).next.due-cadence(b.r).next.due);grupos.prox.sort((a,b)=>cadence(a.r).next.due-cadence(b.r).next.due);
   grupos.eventos.sort(by(r=>r.orcamento.dataEvento));
-  const secs=[['meet','Reuniões de hoje'],['first','Responder primeiro contato'],['prazo','Prazo de resposta vencendo'],['fu','Follow-ups para enviar'],['end','Sem resposta após 7 dias'],['prox','Próximas 24 horas'],['eventos','Eventos nos próximos 7 dias']];
+  const secs=[['meet','Reuniões de hoje'],['first','Responder primeiro contato'],['prazo','Prazo de resposta vencendo'],['fu','Follow-ups para enviar'],['end','Sem resposta após 90 dias'],['prox','Próximas 24 horas'],['eventos','Eventos nos próximos 7 dias']];
   const html=secs.filter(([k])=>grupos[k].length).map(([k,t])=>`<section><h3>${t}<span class="c">${grupos[k].length}</span></h3><div class="list">${grupos[k].map(card).join('')}</div></section>`).join('');
   if(html){$('#board').innerHTML=`<div class="hoje">${html}</div>`;return}
   $('#board').innerHTML=all().length?`<div class="empty"><h3>${q?'Nada encontrado':'Tudo em dia'}</h3><p style="margin:0">${q?'Nenhuma ação de hoje corresponde à busca.':'Nenhum follow-up vence agora. Veja o Quadro para a lista completa.'}</p></div>`
@@ -474,7 +478,7 @@ function secFollow(r){
   const wa=`<a class="btn sm wa" href="${esc(waLink(r.telefone))}" target="_blank" rel="noopener">Abrir conversa no WhatsApp</a>`;
   if(!r.aguardandoDesde){
     const novo=primeiroContato(r);
-    return `<section class="box"><h3>Follow-up <span class="hint">lembretes de 24h, 3 e 7 dias</span></h3>
+    return `<section class="box"><h3>Follow-up <span class="hint">lembretes de 24h, 3, 7, 30, 60 e 90 dias</span></h3>
      <p class="fu-note">${novo?'Ainda não respondemos este contato. Depois de mandar a resposta inicial ou o orçamento, toque no botão abaixo para iniciar os lembretes.':'Conversa em andamento. Quando você mandar uma mensagem e ficar esperando retorno, inicie os lembretes.'}</p>
      <div class="chips" style="gap:8px"><button class="btn sm primary" data-fu="iniciar">${novo?'Enviei a resposta inicial':'Enviei mensagem, aguardando retorno'}</button>${wa}</div></section>`}
   const c=cadence(r);const now=Date.now();
@@ -486,7 +490,7 @@ function secFollow(r){
       ${mostra?`<pre class="fu-msg" id="fumsg_${st.k}">${esc(txt)}</pre><div class="chips" style="gap:8px"><a class="btn sm wa" href="${esc(waLink(r.telefone,txt))}" target="_blank" rel="noopener">Abrir no WhatsApp</a><button class="btn sm" data-fu="copiar" data-k="${st.k}">Copiar texto</button><button class="btn sm" data-fu="enviado" data-k="${st.k}">Marcar como enviado</button></div>`:''}</div>`}).join('');
   return `<section class="box"><h3>Follow-up <span class="hint">aguardando desde ${fdt(r.aguardandoDesde)}</span></h3>
    <div class="chips" style="gap:8px"><button class="btn sm ok" data-fu="respondeu">Cliente respondeu</button><button class="btn sm" data-fu="iniciar">Reiniciar contagem</button>${wa}</div>
-   ${c.ended?'<div class="fu-alert"><span><b>Sete dias sem resposta.</b> A última abordagem já foi feita. Pode encerrar como desistência.</span><button class="btn sm danger" data-fu="desistir">Marcar desistência</button></div>':''}
+   ${c.ended?'<div class="fu-alert"><span><b>90 dias sem resposta.</b> A última abordagem já foi feita. Pode encerrar como desistência.</span><button class="btn sm danger" data-fu="desistir">Marcar desistência</button></div>':''}
    <div class="fu-steps">${steps}</div>
    ${!c.ended&&r.followups.d7?'<div><button class="btn sm ghost" data-fu="desistir">Marcar desistência agora</button></div>':''}</section>`;
 }
@@ -603,10 +607,10 @@ document.addEventListener('click',async ev=>{
   if(fu&&open&&!open.isNew){const r=open.draft,a=fu.dataset.fu,k=fu.dataset.k;const agora=new Date().toISOString();
     if(!canWrite){toast('Você não tem permissão para editar.');return}
     if(a==='copiar'){const txt=preencher(mensagens[k],r);try{await navigator.clipboard.writeText(txt);toast('Texto copiado')}catch(e){const el=$('#fumsg_'+k);if(el){const rg=document.createRange();rg.selectNodeContents(el);const sl=getSelection();sl.removeAllRanges();sl.addRange(rg)}toast('Texto selecionado. Copie com o menu do aparelho.')}return}
-    if(a==='iniciar'){const era=primeiroContato(r);r.aguardandoDesde=agora;r.followups={};r.respondidoEm=r.respondidoEm||agora;r.novo=false;sysNote(r,era?'Resposta inicial enviada. Lembretes iniciados.':'Mensagem enviada. Aguardando retorno.');await persist(r,'Lembretes de 24h, 3 e 7 dias iniciados');return}
+    if(a==='iniciar'){const era=primeiroContato(r);r.aguardandoDesde=agora;r.followups={};r.respondidoEm=r.respondidoEm||agora;r.novo=false;sysNote(r,era?'Resposta inicial enviada. Lembretes iniciados.':'Mensagem enviada. Aguardando retorno.');await persist(r,'Lembretes de 24h a 90 dias iniciados');return}
     if(a==='respondeu'){r.aguardandoDesde=null;r.followups={};r.respondidoEm=r.respondidoEm||agora;sysNote(r,'Cliente respondeu.');await persist(r,'Lembretes pausados');return}
     if(a==='enviado'){r.followups={...r.followups,[k]:agora};const f=FU.find(x=>x.k===k);sysNote(r,'Follow-up '+f.label+' enviado.');await persist(r,'Follow-up registrado');return}
-    if(a==='desistir'){r.etapaAnterior=r.etapa;r.etapa='arquivo';r.resultado='sem_resposta';r.motivo='Sem resposta após 7 dias';r.aguardandoDesde=null;r.novo=false;sysNote(r,'Sem resposta após 7 dias. Marcado como desistência.');await persist(r,'Marcado como desistência');return}
+    if(a==='desistir'){const ult=[...FU].reverse().find(f=>r.followups[f.k])||ULTIMO;const mot='Sem resposta após '+ult.label.split(' ·')[0];r.etapaAnterior=r.etapa;r.etapa='arquivo';r.resultado='sem_resposta';r.motivo=mot;r.aguardandoDesde=null;r.novo=false;sysNote(r,mot+'. Marcado como desistência.');await persist(r,'Marcado como desistência');return}
   }
   const t=ev.target.closest('[data-view],[data-open],[data-act],[data-delit],[data-delpay],[data-delconv],[data-addpac]');if(!t)return;
   if(t.dataset.view){tab=t.dataset.view;renderAll();return}
@@ -736,7 +740,7 @@ function renderMsgs(){
   root.innerHTML=`<div class="scrim" data-msg="fechar"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Mensagens de follow-up">
    <div class="dhead"><div><div class="stage">Textos prontos</div><h2>Mensagens de follow-up</h2></div><button class="close" data-msg="fechar" aria-label="Fechar">×</button></div>
    <div class="dbody"><p class="meta" style="margin:0">Use {nome}, {evento} e {data}. Elas são preenchidas com os dados de cada contato.</p>
-    ${FU.map(f=>`<label class="f">${f.k==='d7'?'7 dias (última abordagem)':f.label}<textarea id="msg_${f.k}" rows="6">${esc(mensagens[f.k])}</textarea></label>`).join('')}</div>
+    ${FU.map(f=>`<label class="f">${f.k===ULTIMO.k?ULTIMO.label.split(' ·')[0]+' (última abordagem)':f.label}<textarea id="msg_${f.k}" rows="6">${esc(mensagens[f.k])}</textarea></label>`).join('')}</div>
    <div class="dfoot"><button class="btn ghost" data-msg="padrao">Restaurar padrão</button><span class="grow"></span><button class="btn ghost" data-msg="fechar">Cancelar</button><button class="btn primary" data-msg="salvar">Salvar mensagens</button></div></aside>`;
 }
 $('#msgRoot').addEventListener('click',async ev=>{const b=ev.target.closest('[data-msg]');if(!b)return;const a=b.dataset.msg;
