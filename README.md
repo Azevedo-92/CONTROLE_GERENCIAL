@@ -44,7 +44,7 @@ Pronto! A conexão fica salva; nas próximas vezes não precisa ler o QR Code de
 
 ## Sincronizar com uma pasta do computador
 
-Em **Configurações → Pasta do computador**, marque **Ativar sincronização** e informe uma pasta (ex.: `C:\Clientes`).
+Já vem **ativado**, usando a pasta `C:\Clientes`. O `instalar.bat` cria o atalho **"Pasta dos Clientes"** na Área de Trabalho. (Para trocar a pasta: **Configurações → Pasta do computador**.)
 
 - Cada **subpasta** vira um **cliente** no sistema (com o nome da pasta). Se já existir um cliente com o mesmo nome, ele é usado.
 - Todo arquivo salvo dentro da subpasta (inclusive em subpastas dela) é **copiado** para o cliente no sistema. Se o arquivo for alterado, a cópia é atualizada.

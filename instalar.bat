@@ -20,8 +20,16 @@ if errorlevel 8 (
 echo  Criando atalho "Notas e Boletos" na Area de Trabalho...
 powershell -NoProfile -Command "$s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('Desktop')+'\Notas e Boletos.lnk'); $s.TargetPath='%DESTINO%\iniciar.bat'; $s.WorkingDirectory='%DESTINO%'; $s.Save()"
 
+set "CLIENTES=C:\Clientes"
+mkdir "%CLIENTES%" >nul 2>&1
+if not exist "%CLIENTES%" set "CLIENTES=%USERPROFILE%\Clientes"
+mkdir "%CLIENTES%" >nul 2>&1
+echo  Criando atalho "Pasta dos Clientes" na Area de Trabalho...
+powershell -NoProfile -Command "$s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('Desktop')+'\Pasta dos Clientes.lnk'); $s.TargetPath='%CLIENTES%'; $s.Save()"
+
 echo.
 echo  Pronto! O sistema foi instalado em %DESTINO%
+echo  Crie uma pasta para cada cliente dentro de "Pasta dos Clientes" (atalho na Area de Trabalho).
 echo  Nas proximas vezes, abra pelo atalho "Notas e Boletos" na Area de Trabalho.
 echo  Iniciando agora (na primeira vez demora alguns minutos)...
 echo.

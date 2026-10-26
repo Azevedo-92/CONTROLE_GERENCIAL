@@ -234,7 +234,7 @@ app.put('/api/config', (req, res) => {
 });
 
 // ---------- Sincronização com pasta do computador ----------
-const PASTA_SUGERIDA = process.platform === 'win32' ? 'C:\\Clientes' : path.join(require('os').homedir(), 'Clientes');
+const PASTA_SUGERIDA = sync.PASTA_PADRAO;
 
 app.get('/api/sync', (req, res) => {
   res.json({ ativo: false, pasta: '', ...db.config.sync, pastaSugerida: PASTA_SUGERIDA, estado: sync.estado });

@@ -13,6 +13,20 @@ const IGNORAR = /^(~\$|\.|desktop\.ini$|thumbs\.db$)|\.(tmp|crdownload|part|part
 
 const estado = { ultimaVez: null, erro: null, clientesCriados: 0, arquivosCopiados: 0, rodando: false };
 
+// Pasta padrão, já ativada sem precisar configurar nada.
+const PASTA_PADRAO = process.platform === 'win32' ? 'C:\\Clientes' : path.join(require('os').homedir(), 'Clientes');
+if (!db.config.syncPadraoAplicado) {
+  let pasta = PASTA_PADRAO;
+  try {
+    fs.mkdirSync(pasta, { recursive: true });
+  } catch {
+    pasta = path.join(require('os').homedir(), 'Clientes'); // sem permissão no C:\
+  }
+  db.config.sync = { ativo: true, pasta };
+  db.config.syncPadraoAplicado = true;
+  salvar();
+}
+
 const normalizar = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
 
 function pastaConfigurada() {
@@ -94,6 +108,8 @@ function sincronizarAgora() {
   estado.rodando = true;
   try {
     if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
+    // Clientes que ainda não têm pasta no computador ganham uma.
+    db.clientes.filter((c) => !c.pastaOrigem).forEach(criarPastaDoCliente);
     for (const item of fs.readdirSync(base, { withFileTypes: true })) {
       if (!item.isDirectory() || IGNORAR.test(item.name)) continue;
       try {
@@ -131,4 +147,4 @@ function iniciar() {
   sincronizarAgora();
 }
 
-module.exports = { estado, iniciar, sincronizarAgora, criarPastaDoCliente, pastaConfigurada };
+module.exports = { PASTA_PADRAO, estado, iniciar, sincronizarAgora, criarPastaDoCliente, pastaConfigurada };
