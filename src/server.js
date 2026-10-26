@@ -295,6 +295,11 @@ const servidor = app.listen(PORTA, (err) => {
   if (err) return; // tratado em servidor.on('error')
   const url = `http://localhost:${PORTA}`;
   console.log(`\n  Sistema aberto em: ${url}`);
+  const ips = Object.values(require('os').networkInterfaces())
+    .flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+    .map((i) => `http://${i.address}:${PORTA}`);
+  if (ips.length) console.log(`  Outros computadores da mesma rede: ${ips.join('  ou  ')}`);
   console.log('  Deixe esta janela aberta (pode minimizar). Fechar esta janela desliga o sistema.\n');
   abrirNavegador(url);
   sync.iniciar();

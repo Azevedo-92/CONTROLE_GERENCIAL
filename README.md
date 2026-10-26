@@ -32,7 +32,11 @@ Pronto! A conexão fica salva; nas próximas vezes não precisa ler o QR Code de
 
 > Desde 2026 o WhatsApp exige essa confirmação de segurança para conectar computadores novos em algumas contas, e ela não funciona em navegador escondido. Por isso a janela fica visível só durante a conexão.
 
-> Outros computadores da mesma rede podem usar o sistema acessando `http://IP-DESTE-COMPUTADOR:3000`.
+## Usar em outros computadores
+
+**Recomendado:** deixe o sistema instalado em um computador principal. Os outros computadores da mesma rede abrem pelo navegador o endereço que aparece na janela preta, na linha **"Outros computadores da mesma rede"** (ex.: `http://192.168.0.10:3000`). Todos compartilham os mesmos clientes, arquivos, histórico e WhatsApp. Na primeira vez, o Windows do computador principal pode perguntar sobre o firewall: clique em **Permitir**.
+
+**Alternativa:** instalar em cada computador (Node.js + `instalar.bat`). Cada um fica com seus próprios dados e precisa conectar um WhatsApp (o WhatsApp aceita no máximo 4 aparelhos conectados por número).
 
 ## Se a página não abrir
 
