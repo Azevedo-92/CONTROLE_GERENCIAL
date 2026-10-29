@@ -795,6 +795,7 @@ setInterval(()=>{if(!loaded||!sb)return;renderKpis();if(document.activeElement&&
 
 /* ---------- Promoções ---------- */
 let promos=[],promoLeads={},promoCarregado=false,promoSel=null,promoEd=null; // promoEd: {id|null, ...campos}
+const PROMO_TEMAS=[['chowder','Chowder (azul e dourado)'],['bordo','Bordô (vinho e dourado)'],['blackfriday','Black Friday (preto e amarelo)']];
 const slugify=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
 const promoLink=p=>location.origin+'/promo/'+p.slug;
 function promoStatus(p){const h=today();if(!p.ativa)return {t:'Pausada',c:''};if(h<p.inicio)return {t:'Agendada · começa '+fds(p.inicio),c:'warn'};if(h>p.fim)return {t:'Encerrada',c:''};return {t:'No ar até '+fds(p.fim),c:'ok'}}
@@ -835,6 +836,7 @@ function renderPromoEd(){
     <label class="f full">Nome da promoção<input id="pr_titulo" maxlength="80" value="${esc(e.titulo)}" placeholder="Black Friday"></label>
     <label class="f full">Frase da caixinha<textarea id="pr_chamada" rows="2" maxlength="300" placeholder="Cadastre-se e receba as ofertas em primeira mão.">${esc(e.chamada)}</textarea></label>
     <label class="f full">Texto do botão<input id="pr_botao" maxlength="60" value="${esc(e.botao)}"></label>
+    <label class="f full">Cores da caixinha, faixa e seção<select id="pr_tema">${PROMO_TEMAS.map(([k,l])=>`<option value="${k}"${(e.tema||'chowder')===k?' selected':''}>${l}</option>`).join('')}</select></label>
     <label class="f">Começa em<input id="pr_inicio" type="date" value="${esc(e.inicio)}"></label>
     <label class="f">Termina em<input id="pr_fim" type="date" value="${esc(e.fim)}"></label>
     <label class="f full">Link da promoção<span class="pr-slug">${esc(location.origin)}/promo/<input id="pr_slug" maxlength="60" value="${esc(e.slug)}" aria-label="Final do link"></span></label>
@@ -854,14 +856,14 @@ $('#board').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]')
 $('#board').addEventListener('change',ev=>{const b=ev.target.closest('[data-pr="contatado"]');if(b)acaoPromo(b,ev)});
 async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=promos.find(x=>x.id===promoSel);
   if(a==='ver'){promoSel=id;renderBoard();return}
-  if(a==='nova'){const h=today();const fim=new Date(Date.now()+30*864e5);promoEd={id:null,titulo:'',chamada:'',botao:'Quero receber as ofertas',inicio:h,fim:iso(fim),slug:'',ativa:true,imagens:[],_novos:[],_removidos:[]};renderPromoEd();return}
+  if(a==='nova'){const h=today();const fim=new Date(Date.now()+30*864e5);promoEd={id:null,titulo:'',chamada:'',botao:'Quero receber as ofertas',inicio:h,fim:iso(fim),slug:'',ativa:true,tema:'chowder',imagens:[],_novos:[],_removidos:[]};renderPromoEd();return}
   if(a==='editar'&&p){promoEd={...p,imagens:[...(p.imagens||[])],_novos:[],_removidos:[]};renderPromoEd();return}
   if(a==='fecharEd'){fecharPromoEd();return}
   if(a==='imgEsq'||a==='imgDir'){const i=+b.dataset.i,j=a==='imgEsq'?i-1:i+1,L=promoEd.imagens;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];renderPromoImgs();return}
   if(a==='imgDel'){const [x]=promoEd.imagens.splice(+b.dataset.i,1);if(promoEd._novos.includes(x.path)){promoEd._novos=promoEd._novos.filter(y=>y!==x.path);apagarImgs([x.path])}else promoEd._removidos.push(x.path);renderPromoImgs();return}
   if(a==='copiar'&&p){const l=promoLink(p);try{await navigator.clipboard.writeText(l);toast('Link copiado')}catch(e){const i=$('.pr-link input');i.select();toast('Link selecionado. Copie com o menu do aparelho.')}return}
   if(a==='salvar'){if(promoEd.enviando){toast('Aguarde o envio das imagens.');return}
-    const v={imagens:promoEd.imagens.map(x=>({path:x.path,w:x.w,h:x.h})),titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked};
+    const v={imagens:promoEd.imagens.map(x=>({path:x.path,w:x.w,h:x.h})),titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked,tema:$('#pr_tema').value};
     if(!v.titulo){toast('Dê um nome para a promoção.');$('#pr_titulo').focus();return}
     if(!v.inicio||!v.fim){toast('Informe o período da promoção.');return}
     if(v.fim<v.inicio){toast('A data final precisa ser depois do início.');$('#pr_fim').focus();return}

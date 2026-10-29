@@ -180,3 +180,8 @@ create policy "promocoes: admin apaga imagem" on storage.objects for delete to a
   using (bucket_id = 'promocoes-img' and public.pedidos_is_admin());
 create policy "promocoes: admin le imagem" on storage.objects for select to authenticated
   using (bucket_id = 'promocoes-img' and public.pedidos_is_admin());
+
+-- 10) Tema de cores da promoção na landing.
+alter table public.promocoes add column if not exists tema text not null default 'chowder';
+alter table public.promocoes drop constraint if exists promocoes_tema_check;
+alter table public.promocoes add constraint promocoes_tema_check check (tema in ('chowder','bordo','blackfriday'));

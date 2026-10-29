@@ -13,6 +13,10 @@
   const mascara = v => { const d = v.replace(/\D/g, "").slice(0, 11); if (d.length <= 2) return d; if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`; if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`; return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`; };
 
   let sb = null, promo = null, caixa = null, ultimoFoco = null;
+  const TEMAS = ["chowder", "bordo", "blackfriday"];
+  const tema = () => "tema-" + (TEMAS.includes(promo.tema) ? promo.tema : "chowder");
+  // No tema Black Friday a última palavra do título fica em amarelo ("Black <Friday>").
+  const titulo = () => { const t = esc(promo.titulo); if (promo.tema !== "blackfriday") return t; const i = t.lastIndexOf(" "); return i > 0 ? t.slice(0, i) + ' <span class="y">' + t.slice(i + 1) + "</span>" : '<span class="y">' + t + "</span>"; };
   const imgs = () => (Array.isArray(promo.imagens) ? promo.imagens : []).filter(x => x && x.path);
   const imgUrl = path => C.supabaseUrl + "/storage/v1/object/public/promocoes-img/" + path.split("/").map(encodeURIComponent).join("/");
   const imgTag = (x, alt, extra) => `<img src="${esc(imgUrl(x.path))}" alt="${esc(alt)}"${x.w && x.h ? ` width="${+x.w}" height="${+x.h}"` : ""} ${extra || ""}>`;
@@ -21,7 +25,7 @@
     if (!window.supabase) return;
     try { sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, { auth: { persistSession: false } }); } catch (e) { return; }
     // O banco só devolve promoções ativas e dentro do período.
-    const { data, error } = await sb.from("promocoes").select("id,slug,titulo,chamada,botao,fim,imagens").order("inicio", { ascending: false });
+    const { data, error } = await sb.from("promocoes").select("id,slug,titulo,chamada,botao,fim,imagens,tema").order("inicio", { ascending: false });
     if (error || !data || !data.length) return;
     promo = data.find(p => p.slug === slugLink) || data[0];
     const k = "promo-" + promo.id;
@@ -60,7 +64,7 @@
 .promo-box .enviar[disabled]{opacity:.6;cursor:wait}
 .promo-box .erro{color:#F08A8F;font-size:.88rem;margin:0;min-height:1em}
 .promo-box .ok{font-size:2rem;width:60px;height:60px;border-radius:50%;margin:6px auto 10px;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold)}
-.promo-capa{margin:-14px -8px 14px;border-radius:10px;overflow:hidden;background:#0B1324;display:flex;justify-content:center}
+.promo-capa{margin:10px -8px 14px;border-radius:10px;overflow:hidden;background:#0B1324;display:flex;justify-content:center}
 .promo-capa img{display:block;width:auto;max-width:100%;height:auto;max-height:min(34vh,300px);object-fit:contain}
 .promo-sec .promo-galeria{display:grid;grid-auto-flow:column;grid-auto-columns:min(78%,340px);align-items:start;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 8px;margin-top:16px;scrollbar-width:thin;outline:none}
 .promo-sec .promo-galeria figure{margin:0;scroll-snap-align:start;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow)}
@@ -69,6 +73,42 @@
 .promo-sec .promo-cta{max-width:420px;margin:16px auto 0}
 .promo-sec .promo-cta[disabled]{background:var(--ok);cursor:default}
 header.top .menu a.promo-menu{color:var(--gold)}
+/* Tema Bordô */
+.promo-modal.tema-bordo .promo-box{background:radial-gradient(130% 90% at 50% 0%,#7A2338 0,var(--bord) 45%,#3F0F1A 100%)}
+.promo-modal.tema-bordo .promo-box input[type=text],.promo-modal.tema-bordo .promo-box input[type=tel],.promo-modal.tema-bordo .promo-box input[type=email]{background:#3D0E19;border-color:rgba(196,162,101,.55)}
+.promo-modal.tema-bordo .chamada,.promo-modal.tema-bordo .aceite{color:#EAD9DC}
+.promo-modal.tema-bordo .promo-x{background:rgba(61,14,25,.75)}
+.promo-modal.tema-bordo .promo-capa{background:#3D0E19}
+.promo-sec.tema-bordo{background:var(--bord);color:var(--on-dark);padding-bottom:40px;margin-top:36px}
+.promo-sec.tema-bordo .eyebrow{color:var(--gold)}.promo-sec.tema-bordo .sub{color:#EAD9DC}
+.promo-sec.tema-bordo .promo-galeria figure{border-color:rgba(196,162,101,.4)}
+.promo-sec.tema-bordo .promo-cta{background:var(--gold);color:var(--navy)}
+/* Tema Black Friday: preto e amarelo */
+.promo-faixa.tema-blackfriday{background:#0A0A0A;border-bottom:2px solid #FFD400}
+.promo-faixa.tema-blackfriday b,.promo-faixa.tema-blackfriday span.seta{color:#FFD400}
+.promo-modal.tema-blackfriday .promo-box{background:#0A0A0A;border:2px solid #FFD400;color:#fff;padding-top:0}
+.promo-modal.tema-blackfriday .promo-box::before{display:none}
+.promo-modal.tema-blackfriday .eyebrow{display:block;background:#FFD400;color:#0A0A0A;margin:0 -20px 14px;padding:12px 48px;border-radius:12px 12px 0 0;font-weight:800}
+.promo-modal.tema-blackfriday .promo-capa{margin-top:0;background:#141414}
+.promo-modal.tema-blackfriday h2{font-family:var(--f-body);font-weight:900;text-transform:uppercase;color:#fff;font-size:2.6rem;line-height:1.05}
+.promo-modal.tema-blackfriday h2 .y,.promo-sec.tema-blackfriday h2 .y{color:#FFD400}
+.promo-modal.tema-blackfriday .chamada,.promo-modal.tema-blackfriday .aceite{color:#D6D6D6}
+.promo-modal.tema-blackfriday .validade,.promo-modal.tema-blackfriday .aceite a{color:#FFD400}
+.promo-modal.tema-blackfriday .promo-box input[type=text],.promo-modal.tema-blackfriday .promo-box input[type=tel],.promo-modal.tema-blackfriday .promo-box input[type=email]{background:#1A1A1A;border-color:#3A3A3A;color:#fff}
+.promo-modal.tema-blackfriday .promo-box input:focus{outline-color:#FFD400;border-color:#FFD400}
+.promo-modal.tema-blackfriday .aceite input{accent-color:#FFD400}
+.promo-modal.tema-blackfriday .enviar{background:#FFD400;color:#0A0A0A;text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+.promo-modal.tema-blackfriday .promo-x{top:2px;right:4px;background:transparent;color:#0A0A0A}
+.promo-modal.tema-blackfriday .promo-x:hover{background:rgba(0,0,0,.08)}
+.promo-modal.tema-blackfriday .ok{border-color:#FFD400;color:#FFD400}
+.promo-sec.tema-blackfriday{background:#0A0A0A;color:#fff;padding-bottom:40px;margin-top:36px;border-top:4px solid #FFD400}
+.promo-sec.tema-blackfriday .eyebrow{color:#FFD400}
+.promo-sec.tema-blackfriday h2{font-family:var(--f-body);font-weight:900;text-transform:uppercase;color:#fff}
+.promo-sec.tema-blackfriday .sub{color:#D6D6D6}
+.promo-sec.tema-blackfriday .promo-galeria figure{border-color:#2A2A2A;background:#141414}
+.promo-sec.tema-blackfriday .promo-cta{background:#FFD400;color:#0A0A0A;text-transform:uppercase;letter-spacing:.04em;font-weight:800;box-shadow:none}
+.promo-sec.tema-blackfriday .promo-cta[disabled],.promo-sec.tema-bordo .promo-cta[disabled]{background:var(--ok);color:#fff}
+header.top .menu a.promo-menu.tema-blackfriday{color:#FFD400}
 .promo-box .fechar2{margin-top:14px;min-height:46px;width:100%;border:1px solid rgba(245,239,230,.45);border-radius:10px;background:transparent;color:inherit;font:700 1rem var(--f-body);cursor:pointer}`;
     document.head.appendChild(s);
   }
@@ -76,7 +116,7 @@ header.top .menu a.promo-menu{color:var(--gold)}
   function montarFaixa() {
     estilos();
     const f = document.createElement("button");
-    f.type = "button"; f.className = "promo-faixa"; f.id = "promo-faixa";
+    f.type = "button"; f.className = "promo-faixa " + tema(); f.id = "promo-faixa";
     f.innerHTML = `<b>${esc(promo.titulo)}</b><span>${esc(promo.botao || "Receba ofertas")}</span><span class="seta" aria-hidden="true">→</span>`;
     f.onclick = abrir;
     document.body.insertBefore(f, document.body.firstChild);
@@ -86,10 +126,10 @@ header.top .menu a.promo-menu{color:var(--gold)}
     const L = imgs(); if (!L.length) return;
     estilos();
     const sec = document.createElement("section");
-    sec.className = "blk promo-sec"; sec.id = "promocao";
+    sec.className = "blk promo-sec " + tema(); sec.id = "promocao";
     sec.innerHTML = `<div class="wrap">
     <span class="eyebrow">Promoção</span>
-    <h2>${esc(promo.titulo)}</h2>
+    <h2>${titulo()}</h2>
     ${promo.chamada ? `<p class="sub">${esc(promo.chamada)}</p>` : ""}
     <div class="promo-galeria" tabindex="0" aria-label="Imagens da promoção ${esc(promo.titulo)}">${L.map((x, i) => `<figure>${imgTag(x, promo.titulo + " " + (i + 1), 'loading="lazy" decoding="async"')}</figure>`).join("")}</div>
     <button type="button" class="btn promo-cta"${cadastrado ? " disabled" : ""}>${cadastrado ? "✓ Você já está na lista" : esc(promo.botao || "Quero receber as ofertas")}</button>
@@ -98,7 +138,7 @@ header.top .menu a.promo-menu{color:var(--gold)}
     const antes = document.getElementById("portfolio");
     if (antes) antes.parentNode.insertBefore(sec, antes); else (document.querySelector("main") || document.body).appendChild(sec);
     const menu = document.getElementById("menu");
-    if (menu) { const a = document.createElement("a"); a.href = "#promocao"; a.className = "promo-menu"; a.textContent = promo.titulo; menu.insertBefore(a, menu.firstChild); }
+    if (menu) { const a = document.createElement("a"); a.href = "#promocao"; a.className = "promo-menu " + tema(); a.textContent = promo.titulo; menu.insertBefore(a, menu.firstChild); }
   }
 
   function abrir() {
@@ -106,7 +146,7 @@ header.top .menu a.promo-menu{color:var(--gold)}
     ultimoFoco = document.activeElement;
     if (!caixa) {
       caixa = document.createElement("div");
-      caixa.className = "promo-modal";
+      caixa.className = "promo-modal " + tema();
       caixa.innerHTML = `<div class="fundo" data-fechar></div>
 <div class="promo-box" role="dialog" aria-modal="true" aria-labelledby="promo-tit">
   <button type="button" class="promo-x" data-fechar aria-label="Fechar">×</button>
@@ -134,9 +174,9 @@ header.top .menu a.promo-menu{color:var(--gold)}
     const corpo = caixa.querySelector(".corpo");
     const capa = imgs()[0];
     corpo.innerHTML = `
-  ${capa ? `<div class="promo-capa">${imgTag(capa, promo.titulo)}</div>` : ""}
   <span class="eyebrow">Promoção</span>
-  <h2 id="promo-tit">${esc(promo.titulo)}</h2>
+  ${capa ? `<div class="promo-capa">${imgTag(capa, promo.titulo)}</div>` : ""}
+  <h2 id="promo-tit">${titulo()}</h2>
   ${promo.chamada ? `<p class="chamada">${esc(promo.chamada)}</p>` : ""}
   <p class="validade">Cadastro até ${fdata(promo.fim)}</p>
   <form novalidate>
@@ -182,6 +222,7 @@ header.top .menu a.promo-menu{color:var(--gold)}
     const f = document.getElementById("promo-faixa"); if (f) f.remove();
     const cta = document.querySelector(".promo-cta"); if (cta) { cta.disabled = true; cta.textContent = "✓ Você já está na lista"; }
     caixa.querySelector(".corpo").innerHTML = `
+  <span class="eyebrow">Promoção</span>
   <div class="ok" aria-hidden="true">✓</div>
   <h2 id="promo-tit" style="font-size:2rem">Você está na lista!</h2>
   <p class="chamada">Obrigado, ${esc(nome.split(" ")[0])}. Vamos te avisar das ofertas da ${esc(promo.titulo)} pelo WhatsApp e e-mail.</p>

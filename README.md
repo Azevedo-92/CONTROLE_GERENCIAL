@@ -56,7 +56,8 @@ LGPD: os pixels só carregam depois que o visitante toca em **Aceitar** no aviso
 
 ### Promoções (ex.: Black Friday)
 No painel, aba **Promoções**: criar a promoção (nome, frase, texto do botão, período e link) e acompanhar os inscritos (nome, WhatsApp, e-mail), marcar quem já foi contatado, apagar quem pedir para sair e exportar CSV.
-Durante o período e com a promoção **ativa**, a landing mostra uma faixa no topo e abre a caixinha de cadastro sozinha (com X para fechar; quem fecha não vê de novo automaticamente). O link `https://chowder-macarons.vercel.app/promo/SLUG` sempre abre a caixinha daquela promoção. **Imagens e criativos**: na edição da promoção, até 12 imagens (reduzidas automaticamente no navegador antes de enviar). A primeira é a capa da caixinha; todas aparecem na seção da promoção na página, com link no menu. Ficam na pasta pública `promocoes-img`.
+Durante o período e com a promoção **ativa**, a landing mostra uma faixa no topo e abre a caixinha de cadastro sozinha (com X para fechar; quem fecha não vê de novo automaticamente). O link `https://chowder-macarons.vercel.app/promo/SLUG` sempre abre a caixinha daquela promoção. **Cores**: cada promoção escolhe o tema da caixinha, faixa e seção: Chowder (azul e dourado), Bordô ou Black Friday (preto e amarelo).
+**Imagens e criativos**: na edição da promoção, até 12 imagens (reduzidas automaticamente no navegador antes de enviar). A primeira é a capa da caixinha; todas aparecem na seção da promoção na página, com link no menu. Ficam na pasta pública `promocoes-img`.
 Tabelas `promocoes` e `promocoes_leads` (itens 8 e 9 do `schema.sql`); o cadastro manda o evento **CompleteRegistration** para o pixel.
 
 ### 3. Publicar (Vercel)
