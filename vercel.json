@@ -41,10 +41,21 @@
       "has": [
         {
           "type": "host",
+          "value": "chowder-macarons.vercel.app"
+        }
+      ],
+      "destination": "https://chowdermacarons.com.br/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
           "value": "chef-chowder-bakeshop.vercel.app"
         }
       ],
-      "destination": "https://chowder-macarons.vercel.app/:path*",
+      "destination": "https://chowdermacarons.com.br/:path*",
       "permanent": true
     }
   ]

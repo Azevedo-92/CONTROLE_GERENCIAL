@@ -56,7 +56,7 @@ LGPD: os pixels só carregam depois que o visitante toca em **Aceitar** no aviso
 
 ### Promoções (ex.: Black Friday)
 No painel, aba **Promoções**: criar a promoção (nome, frase, texto do botão, período e link) e acompanhar os inscritos (nome, WhatsApp, e-mail), marcar quem já foi contatado, apagar quem pedir para sair e exportar CSV.
-Durante o período e com a promoção **ativa**, a landing mostra uma faixa no topo e abre a caixinha de cadastro sozinha (com X para fechar; quem fecha não vê de novo automaticamente). O link `https://chowder-macarons.vercel.app/promo/SLUG` sempre abre a caixinha daquela promoção. **Cores**: cada promoção escolhe o tema da caixinha, faixa e seção: Chowder (azul e dourado), Bordô ou Black Friday (preto e amarelo).
+Durante o período e com a promoção **ativa**, a landing mostra uma faixa no topo e abre a caixinha de cadastro sozinha (com X para fechar; quem fecha não vê de novo automaticamente). O link `https://chowdermacarons.com.br/promo/SLUG` sempre abre a caixinha daquela promoção. **Cores**: cada promoção escolhe o tema da caixinha, faixa e seção: Chowder (azul e dourado), Bordô ou Black Friday (preto e amarelo).
 **Grupo do WhatsApp**: campo opcional com o link de convite (`https://chat.whatsapp.com/...`). Depois do cadastro aparece o botão "Entrar no grupo do WhatsApp" (e o botão da seção da promoção passa a levar ao grupo para quem já se cadastrou). O clique envia o evento **Contact** ao pixel.
 **Fora do grupo**: o painel separa quem se cadastrou e não clicou em "Entrar no grupo" (filtros Todos / Fora do grupo / No grupo). A caixa "No grupo" corrige manualmente (o WhatsApp não informa quem entrou de fato). Na lista "Fora do grupo": botão WhatsApp com mensagem e link do grupo, copiar números, exportar para Contatos do Google (para montar a lista de transmissão) e copiar a mensagem.
 **Imagens e criativos**: na edição da promoção, até 12 imagens (reduzidas automaticamente no navegador antes de enviar). A primeira é a capa da caixinha; todas aparecem na seção da promoção na página, com link no menu. Ficam na pasta pública `promocoes-img`.
@@ -65,7 +65,7 @@ Tabelas `promocoes` e `promocoes_leads` (itens 8 e 9 do `schema.sql`); o cadastr
 ### 3. Publicar (Vercel)
 1. Em <https://vercel.com>, **Add New → Project → Import** este repositório.
 2. Framework: **Other**. Sem comando de build. **Deploy**.
-3. Endereço do site: **https://chowder-macarons.vercel.app** (o antigo chef-chowder-bakeshop.vercel.app redireciona para ele). Link do anúncio: `https://chowder-macarons.vercel.app/?utm_source=instagram&utm_campaign=NOME`. Os parâmetros `utm_*` aparecem no painel em cada pedido.
+3. Endereço do site: **https://chowdermacarons.com.br** (domínio no Registro.br, zona DNS em modo avançado: dois registros A `216.150.1.1` e `216.150.16.1` e CNAME `www` → `7ec31bdeb7a59090.vercel-dns-016.com`; o www redireciona para o endereço sem www). Os endereços antigos chowder-macarons.vercel.app e chef-chowder-bakeshop.vercel.app redirecionam para ele. Link do anúncio: `https://chowdermacarons.com.br/?utm_source=instagram&utm_campaign=NOME`. Os parâmetros `utm_*` aparecem no painel em cada pedido.
 4. Domínio próprio: **Project → Settings → Domains**.
 
 ## Estrutura
