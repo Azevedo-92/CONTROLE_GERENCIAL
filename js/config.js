@@ -36,8 +36,15 @@ window.CHOWDER = {
 
   // Listas compartilhadas entre landing e painel
   ocasioes: ["Casamento", "Aniversário", "Corporativo", "Batizado", "Chá de bebê", "Maternidade", "Presente", "Outro"],
-  necessidades: ["Torre de macarons", "Mesa de doces", "Ateliê de macarons ao vivo", "Lembrancinhas", "Macarons avulsos", "Brownies", "Cookies"],
-  atelie: "Ateliê de macarons ao vivo: um carrinho na festa onde os convidados montam os próprios macarons.",
+  necessidades: ["Torre de macarons", "Mesa de doces", "Macarons Bar", "Lembrancinhas", "Macarons avulsos", "Brownies", "Cookies"],
+  // Destaque da página (seção própria, link no menu e opção marcada no formulário). Deixe macaronsBar: null para esconder.
+  macaronsBar: {
+    nome: "Macarons Bar",
+    chamada: "Um carrinho de macarons no seu evento, onde os convidados montam os próprios macarons na hora.",
+    itens: ["Atração que movimenta a festa e rende muitas fotos", "Os convidados escolhem e montam o próprio macaron", "Para casamentos, aniversários e eventos corporativos"],
+    foto: "assets/img/portfolio/carrinho-torre-colorida.webp",
+    botao: "Quero o Macarons Bar no meu evento"
+  },
   pacotes: [
     { id: "torre4",  nome: "Torre de 4 andares",  detalhe: "cerca de 50 macarons",  qtd: 1, valor: 410 },
     { id: "torre6",  nome: "Torre de 6 andares",  detalhe: "cerca de 100 macarons", qtd: 1, valor: 750, destaque: "Mais pedido" },
@@ -53,7 +60,7 @@ window.CHOWDER = {
   // Portfólio (carrossel). Para trocar fotos: coloque o arquivo em assets/img/portfolio/ e ajuste aqui.
   portfolio: [
     { src: "assets/img/portfolio/piramide-macarons.webp",       legenda: "Macarons na mesa de doces",       tipo: "Eventos" },
-    { src: "assets/img/portfolio/carrinho-torre-colorida.webp", legenda: "Ateliê de macarons ao vivo",      tipo: "Eventos" },
+    { src: "assets/img/portfolio/carrinho-torre-colorida.webp", legenda: "Macarons Bar",                     tipo: "Eventos" },
     { src: "assets/img/portfolio/bandeja-brownies.webp",        legenda: "Bandeja de brownies",             tipo: "Eventos" },
     { src: "assets/img/portfolio/brownies-tag-helena.webp",     legenda: "Brownies com tag personalizada",  tipo: "Lembrancinhas" },
     { src: "assets/img/portfolio/caixinhas-brownie-laco.webp",  legenda: "Caixinhas de brownie com laço",   tipo: "Lembrancinhas" },
