@@ -32,6 +32,11 @@
   ],
   "redirects": [
     {
+      "source": "/promo/:slug",
+      "destination": "/?promo=:slug",
+      "permanent": false
+    },
+    {
       "source": "/:path*",
       "has": [
         {

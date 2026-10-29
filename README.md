@@ -54,6 +54,10 @@ Cole o ID em `js/config.js` (`pixelMeta` para o Pixel do Meta, `googleTag` para 
 Eventos enviados pela landing: **PageView** (visita), **Lead** (pedido de orçamento enviado, com valor do pacote quando houver) e **Contact** (clique em WhatsApp, iFood ou Instagram). O painel `/admin` não é rastreado.
 LGPD: os pixels só carregam depois que o visitante toca em **Aceitar** no aviso de cookies (a escolha fica salva no navegador; "Preferências de cookies" no rodapé reabre o aviso). A política fica em [`privacidade.html`](privacidade.html) (`/privacidade`); o campo `cnpj` do config aparece nela quando preenchido.
 
+### Promoções (ex.: Black Friday)
+No painel, aba **Promoções**: criar a promoção (nome, frase, texto do botão, período e link) e acompanhar os inscritos (nome, WhatsApp, e-mail), marcar quem já foi contatado, apagar quem pedir para sair e exportar CSV.
+Durante o período e com a promoção **ativa**, a landing mostra uma faixa no topo e abre a caixinha de cadastro sozinha (com X para fechar; quem fecha não vê de novo automaticamente). O link `https://chowder-macarons.vercel.app/promo/SLUG` sempre abre a caixinha daquela promoção. Tabelas `promocoes` e `promocoes_leads` (item 8 do `schema.sql`); o cadastro manda o evento **CompleteRegistration** para o pixel.
+
 ### 3. Publicar (Vercel)
 1. Em <https://vercel.com>, **Add New → Project → Import** este repositório.
 2. Framework: **Other**. Sem comando de build. **Deploy**.

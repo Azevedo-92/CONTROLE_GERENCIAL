@@ -218,6 +218,33 @@ table.items td.r,table.items th.r{text-align:right}
 .inline .f{flex:1 1 200px}
 .msg-err{color:var(--crit);font-size:13px;margin:0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#F5EFE6;padding:10px 18px;border-radius:999px;font-weight:600;z-index:20;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 0 0 1px var(--gold)}
+/* Promoções */
+.pr-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0 12px}
+.pr-head h2{font-size:26px}
+.pr-wrap{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:820px){.pr-wrap{grid-template-columns:minmax(0,1fr)}}
+.pr-list{display:flex;flex-direction:column;gap:10px}
+.pr-card{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;color:var(--ink);font:inherit;cursor:pointer}
+.pr-card.on{border-color:var(--gold);box-shadow:inset 3px 0 0 var(--bord)}
+.pr-card .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.pr-card .name{font-family:var(--f-display);font-size:20px;font-weight:600}
+.pr-n{font-family:var(--f-display);font-size:24px;font-weight:600;line-height:1;text-align:right}
+.pr-n small{display:block;font:600 11px var(--f-body);color:var(--muted)}
+.pr-link{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pr-link input{flex:1 1 220px}
+.pr-slug{display:flex;align-items:center;gap:2px;font-weight:400;color:var(--muted);font-size:13px;flex-wrap:wrap}
+.pr-slug input{flex:1 1 140px}
+.pl{display:flex;flex-direction:column}
+.pl-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.pl-row.dim{opacity:.62}
+.pl-row .who2{display:flex;flex-direction:column;min-width:0}
+.pl-row .who2 b{overflow-wrap:anywhere}
+.pl-row .ct{display:flex;flex-direction:column;font-size:14px;min-width:0}
+.pl-row .ct a{color:var(--ink);overflow-wrap:anywhere}
+.pl-row .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:640px){.pl-row{grid-template-columns:minmax(0,1fr)}}
+label.chk{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+label.chk input{width:18px;height:18px;accent-color:var(--bord)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
 </style>
 </head>
@@ -254,6 +281,7 @@ table.items td.r,table.items th.r{text-align:right}
 <div id="drawerRoot"></div>
 <div id="socRoot"></div>
 <div id="msgRoot"></div>
+<div id="promoRoot"></div>
 <div id="toast" class="toast" hidden></div>
 
 <script src="../js/config.js"></script>
@@ -407,8 +435,9 @@ function renderToolbar(){
   const had=document.activeElement&&document.activeElement.id==='search';
   const nArq=inStage('arquivo').length;
   const nHoje=all().filter(x=>acao(x.r)).length;
-  $('#toolbar').innerHTML=`<div class="views" role="group" aria-label="Visualização"><button data-view="hoje" aria-pressed="${tab==='hoje'}">Para hoje${nHoje?` <span class="n num">${nHoje}</span>`:''}</button><button data-view="board" aria-pressed="${tab==='board'}">Quadro</button></div>`
-   +`<input class="search" id="search" type="search" placeholder="Buscar nome, telefone, protocolo" value="${esc(q)}" aria-label="Buscar">`
+  const nPromo=Object.values(promoLeads).flat().filter(l=>!l.contatado_em).length;
+  $('#toolbar').innerHTML=`<div class="views" role="group" aria-label="Visualização"><button data-view="hoje" aria-pressed="${tab==='hoje'}">Para hoje${nHoje?` <span class="n num">${nHoje}</span>`:''}</button><button data-view="board" aria-pressed="${tab==='board'}">Quadro</button><button data-view="promo" aria-pressed="${tab==='promo'}">Promoções${nPromo?` <span class="n num">${nPromo}</span>`:''}</button></div>`
+   +`<input class="search" id="search" type="search" placeholder="${tab==='promo'?'Buscar inscrito: nome, telefone, e-mail':'Buscar nome, telefone, protocolo'}" value="${esc(q)}" aria-label="Buscar">`
    +(tab==='arquivo'?'<button class="btn" data-view="board">← Voltar ao quadro</button>':`<button class="btn" data-view="arquivo">Arquivo <span class="chip num" style="padding:0 7px">${nArq}</span></button>`);
   if(had){const e=$('#search');e.focus();e.setSelectionRange(e.value.length,e.value.length)}
 }
@@ -437,6 +466,7 @@ const EMPTY_COL={contato:'Pedidos da landing chegam aqui sozinhos. Conversas do 
 function renderBoard(){
   if(!loaded){$('#board').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
   if(tab==='hoje'){renderHoje();return}
+  if(tab==='promo'){renderPromo();return}
   if(tab==='arquivo'){const list=sorted(inStage('arquivo').filter(matches),'arquivo');
     $('#board').innerHTML=`<h2 style="font-size:26px;margin:4px 0 12px">Arquivo</h2>`+(list.length?`<div class="list">${list.map(card).join('')}</div>`:`<div class="empty"><h3>${q?'Nada encontrado':EMPTY.arquivo[0]}</h3><p style="margin:0">${q?'Nenhum registro arquivado corresponde à busca.':EMPTY.arquivo[1]}</p></div>`);return}
   $('#board').innerHTML='<div class="board">'+['contato','orcamento','evento'].map(k=>{
@@ -752,6 +782,89 @@ $('#msgRoot').addEventListener('click',async ev=>{const b=ev.target.closest('[da
 $('#btnMsgs').addEventListener('click',()=>{msgAberto=true;renderMsgs()});
 setInterval(()=>{if(!loaded||!sb)return;renderKpis();if(document.activeElement&&document.activeElement.id==='search')return;renderToolbar();renderBoard();if(open&&!open.dirty&&!open.isNew&&!open.pending&&!document.activeElement?.closest?.('.drawer'))renderDrawer()},60000);
 
+/* ---------- Promoções ---------- */
+let promos=[],promoLeads={},promoCarregado=false,promoSel=null,promoEd=null; // promoEd: {id|null, ...campos}
+const slugify=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+const promoLink=p=>location.origin+'/promo/'+p.slug;
+function promoStatus(p){const h=today();if(!p.ativa)return {t:'Pausada',c:''};if(h<p.inicio)return {t:'Agendada · começa '+fds(p.inicio),c:'warn'};if(h>p.fim)return {t:'Encerrada',c:''};return {t:'No ar até '+fds(p.fim),c:'ok'}}
+async function carregarPromos(){
+  const [a,b]=await Promise.all([sb.from('promocoes').select('*').order('inicio',{ascending:false}),sb.from('promocoes_leads').select('*').order('criado_em',{ascending:false})]);
+  if(a.error||b.error){toast('Não foi possível carregar as promoções.');return}
+  promos=a.data;promoLeads={};b.data.forEach(l=>{(promoLeads[l.promocao_id]=promoLeads[l.promocao_id]||[]).push(l)});
+  if(!promos.find(p=>p.id===promoSel)){const ar=promos.find(p=>promoStatus(p).c==='ok')||promos[0];promoSel=ar?ar.id:null}
+  promoCarregado=true;if(tab==='promo')renderBoard();renderToolbar();
+}
+function renderPromo(){
+  if(!promoCarregado){$('#board').innerHTML='<div class="empty"><h3>Carregando promoções…</h3></div>';carregarPromos();return}
+  const head=`<div class="pr-head"><h2>Promoções</h2><button class="btn primary" data-pr="nova">+ Nova promoção</button></div>`;
+  if(!promos.length){$('#board').innerHTML=head+`<div class="empty"><h3>Nenhuma promoção cadastrada</h3><p style="margin:0">Crie uma promoção (ex.: Black Friday). Durante o período, a caixinha de cadastro abre sozinha na landing page e os inscritos aparecem aqui.</p><button class="btn primary" data-pr="nova">Criar promoção</button></div>`;return}
+  const cards=promos.map(p=>{const st=promoStatus(p),n=(promoLeads[p.id]||[]).length;
+    return `<button class="pr-card${p.id===promoSel?' on':''}" data-pr="ver" data-id="${esc(p.id)}"><div class="row"><span class="name">${esc(p.titulo)}</span><span class="pr-n num">${n}<small>inscrito${n===1?'':'s'}</small></span></div><div class="chips"><span class="chip ${st.c}">${st.t}</span><span class="chip">${fds(p.inicio)} a ${fds(p.fim)}</span></div></button>`}).join('');
+  const p=promos.find(x=>x.id===promoSel);let det='';
+  if(p){const all_=promoLeads[p.id]||[];const ql=q.trim().toLowerCase();
+    const list=ql?all_.filter(l=>(l.nome+' '+l.telefone+' '+l.email).toLowerCase().includes(ql)):all_;
+    const pend=all_.filter(l=>!l.contatado_em).length;
+    const rows=list.map(l=>{const txt=`Oi, ${l.nome.split(' ')[0]}! Aqui é da ${C.marca||'Chowder Macarons'}. Obrigado por se cadastrar na ${p.titulo}!`;
+      return `<div class="pl-row${l.contatado_em?' dim':''}"><div class="who2"><b>${esc(l.nome)}</b><span class="meta">${fdt(l.criado_em)}${l.utm&&l.utm.utm_source?' · '+esc(l.utm.utm_source):''}</span></div>
+       <div class="ct"><span class="num">${esc(l.telefone)}</span><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></div>
+       <div class="acts"><a class="btn sm wa" href="${esc(waLink(l.telefone,txt))}" target="_blank" rel="noopener">WhatsApp</a>
+        <label class="chk"><input type="checkbox" data-pr="contatado" data-id="${esc(l.id)}"${l.contatado_em?' checked':''}> Contatado</label>
+        <button class="btn sm ghost" data-pr="apagarlead" data-id="${esc(l.id)}" aria-label="Apagar cadastro de ${esc(l.nome)}">Apagar</button></div></div>`}).join('');
+    det=`<section class="box"><h3>${esc(p.titulo)} <span class="hint">${all_.length} inscrito${all_.length===1?'':'s'}${pend?` · ${pend} sem contato`:''}</span></h3>
+     <div class="pr-link"><input class="cell" readonly value="${esc(promoLink(p))}" aria-label="Link da promoção"><button class="btn sm" data-pr="copiar">Copiar link</button><a class="btn sm ghost" href="${esc(promoLink(p))}" target="_blank" rel="noopener">Ver na página</a></div>
+     <div class="chips" style="gap:8px"><button class="btn sm" data-pr="editar">Editar promoção</button><button class="btn sm" data-pr="csv"${all_.length?'':' disabled'}>Exportar inscritos (CSV)</button></div>
+     ${list.length?`<div class="pl">${rows}</div>`:`<p class="meta" style="margin:0">${q?'Nenhum inscrito corresponde à busca.':'Ainda sem inscritos. Quando alguém se cadastrar na landing, aparece aqui na hora.'}</p>`}</section>`}
+  $('#board').innerHTML=head+`<div class="pr-wrap"><div class="pr-list">${cards}</div>${det}</div>`;
+}
+function renderPromoEd(){
+  const root=$('#promoRoot');if(!promoEd){root.innerHTML='';return}const e=promoEd;
+  root.innerHTML=`<div class="scrim" data-pr="fecharEd"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Promoção">
+   <div class="dhead"><div><div class="stage">${e.id?'Editar':'Nova'} promoção</div><h2>${esc(e.titulo)||'Promoção'}</h2></div><button class="close" data-pr="fecharEd" aria-label="Fechar">×</button></div>
+   <div class="dbody"><section class="box"><div class="grid">
+    <label class="f full">Nome da promoção<input id="pr_titulo" maxlength="80" value="${esc(e.titulo)}" placeholder="Black Friday"></label>
+    <label class="f full">Frase da caixinha<textarea id="pr_chamada" rows="2" maxlength="300" placeholder="Cadastre-se e receba as ofertas em primeira mão.">${esc(e.chamada)}</textarea></label>
+    <label class="f full">Texto do botão<input id="pr_botao" maxlength="60" value="${esc(e.botao)}"></label>
+    <label class="f">Começa em<input id="pr_inicio" type="date" value="${esc(e.inicio)}"></label>
+    <label class="f">Termina em<input id="pr_fim" type="date" value="${esc(e.fim)}"></label>
+    <label class="f full">Link da promoção<span class="pr-slug">${esc(location.origin)}/promo/<input id="pr_slug" maxlength="60" value="${esc(e.slug)}" aria-label="Final do link"></span></label>
+    <label class="chk full"><input type="checkbox" id="pr_ativa"${e.ativa?' checked':''}> Ativa (aparece na landing durante o período)</label>
+   </div></section>
+   <p class="meta" style="margin:0">Durante o período, a caixinha abre sozinha para quem entra no site e para quem abre o link. Quem fechar no X não vê de novo automaticamente, mas a faixa no topo do site continua lá. Se houver mais de uma promoção no ar, aparece a mais recente (o link de cada uma abre a dela).</p></div>
+   <div class="dfoot">${e.id?'<button class="btn danger" data-pr="apagar">Apagar promoção</button>':''}<span class="grow"></span><button class="btn ghost" data-pr="fecharEd">Cancelar</button><button class="btn primary" data-pr="salvar">Salvar</button></div></aside>`;
+  const t=$('#pr_titulo'),sl=$('#pr_slug');let manual=!!e.id;
+  t.addEventListener('input',()=>{if(!manual)sl.value=slugify(t.value)});sl.addEventListener('input',()=>{manual=true});
+  setTimeout(()=>t.focus(),20);
+}
+$('#promoRoot').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b)acaoPromo(b,ev)});
+$('#board').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b&&b.dataset.pr!=='contatado')acaoPromo(b,ev)});
+$('#board').addEventListener('change',ev=>{const b=ev.target.closest('[data-pr="contatado"]');if(b)acaoPromo(b,ev)});
+async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=promos.find(x=>x.id===promoSel);
+  if(a==='ver'){promoSel=id;renderBoard();return}
+  if(a==='nova'){const h=today();const fim=new Date(Date.now()+30*864e5);promoEd={id:null,titulo:'',chamada:'',botao:'Quero receber as ofertas',inicio:h,fim:iso(fim),slug:'',ativa:true};renderPromoEd();return}
+  if(a==='editar'&&p){promoEd={...p};renderPromoEd();return}
+  if(a==='fecharEd'){promoEd=null;renderPromoEd();return}
+  if(a==='copiar'&&p){const l=promoLink(p);try{await navigator.clipboard.writeText(l);toast('Link copiado')}catch(e){const i=$('.pr-link input');i.select();toast('Link selecionado. Copie com o menu do aparelho.')}return}
+  if(a==='salvar'){const v={titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked};
+    if(!v.titulo){toast('Dê um nome para a promoção.');$('#pr_titulo').focus();return}
+    if(!v.inicio||!v.fim){toast('Informe o período da promoção.');return}
+    if(v.fim<v.inicio){toast('A data final precisa ser depois do início.');$('#pr_fim').focus();return}
+    if(!v.slug){toast('Informe o final do link.');$('#pr_slug').focus();return}
+    b.disabled=true;const r=promoEd.id?await sb.from('promocoes').update(v).eq('id',promoEd.id).select().single():await sb.from('promocoes').insert(v).select().single();b.disabled=false;
+    if(r.error){toast(r.error.code==='23505'?'Já existe uma promoção com esse link. Troque o final do link.':'Não foi possível salvar a promoção.');return}
+    promoSel=r.data.id;promoEd=null;renderPromoEd();toast('Promoção salva');await carregarPromos();return}
+  if(a==='apagar'&&promoEd){const n=(promoLeads[promoEd.id]||[]).length;if(!confirm(`Apagar a promoção "${promoEd.titulo}"${n?` e os ${n} inscritos dela`:''}? Isso não pode ser desfeito.${n?' Exporte o CSV antes se quiser guardar a lista.':''}`))return;
+    const {error}=await sb.from('promocoes').delete().eq('id',promoEd.id);if(error){toast('Não foi possível apagar.');return}promoEd=null;renderPromoEd();toast('Promoção apagada');await carregarPromos();return}
+  if(a==='contatado'){const em=b.checked?new Date().toISOString():null;const {error}=await sb.from('promocoes_leads').update({contatado_em:em}).eq('id',id);if(error){b.checked=!b.checked;toast('Não foi possível salvar.');return}
+    for(const k in promoLeads){const l=promoLeads[k].find(x=>x.id===id);if(l)l.contatado_em=em}renderToolbar();renderBoard();return}
+  if(a==='apagarlead'){const l=(promoLeads[promoSel]||[]).find(x=>x.id===id);if(!l||!confirm(`Apagar o cadastro de ${l.nome}? Use quando a pessoa pedir para sair da lista.`))return;
+    const {error}=await sb.from('promocoes_leads').delete().eq('id',id);if(error){toast('Não foi possível apagar.');return}promoLeads[promoSel]=promoLeads[promoSel].filter(x=>x.id!==id);renderBoard();renderToolbar();toast('Cadastro apagado');return}
+  if(a==='csv'&&p){const cell=v=>{const s=String(v??'');return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+    const lines=[['Nome','WhatsApp','E-mail','Cadastrado em','Contatado em','Origem','Campanha'].join(';')];
+    (promoLeads[p.id]||[]).forEach(l=>lines.push([l.nome,l.telefone,l.email,fdt(l.criado_em),l.contatado_em?fdt(l.contatado_em):'',l.utm?.utm_source||'',l.utm?.utm_campaign||''].map(cell).join(';')));
+    const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});const el=document.createElement('a');el.href=URL.createObjectURL(blob);el.download='chowder-promo-'+p.slug+'-'+today()+'.csv';document.body.appendChild(el);el.click();setTimeout(()=>{URL.revokeObjectURL(el.href);el.remove()},500);toast('Planilha salva');return}
+}
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&promoEd){promoEd=null;renderPromoEd()}});
+
 /* ---------- CSV ---------- */
 $('#btnExport').addEventListener('click',()=>{
   const cols=['Etapa','Resultado','Protocolo','Nome','Telefone','Origem','Tipo','Ocasião','Interesse','Primeiro contato','Data do evento','Horário','Entrega','Local','Itens','Total','Forma de pagamento','Condições','Orçamento enviado','Prazo resposta','Contratado em','Pago','Saldo','Entregue em','Motivo','PDF do pedido','Reunião','Formato da reunião','Aguardando resposta desde','Conversas'];
@@ -778,14 +891,19 @@ async function carregar(){
     if(payload.eventType==='DELETE'){delete recs[payload.old.id]}
     else{const chegou=payload.eventType==='INSERT'&&!recs[payload.new.id];recs[payload.new.id]=payload.new.dados;if(chegou&&payload.new.dados&&payload.new.dados.novo)toast('Novo pedido da landing: '+(payload.new.dados.nome||''))}
     renderAll();
+  }).on('postgres_changes',{event:'INSERT',schema:'public',table:'promocoes_leads'},payload=>{
+    const l=payload.new;if(!l||!promoCarregado)return;const lst=promoLeads[l.promocao_id]=promoLeads[l.promocao_id]||[];
+    if(!lst.find(x=>x.id===l.id)){lst.unshift(l);const p=promos.find(x=>x.id===l.promocao_id);toast('Novo cadastro'+(p?' na '+p.titulo:'')+': '+(l.nome||''))}
+    renderToolbar();if(tab==='promo')renderBoard();
   }).subscribe();
+  carregarPromos();
 }
 function showApp(user){
   userEmail=user.email||'';$('#who').textContent=userEmail;
   $('#login').hidden=true;$('#topActions').hidden=false;$('#main').hidden=false;canWrite=true;notice('');carregar();
 }
 function showLogin(){
-  $('#login').hidden=false;$('#topActions').hidden=true;$('#main').hidden=true;closeDrawer();recs={};
+  $('#login').hidden=false;$('#topActions').hidden=true;$('#main').hidden=true;closeDrawer();recs={};promos=[];promoLeads={};promoCarregado=false;promoEd=null;renderPromoEd();if(tab==='promo')tab='hoje';
   if(channel){sb.removeChannel(channel);channel=null}
 }
 $('#login').addEventListener('submit',async ev=>{

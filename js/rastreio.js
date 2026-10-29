@@ -1,6 +1,7 @@
 // Pixels de anúncio (Meta e Google). Só carregam se o ID estiver preenchido em js/config.js
 // E se o visitante aceitar no aviso de cookies (LGPD). Recusou = nada é carregado.
-// Eventos enviados: PageView (visita), Lead (pedido de orçamento enviado), Contact (clique no WhatsApp/iFood/Instagram).
+// Eventos enviados: PageView (visita), Lead (pedido de orçamento enviado), Contact (clique no WhatsApp/iFood/Instagram),
+// CompleteRegistration (cadastro em promoção).
 (function () {
   const C = window.CHOWDER || {};
   const meta = (C.pixelMeta || "").trim(), ga = (C.googleTag || "").trim();
@@ -64,6 +65,10 @@
     lead(dados) {
       try { window.fbq && fbq("track", "Lead", { content_name: dados.ocasiao || "Orçamento", content_category: (dados.necessidades || []).join(", "), value: dados.valor || 0, currency: "BRL" }) } catch (e) {}
       try { window.gtag && gtag("event", "generate_lead", { event_category: dados.ocasiao || "Orçamento", value: dados.valor || 0, currency: "BRL" }) } catch (e) {}
+    },
+    cadastro(promocao) {
+      try { window.fbq && fbq("track", "CompleteRegistration", { content_name: promocao, status: true }) } catch (e) {}
+      try { window.gtag && gtag("event", "sign_up", { method: promocao }) } catch (e) {}
     },
     contato(canal) {
       try { window.fbq && fbq("track", "Contact", { content_name: canal }) } catch (e) {}

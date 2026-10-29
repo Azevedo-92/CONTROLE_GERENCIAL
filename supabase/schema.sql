@@ -101,3 +101,64 @@ grant select, insert, update on public.pedidos_config to authenticated;
 grant select, insert, update, delete on public.pedidos_admins to service_role;
 grant select, insert, update, delete on public.pedidos to service_role;
 grant select, insert, update, delete on public.pedidos_config to service_role;
+
+-- 8) Promoções (ex.: Black Friday). A landing mostra a promoção no ar e recebe cadastros
+--    (nome, WhatsApp, e-mail). Visitantes só leem promoções no período e só criam cadastros nelas.
+create table if not exists public.promocoes (
+  id        uuid primary key default gen_random_uuid(),
+  slug      text not null unique check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and length(slug) <= 60),
+  titulo    text not null check (length(titulo) between 1 and 80),
+  chamada   text not null default '' check (length(chamada) <= 300),
+  botao     text not null default 'Quero receber as ofertas' check (length(botao) <= 60),
+  inicio    date not null,
+  fim       date not null,
+  ativa     boolean not null default true,
+  criado_em timestamptz not null default now(),
+  check (fim >= inicio)
+);
+create table if not exists public.promocoes_leads (
+  id           uuid primary key default gen_random_uuid(),
+  criado_em    timestamptz not null default now(),
+  promocao_id  uuid not null references public.promocoes(id) on delete cascade,
+  nome         text not null check (length(nome) between 1 and 120),
+  telefone     text not null check (length(regexp_replace(telefone, '\D', '', 'g')) between 10 and 13),
+  email        text not null check (length(email) <= 160 and email ~* '^[^\s@]+@[^\s@]+\.[^\s@]+$'),
+  aceite       boolean not null check (aceite),
+  utm          jsonb not null default '{}'::jsonb check (pg_column_size(utm) < 2000),
+  contatado_em timestamptz
+);
+create unique index if not exists promocoes_leads_tel_unico
+  on public.promocoes_leads (promocao_id, (regexp_replace(telefone, '\D', '', 'g')));
+create index if not exists promocoes_leads_promo on public.promocoes_leads (promocao_id, criado_em desc);
+
+create or replace function public.promo_no_ar(p uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.promocoes
+    where id = p and ativa and (now() at time zone 'America/Sao_Paulo')::date between inicio and fim);
+$$;
+revoke execute on function public.promo_no_ar(uuid) from public;
+grant execute on function public.promo_no_ar(uuid) to anon, authenticated;
+
+alter table public.promocoes enable row level security;
+alter table public.promocoes_leads enable row level security;
+grant select on public.promocoes to anon;
+grant select, insert, update, delete on public.promocoes to authenticated, service_role;
+grant insert on public.promocoes_leads to anon;
+grant select, insert, update, delete on public.promocoes_leads to authenticated, service_role;
+
+drop policy if exists "landing ve promo no ar" on public.promocoes;
+drop policy if exists "admin promocoes" on public.promocoes;
+create policy "landing ve promo no ar" on public.promocoes for select to anon using (public.promo_no_ar(id));
+create policy "admin promocoes" on public.promocoes for all to authenticated
+  using (public.pedidos_is_admin()) with check (public.pedidos_is_admin());
+
+drop policy if exists "landing cadastra na promo" on public.promocoes_leads;
+drop policy if exists "admin promocoes leads" on public.promocoes_leads;
+create policy "landing cadastra na promo" on public.promocoes_leads for insert to anon
+  with check (public.promo_no_ar(promocao_id) and contatado_em is null);
+create policy "admin promocoes leads" on public.promocoes_leads for all to authenticated
+  using (public.pedidos_is_admin()) with check (public.pedidos_is_admin());
+
+do $$ begin
+  alter publication supabase_realtime add table public.promocoes_leads;
+exception when duplicate_object then null; end $$;
