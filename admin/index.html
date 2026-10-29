@@ -254,6 +254,8 @@ table.items td.r,table.items th.r{text-align:right}
 .pr-add input{position:absolute;width:1px;height:1px;opacity:0}
 .pr-add.busy{cursor:wait;opacity:.7}
 .pr-add:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.pr-filtros{align-self:flex-start;flex-wrap:wrap}
+.pr-lote{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:10px;background:var(--warn-soft);border:1px solid var(--line)}
 label.chk{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
 label.chk input{width:18px;height:18px;accent-color:var(--bord)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
@@ -794,7 +796,11 @@ $('#btnMsgs').addEventListener('click',()=>{msgAberto=true;renderMsgs()});
 setInterval(()=>{if(!loaded||!sb)return;renderKpis();if(document.activeElement&&document.activeElement.id==='search')return;renderToolbar();renderBoard();if(open&&!open.dirty&&!open.isNew&&!open.pending&&!document.activeElement?.closest?.('.drawer'))renderDrawer()},60000);
 
 /* ---------- Promoções ---------- */
-let promos=[],promoLeads={},promoCarregado=false,promoSel=null,promoEd=null; // promoEd: {id|null, ...campos}
+let promos=[],promoLeads={},promoCarregado=false,promoSel=null,promoEd=null,promoFiltro='todos';
+// "No grupo": marcação manual dos sócios ou, sem ela, o clique em "Entrar no grupo" na página (o WhatsApp não informa quem entrou de fato).
+const noGrupo=l=>l.no_grupo===true||(l.no_grupo==null&&!!l.grupo_clicou_em);
+const telIntl=t=>{let d=String(t||'').replace(/\D/g,'');if(d.length<=11)d='55'+d;return '+'+d};
+const msgGrupo=(l,p)=>`Oi, ${l.nome.split(' ')[0]}! Aqui é da ${C.marca||'Chowder Macarons'} 🖤💛 Obrigado por se cadastrar na ${p.titulo}! As ofertas vão sair primeiro no nosso grupo do WhatsApp. Entra lá para não perder nenhuma: ${p.grupo_whatsapp}`; // promoEd: {id|null, ...campos}
 const PROMO_TEMAS=[['chowder','Chowder (azul e dourado)'],['bordo','Bordô (vinho e dourado)'],['blackfriday','Black Friday (preto e amarelo)']];
 const slugify=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
 const promoLink=p=>location.origin+'/promo/'+p.slug;
@@ -814,18 +820,27 @@ function renderPromo(){
     return `<button class="pr-card${p.id===promoSel?' on':''}" data-pr="ver" data-id="${esc(p.id)}"><div class="row"><span class="name">${esc(p.titulo)}</span><span class="pr-n num">${n}<small>inscrito${n===1?'':'s'}</small></span></div><div class="chips"><span class="chip ${st.c}">${st.t}</span><span class="chip">${fds(p.inicio)} a ${fds(p.fim)}</span>${(p.imagens||[]).length?`<span class="chip">${p.imagens.length} imagem${p.imagens.length===1?'':'ns'}</span>`:''}</div></button>`}).join('');
   const p=promos.find(x=>x.id===promoSel);let det='';
   if(p){const all_=promoLeads[p.id]||[];const ql=q.trim().toLowerCase();
-    const list=ql?all_.filter(l=>(l.nome+' '+l.telefone+' '+l.email).toLowerCase().includes(ql)):all_;
+    const temGrupo=!!p.grupo_whatsapp,fora=all_.filter(l=>!noGrupo(l)),dentro=all_.length-fora.length;
+    const filtro=temGrupo?promoFiltro:'todos';
+    let list=filtro==='fora'?fora:filtro==='dentro'?all_.filter(noGrupo):all_;
+    if(ql)list=list.filter(l=>(l.nome+' '+l.telefone+' '+l.email).toLowerCase().includes(ql));
+    const filtros=temGrupo?`<div class="views pr-filtros" role="group" aria-label="Filtrar inscritos"><button data-pr="filtro" data-f="todos" aria-pressed="${filtro==='todos'}">Todos <span class="n num">${all_.length}</span></button><button data-pr="filtro" data-f="fora" aria-pressed="${filtro==='fora'}">Fora do grupo <span class="n num">${fora.length}</span></button><button data-pr="filtro" data-f="dentro" aria-pressed="${filtro==='dentro'}">No grupo <span class="n num">${dentro}</span></button></div>`:'';
+    const lote=temGrupo&&filtro==='fora'&&fora.length?`<div class="pr-lote"><p class="meta" style="margin:0">Pessoas que se cadastraram mas não clicaram para entrar no grupo. O botão WhatsApp de cada uma já leva a mensagem com o link do grupo. Para mandar para todas de uma vez, salve os números nos contatos do celular e crie uma <b>lista de transmissão</b> no WhatsApp com eles.</p>
+      <div class="chips" style="gap:8px"><button class="btn sm" data-pr="copiarnums">Copiar números (${fora.length})</button><button class="btn sm" data-pr="contatoscsv">Exportar para Contatos do Google (CSV)</button><button class="btn sm" data-pr="copiarmsg">Copiar mensagem do grupo</button></div></div>`:'';
     const pend=all_.filter(l=>!l.contatado_em).length;
-    const rows=list.map(l=>{const txt=`Oi, ${l.nome.split(' ')[0]}! Aqui é da ${C.marca||'Chowder Macarons'}. Obrigado por se cadastrar na ${p.titulo}!`;
-      return `<div class="pl-row${l.contatado_em?' dim':''}"><div class="who2"><b>${esc(l.nome)}</b><span class="meta">${fdt(l.criado_em)}${l.utm&&l.utm.utm_source?' · '+esc(l.utm.utm_source):''}</span></div>
+    const rows=list.map(l=>{const ng=noGrupo(l);const txt=temGrupo&&!ng?msgGrupo(l,p):`Oi, ${l.nome.split(' ')[0]}! Aqui é da ${C.marca||'Chowder Macarons'}. Obrigado por se cadastrar na ${p.titulo}!`;
+      const gchip=!temGrupo?'':ng?(l.no_grupo===true?'<span class="chip ok">No grupo</span>':`<span class="chip ok">Clicou no grupo ${fds(l.grupo_clicou_em.slice(0,10))}</span>`):'<span class="chip warn">Fora do grupo</span>';
+      return `<div class="pl-row${l.contatado_em?' dim':''}"><div class="who2"><b>${esc(l.nome)}</b><span class="meta">${fdt(l.criado_em)}${l.utm&&l.utm.utm_source?' · '+esc(l.utm.utm_source):''}</span>${gchip?`<div class="chips" style="margin-top:4px">${gchip}</div>`:''}</div>
        <div class="ct"><span class="num">${esc(l.telefone)}</span><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></div>
        <div class="acts"><a class="btn sm wa" href="${esc(waLink(l.telefone,txt))}" target="_blank" rel="noopener">WhatsApp</a>
+        ${temGrupo?`<label class="chk"><input type="checkbox" data-pr="nogrupo" data-id="${esc(l.id)}"${ng?' checked':''}> No grupo</label>`:''}
         <label class="chk"><input type="checkbox" data-pr="contatado" data-id="${esc(l.id)}"${l.contatado_em?' checked':''}> Contatado</label>
         <button class="btn sm ghost" data-pr="apagarlead" data-id="${esc(l.id)}" aria-label="Apagar cadastro de ${esc(l.nome)}">Apagar</button></div></div>`}).join('');
     det=`<section class="box"><h3>${esc(p.titulo)} <span class="hint">${all_.length} inscrito${all_.length===1?'':'s'}${pend?` · ${pend} sem contato`:''}</span></h3>
      <div class="pr-link"><input class="cell" readonly value="${esc(promoLink(p))}" aria-label="Link da promoção"><button class="btn sm" data-pr="copiar">Copiar link</button><a class="btn sm ghost" href="${esc(promoLink(p))}" target="_blank" rel="noopener">Ver na página</a></div>
      <div class="chips" style="gap:8px"><button class="btn sm" data-pr="editar">Editar promoção</button>${p.grupo_whatsapp?`<a class="btn sm wa" href="${esc(p.grupo_whatsapp)}" target="_blank" rel="noopener">Grupo do WhatsApp</a>`:''}<button class="btn sm" data-pr="csv"${all_.length?'':' disabled'}>Exportar inscritos (CSV)</button></div>
-     ${list.length?`<div class="pl">${rows}</div>`:`<p class="meta" style="margin:0">${q?'Nenhum inscrito corresponde à busca.':'Ainda sem inscritos. Quando alguém se cadastrar na landing, aparece aqui na hora.'}</p>`}</section>`}
+     ${filtros}${lote}
+     ${list.length?`<div class="pl">${rows}</div>`:`<p class="meta" style="margin:0">${q?'Nenhum inscrito corresponde à busca.':filtro==='fora'&&all_.length?'Todos os inscritos já estão no grupo.':filtro==='dentro'&&all_.length?'Ninguém entrou no grupo ainda.':'Ainda sem inscritos. Quando alguém se cadastrar na landing, aparece aqui na hora.'}</p>`}</section>`}
   $('#board').innerHTML=head+`<div class="pr-wrap"><div class="pr-list">${cards}</div>${det}</div>`;
 }
 function renderPromoEd(){
@@ -853,10 +868,20 @@ function renderPromoEd(){
   renderPromoImgs();setTimeout(()=>t.focus(),20);
 }
 $('#promoRoot').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b)acaoPromo(b,ev)});
-$('#board').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b&&b.dataset.pr!=='contatado')acaoPromo(b,ev)});
-$('#board').addEventListener('change',ev=>{const b=ev.target.closest('[data-pr="contatado"]');if(b)acaoPromo(b,ev)});
+$('#board').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b&&b.dataset.pr!=='contatado'&&b.dataset.pr!=='nogrupo')acaoPromo(b,ev)});
+$('#board').addEventListener('change',ev=>{const b=ev.target.closest('[data-pr="contatado"],[data-pr="nogrupo"]');if(b)acaoPromo(b,ev)});
 async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=promos.find(x=>x.id===promoSel);
-  if(a==='ver'){promoSel=id;renderBoard();return}
+  if(a==='ver'){promoSel=id;promoFiltro='todos';renderBoard();return}
+  if(a==='filtro'){promoFiltro=b.dataset.f;renderBoard();return}
+  if(a==='nogrupo'){const v=b.checked;const {error}=await sb.from('promocoes_leads').update({no_grupo:v}).eq('id',id);if(error){b.checked=!v;toast('Não foi possível salvar.');return}
+    for(const k in promoLeads){const l=promoLeads[k].find(x=>x.id===id);if(l)l.no_grupo=v}renderBoard();toast(v?'Marcado como no grupo':'Marcado como fora do grupo');return}
+  if((a==='copiarnums'||a==='copiarmsg'||a==='contatoscsv')&&p){const fora=(promoLeads[p.id]||[]).filter(l=>!noGrupo(l));
+    if(a==='contatoscsv'){const cell=v=>{const s=String(v??'');return /[,"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};const et=`${p.titulo} - fora do grupo`;
+      const lines=[['First Name','Last Name','Phone 1 - Label','Phone 1 - Value','E-mail 1 - Value','Labels'].join(',')];
+      fora.forEach(l=>{const [n,...sn]=l.nome.trim().split(/\s+/);lines.push([n,sn.join(' '),'Mobile',telIntl(l.telefone),l.email,et+' ::: * myContacts'].map(cell).join(','))});
+      const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});const el=document.createElement('a');el.href=URL.createObjectURL(blob);el.download='contatos-'+p.slug+'-fora-do-grupo.csv';document.body.appendChild(el);el.click();setTimeout(()=>{URL.revokeObjectURL(el.href);el.remove()},500);toast('Arquivo salvo. Importe em contacts.google.com');return}
+    const txt=a==='copiarnums'?fora.map(l=>telIntl(l.telefone)).join('\n'):`Oi! Aqui é da ${C.marca||'Chowder Macarons'} 🖤💛 Obrigado por se cadastrar na ${p.titulo}! As ofertas vão sair primeiro no nosso grupo do WhatsApp. Entra lá para não perder nenhuma: ${p.grupo_whatsapp}`;
+    try{await navigator.clipboard.writeText(txt);toast(a==='copiarnums'?fora.length+' números copiados':'Mensagem copiada')}catch(e){prompt('Copie o texto:',txt)}return}
   if(a==='nova'){const h=today();const fim=new Date(Date.now()+30*864e5);promoEd={id:null,titulo:'',chamada:'',botao:'Quero receber as ofertas',inicio:h,fim:iso(fim),slug:'',ativa:true,tema:'chowder',imagens:[],_novos:[],_removidos:[]};renderPromoEd();return}
   if(a==='editar'&&p){promoEd={...p,imagens:[...(p.imagens||[])],_novos:[],_removidos:[]};renderPromoEd();return}
   if(a==='fecharEd'){fecharPromoEd();return}
@@ -880,8 +905,8 @@ async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=prom
   if(a==='apagarlead'){const l=(promoLeads[promoSel]||[]).find(x=>x.id===id);if(!l||!confirm(`Apagar o cadastro de ${l.nome}? Use quando a pessoa pedir para sair da lista.`))return;
     const {error}=await sb.from('promocoes_leads').delete().eq('id',id);if(error){toast('Não foi possível apagar.');return}promoLeads[promoSel]=promoLeads[promoSel].filter(x=>x.id!==id);renderBoard();renderToolbar();toast('Cadastro apagado');return}
   if(a==='csv'&&p){const cell=v=>{const s=String(v??'');return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
-    const lines=[['Nome','WhatsApp','E-mail','Cadastrado em','Contatado em','Origem','Campanha'].join(';')];
-    (promoLeads[p.id]||[]).forEach(l=>lines.push([l.nome,l.telefone,l.email,fdt(l.criado_em),l.contatado_em?fdt(l.contatado_em):'',l.utm?.utm_source||'',l.utm?.utm_campaign||''].map(cell).join(';')));
+    const lines=[['Nome','WhatsApp','E-mail','Cadastrado em','Contatado em','No grupo','Clicou no grupo em','Origem','Campanha'].join(';')];
+    (promoLeads[p.id]||[]).forEach(l=>lines.push([l.nome,l.telefone,l.email,fdt(l.criado_em),l.contatado_em?fdt(l.contatado_em):'',noGrupo(l)?'Sim':'Não',l.grupo_clicou_em?fdt(l.grupo_clicou_em):'',l.utm?.utm_source||'',l.utm?.utm_campaign||''].map(cell).join(';')));
     const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});const el=document.createElement('a');el.href=URL.createObjectURL(blob);el.download='chowder-promo-'+p.slug+'-'+today()+'.csv';document.body.appendChild(el);el.click();setTimeout(()=>{URL.revokeObjectURL(el.href);el.remove()},500);toast('Planilha salva');return}
 }
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&promoEd)fecharPromoEd()});
@@ -936,6 +961,9 @@ async function carregar(){
     if(payload.eventType==='DELETE'){delete recs[payload.old.id]}
     else{const chegou=payload.eventType==='INSERT'&&!recs[payload.new.id];recs[payload.new.id]=payload.new.dados;if(chegou&&payload.new.dados&&payload.new.dados.novo)toast('Novo pedido da landing: '+(payload.new.dados.nome||''))}
     renderAll();
+  }).on('postgres_changes',{event:'UPDATE',schema:'public',table:'promocoes_leads'},payload=>{
+    const l=payload.new;if(!l||!promoCarregado)return;const lst=promoLeads[l.promocao_id]||[];const i=lst.findIndex(x=>x.id===l.id);if(i>=0)lst[i]={...lst[i],...l};
+    renderToolbar();if(tab==='promo')renderBoard();
   }).on('postgres_changes',{event:'INSERT',schema:'public',table:'promocoes_leads'},payload=>{
     const l=payload.new;if(!l||!promoCarregado)return;const lst=promoLeads[l.promocao_id]=promoLeads[l.promocao_id]||[];
     if(!lst.find(x=>x.id===l.id)){lst.unshift(l);const p=promos.find(x=>x.id===l.promocao_id);toast('Novo cadastro'+(p?' na '+p.titulo:'')+': '+(l.nome||''))}

@@ -190,3 +190,17 @@ alter table public.promocoes add constraint promocoes_tema_check check (tema in 
 alter table public.promocoes add column if not exists grupo_whatsapp text not null default '';
 alter table public.promocoes drop constraint if exists promocoes_grupo_whatsapp_check;
 alter table public.promocoes add constraint promocoes_grupo_whatsapp_check check (grupo_whatsapp = '' or grupo_whatsapp ~ '^https://chat\.whatsapp\.com/[A-Za-z0-9]{10,40}$');
+
+-- 12) Grupo do WhatsApp: clique registrado pela landing (função abaixo) e marcação manual no painel.
+alter table public.promocoes_leads add column if not exists grupo_clicou_em timestamptz;
+alter table public.promocoes_leads add column if not exists no_grupo boolean;
+drop policy if exists "landing cadastra na promo" on public.promocoes_leads;
+create policy "landing cadastra na promo" on public.promocoes_leads for insert to anon
+  with check (public.promo_no_ar(promocao_id) and contatado_em is null and grupo_clicou_em is null and no_grupo is null);
+create or replace function public.promo_clicou_grupo(p_lead uuid) returns void
+language sql volatile security definer set search_path = public as $$
+  update public.promocoes_leads set grupo_clicou_em = now()
+  where id = p_lead and grupo_clicou_em is null and public.promo_no_ar(promocao_id);
+$$;
+revoke execute on function public.promo_clicou_grupo(uuid) from public;
+grant execute on function public.promo_clicou_grupo(uuid) to anon, authenticated;

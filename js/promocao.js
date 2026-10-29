@@ -19,7 +19,13 @@
   const titulo = () => { const t = esc(promo.titulo); if (promo.tema !== "blackfriday") return t; const i = t.lastIndexOf(" "); return i > 0 ? t.slice(0, i) + ' <span class="y">' + t.slice(i + 1) + "</span>" : '<span class="y">' + t + "</span>"; };
   const grupo = () => /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}$/.test(promo.grupo_whatsapp || "") ? promo.grupo_whatsapp : "";
   const WA_ICONE = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.5.4.1.1.1.7-.1 1.3Z"/></svg>';
-  const entrouGrupo = () => { window.ChowderRastreio && ChowderRastreio.contato("Grupo WhatsApp " + promo.titulo); };
+  // Registra no painel que a pessoa clicou para entrar no grupo (o WhatsApp não informa quem entrou de fato).
+  const entrouGrupo = () => {
+    window.ChowderRastreio && ChowderRastreio.contato("Grupo WhatsApp " + promo.titulo);
+    const id = ler("promo-lead-" + promo.id);
+    if (id && sb) sb.rpc("promo_clicou_grupo", { p_lead: id }).then(() => {}, () => {});
+  };
+  const novoId = () => crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
   // Botão da seção para quem já se cadastrou: leva ao grupo (se houver) ou mostra que já está na lista.
   function ctaCadastrado(cta) {
     if (!cta) return;
@@ -222,11 +228,13 @@ header.top .menu a.promo-menu.tema-blackfriday{color:#FFD400}
     const btn = $(".enviar"); btn.disabled = true; btn.textContent = "Enviando…";
     const utm = {}; ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(k => { if (qs.get(k)) utm[k] = qs.get(k).slice(0, 80); });
     if (slugLink) utm.link = "promo";
-    const { error } = await sb.from("promocoes_leads").insert({ promocao_id: promo.id, nome: nome.slice(0, 120), telefone: tel, email: email.slice(0, 160), aceite: true, utm });
+    const id = novoId();
+    const { error } = await sb.from("promocoes_leads").insert({ id, promocao_id: promo.id, nome: nome.slice(0, 120), telefone: tel, email: email.slice(0, 160), aceite: true, utm });
     if (error && error.code !== "23505") { // 23505 = já cadastrado com esse WhatsApp
       btn.disabled = false; btn.textContent = promo.botao || "Quero receber as ofertas";
       return falha("Não foi possível enviar agora. Tente de novo em instantes.");
     }
+    if (!error) gravar("promo-lead-" + promo.id, id);
     window.ChowderRastreio && ChowderRastreio.cadastro && ChowderRastreio.cadastro(promo.titulo);
     sucesso(nome);
   }
