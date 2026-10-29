@@ -162,3 +162,21 @@ create policy "admin promocoes leads" on public.promocoes_leads for all to authe
 do $$ begin
   alter publication supabase_realtime add table public.promocoes_leads;
 exception when duplicate_object then null; end $$;
+
+-- 9) Imagens e criativos das promoções (a primeira é a capa da caixinha).
+--    Pasta pública para leitura; só sócios enviam e apagam.
+alter table public.promocoes add column if not exists imagens jsonb not null default '[]'::jsonb;
+alter table public.promocoes drop constraint if exists promocoes_imagens_check;
+alter table public.promocoes add constraint promocoes_imagens_check check (jsonb_typeof(imagens) = 'array' and jsonb_array_length(imagens) <= 12);
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('promocoes-img', 'promocoes-img', true, 5242880, array['image/webp','image/jpeg','image/png'])
+on conflict (id) do update set public = true, file_size_limit = 5242880, allowed_mime_types = array['image/webp','image/jpeg','image/png'];
+drop policy if exists "promocoes: admin envia imagem" on storage.objects;
+drop policy if exists "promocoes: admin apaga imagem" on storage.objects;
+drop policy if exists "promocoes: admin le imagem" on storage.objects;
+create policy "promocoes: admin envia imagem" on storage.objects for insert to authenticated
+  with check (bucket_id = 'promocoes-img' and public.pedidos_is_admin());
+create policy "promocoes: admin apaga imagem" on storage.objects for delete to authenticated
+  using (bucket_id = 'promocoes-img' and public.pedidos_is_admin());
+create policy "promocoes: admin le imagem" on storage.objects for select to authenticated
+  using (bucket_id = 'promocoes-img' and public.pedidos_is_admin());

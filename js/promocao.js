@@ -13,17 +13,21 @@
   const mascara = v => { const d = v.replace(/\D/g, "").slice(0, 11); if (d.length <= 2) return d; if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`; if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`; return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`; };
 
   let sb = null, promo = null, caixa = null, ultimoFoco = null;
+  const imgs = () => (Array.isArray(promo.imagens) ? promo.imagens : []).filter(x => x && x.path);
+  const imgUrl = path => C.supabaseUrl + "/storage/v1/object/public/promocoes-img/" + path.split("/").map(encodeURIComponent).join("/");
+  const imgTag = (x, alt, extra) => `<img src="${esc(imgUrl(x.path))}" alt="${esc(alt)}"${x.w && x.h ? ` width="${+x.w}" height="${+x.h}"` : ""} ${extra || ""}>`;
 
   async function iniciar() {
     if (!window.supabase) return;
     try { sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, { auth: { persistSession: false } }); } catch (e) { return; }
     // O banco só devolve promoções ativas e dentro do período.
-    const { data, error } = await sb.from("promocoes").select("id,slug,titulo,chamada,botao,fim").order("inicio", { ascending: false });
+    const { data, error } = await sb.from("promocoes").select("id,slug,titulo,chamada,botao,fim,imagens").order("inicio", { ascending: false });
     if (error || !data || !data.length) return;
     promo = data.find(p => p.slug === slugLink) || data[0];
     const k = "promo-" + promo.id;
     const cadastrado = ler(k) === "cadastrado";
     if (!cadastrado) montarFaixa();
+    montarSecao(cadastrado);
     if (slugLink === promo.slug) { if (!cadastrado) abrir(); }
     else if (!cadastrado && !ler(k)) setTimeout(() => { if (!document.querySelector(".promo-modal:not([hidden])")) abrir(); }, 2500);
   }
@@ -39,7 +43,7 @@
 .promo-modal .fundo{position:absolute;inset:0;background:rgba(8,12,24,.62)}
 .promo-box{position:relative;width:100%;max-width:420px;max-height:calc(100dvh - 32px);overflow:auto;background:var(--navy);color:var(--on-dark);border:1px solid var(--gold);border-radius:16px;padding:26px 20px 20px;box-shadow:0 20px 50px rgba(0,0,0,.45);text-align:center}
 .promo-box::before{content:"";position:absolute;inset:6px;border:1px solid rgba(196,162,101,.28);border-radius:11px;pointer-events:none}
-.promo-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--on-dark);font-size:1.7rem;line-height:1;cursor:pointer;z-index:1}
+.promo-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(19,31,55,.72);color:var(--on-dark);font-size:1.7rem;line-height:1;cursor:pointer;z-index:1}
 .promo-x:hover{background:rgba(255,255,255,.08)}
 .promo-box .eyebrow{color:var(--gold)}
 .promo-box h2{font-size:2.3rem;margin:8px 0 6px;color:#fff}
@@ -56,6 +60,15 @@
 .promo-box .enviar[disabled]{opacity:.6;cursor:wait}
 .promo-box .erro{color:#F08A8F;font-size:.88rem;margin:0;min-height:1em}
 .promo-box .ok{font-size:2rem;width:60px;height:60px;border-radius:50%;margin:6px auto 10px;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold)}
+.promo-capa{margin:-14px -8px 14px;border-radius:10px;overflow:hidden;background:#0B1324;display:flex;justify-content:center}
+.promo-capa img{display:block;width:auto;max-width:100%;height:auto;max-height:min(34vh,300px);object-fit:contain}
+.promo-sec .promo-galeria{display:grid;grid-auto-flow:column;grid-auto-columns:min(78%,340px);align-items:start;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 8px;margin-top:16px;scrollbar-width:thin;outline:none}
+.promo-sec .promo-galeria figure{margin:0;scroll-snap-align:start;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow)}
+.promo-sec .promo-galeria img{display:block;width:100%;height:auto}
+.promo-sec .promo-galeria:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.promo-sec .promo-cta{max-width:420px;margin:16px auto 0}
+.promo-sec .promo-cta[disabled]{background:var(--ok);cursor:default}
+header.top .menu a.promo-menu{color:var(--gold)}
 .promo-box .fechar2{margin-top:14px;min-height:46px;width:100%;border:1px solid rgba(245,239,230,.45);border-radius:10px;background:transparent;color:inherit;font:700 1rem var(--f-body);cursor:pointer}`;
     document.head.appendChild(s);
   }
@@ -67,6 +80,25 @@
     f.innerHTML = `<b>${esc(promo.titulo)}</b><span>${esc(promo.botao || "Receba ofertas")}</span><span class="seta" aria-hidden="true">→</span>`;
     f.onclick = abrir;
     document.body.insertBefore(f, document.body.firstChild);
+  }
+
+  function montarSecao(cadastrado) {
+    const L = imgs(); if (!L.length) return;
+    estilos();
+    const sec = document.createElement("section");
+    sec.className = "blk promo-sec"; sec.id = "promocao";
+    sec.innerHTML = `<div class="wrap">
+    <span class="eyebrow">Promoção</span>
+    <h2>${esc(promo.titulo)}</h2>
+    ${promo.chamada ? `<p class="sub">${esc(promo.chamada)}</p>` : ""}
+    <div class="promo-galeria" tabindex="0" aria-label="Imagens da promoção ${esc(promo.titulo)}">${L.map((x, i) => `<figure>${imgTag(x, promo.titulo + " " + (i + 1), 'loading="lazy" decoding="async"')}</figure>`).join("")}</div>
+    <button type="button" class="btn promo-cta"${cadastrado ? " disabled" : ""}>${cadastrado ? "✓ Você já está na lista" : esc(promo.botao || "Quero receber as ofertas")}</button>
+  </div>`;
+    sec.querySelector(".promo-cta").onclick = abrir;
+    const antes = document.getElementById("portfolio");
+    if (antes) antes.parentNode.insertBefore(sec, antes); else (document.querySelector("main") || document.body).appendChild(sec);
+    const menu = document.getElementById("menu");
+    if (menu) { const a = document.createElement("a"); a.href = "#promocao"; a.className = "promo-menu"; a.textContent = promo.titulo; menu.insertBefore(a, menu.firstChild); }
   }
 
   function abrir() {
@@ -100,7 +132,9 @@
 
   function formulario() {
     const corpo = caixa.querySelector(".corpo");
+    const capa = imgs()[0];
     corpo.innerHTML = `
+  ${capa ? `<div class="promo-capa">${imgTag(capa, promo.titulo)}</div>` : ""}
   <span class="eyebrow">Promoção</span>
   <h2 id="promo-tit">${esc(promo.titulo)}</h2>
   ${promo.chamada ? `<p class="chamada">${esc(promo.chamada)}</p>` : ""}
@@ -146,6 +180,7 @@
   function sucesso(nome) {
     gravar("promo-" + promo.id, "cadastrado");
     const f = document.getElementById("promo-faixa"); if (f) f.remove();
+    const cta = document.querySelector(".promo-cta"); if (cta) { cta.disabled = true; cta.textContent = "✓ Você já está na lista"; }
     caixa.querySelector(".corpo").innerHTML = `
   <div class="ok" aria-hidden="true">✓</div>
   <h2 id="promo-tit" style="font-size:2rem">Você está na lista!</h2>

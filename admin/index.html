@@ -243,6 +243,17 @@ table.items td.r,table.items th.r{text-align:right}
 .pl-row .ct a{color:var(--ink);overflow-wrap:anywhere}
 .pl-row .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media (max-width:640px){.pl-row{grid-template-columns:minmax(0,1fr)}}
+.pr-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.pr-imgs figure{margin:0;position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface-2);display:flex;flex-direction:column}
+.pr-imgs img{width:100%;aspect-ratio:1;object-fit:contain;background:var(--surface-2);display:block}
+.pr-imgs .capa{position:absolute;top:6px;left:6px;background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;box-shadow:0 0 0 1px var(--gold)}
+.pr-imgs .ia{display:flex;gap:4px;justify-content:center;padding:6px;border-top:1px solid var(--line)}
+.pr-imgs .ia .btn{padding:4px 9px}
+.pr-add{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:150px;border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-weight:700;color:var(--ink);text-align:center;padding:10px}
+.pr-add small{font-weight:400;color:var(--muted)}
+.pr-add input{position:absolute;width:1px;height:1px;opacity:0}
+.pr-add.busy{cursor:wait;opacity:.7}
+.pr-add:focus-within{outline:3px solid var(--gold);outline-offset:2px}
 label.chk{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
 label.chk input{width:18px;height:18px;accent-color:var(--bord)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
@@ -799,7 +810,7 @@ function renderPromo(){
   const head=`<div class="pr-head"><h2>Promoções</h2><button class="btn primary" data-pr="nova">+ Nova promoção</button></div>`;
   if(!promos.length){$('#board').innerHTML=head+`<div class="empty"><h3>Nenhuma promoção cadastrada</h3><p style="margin:0">Crie uma promoção (ex.: Black Friday). Durante o período, a caixinha de cadastro abre sozinha na landing page e os inscritos aparecem aqui.</p><button class="btn primary" data-pr="nova">Criar promoção</button></div>`;return}
   const cards=promos.map(p=>{const st=promoStatus(p),n=(promoLeads[p.id]||[]).length;
-    return `<button class="pr-card${p.id===promoSel?' on':''}" data-pr="ver" data-id="${esc(p.id)}"><div class="row"><span class="name">${esc(p.titulo)}</span><span class="pr-n num">${n}<small>inscrito${n===1?'':'s'}</small></span></div><div class="chips"><span class="chip ${st.c}">${st.t}</span><span class="chip">${fds(p.inicio)} a ${fds(p.fim)}</span></div></button>`}).join('');
+    return `<button class="pr-card${p.id===promoSel?' on':''}" data-pr="ver" data-id="${esc(p.id)}"><div class="row"><span class="name">${esc(p.titulo)}</span><span class="pr-n num">${n}<small>inscrito${n===1?'':'s'}</small></span></div><div class="chips"><span class="chip ${st.c}">${st.t}</span><span class="chip">${fds(p.inicio)} a ${fds(p.fim)}</span>${(p.imagens||[]).length?`<span class="chip">${p.imagens.length} imagem${p.imagens.length===1?'':'ns'}</span>`:''}</div></button>`}).join('');
   const p=promos.find(x=>x.id===promoSel);let det='';
   if(p){const all_=promoLeads[p.id]||[];const ql=q.trim().toLowerCase();
     const list=ql?all_.filter(l=>(l.nome+' '+l.telefone+' '+l.email).toLowerCase().includes(ql)):all_;
@@ -829,31 +840,37 @@ function renderPromoEd(){
     <label class="f full">Link da promoção<span class="pr-slug">${esc(location.origin)}/promo/<input id="pr_slug" maxlength="60" value="${esc(e.slug)}" aria-label="Final do link"></span></label>
     <label class="chk full"><input type="checkbox" id="pr_ativa"${e.ativa?' checked':''}> Ativa (aparece na landing durante o período)</label>
    </div></section>
+   <section class="box"><h3>Imagens e criativos <span class="hint">a primeira é a capa da caixinha</span></h3>
+    <div id="pr_imgs"></div>
+    <p class="meta" style="margin:0">Aparecem na caixinha (a capa) e numa seção da promoção na página, com link no menu. Até 12 imagens; elas são reduzidas automaticamente para carregar rápido.</p></section>
    <p class="meta" style="margin:0">Durante o período, a caixinha abre sozinha para quem entra no site e para quem abre o link. Quem fechar no X não vê de novo automaticamente, mas a faixa no topo do site continua lá. Se houver mais de uma promoção no ar, aparece a mais recente (o link de cada uma abre a dela).</p></div>
    <div class="dfoot">${e.id?'<button class="btn danger" data-pr="apagar">Apagar promoção</button>':''}<span class="grow"></span><button class="btn ghost" data-pr="fecharEd">Cancelar</button><button class="btn primary" data-pr="salvar">Salvar</button></div></aside>`;
   const t=$('#pr_titulo'),sl=$('#pr_slug');let manual=!!e.id;
   t.addEventListener('input',()=>{if(!manual)sl.value=slugify(t.value)});sl.addEventListener('input',()=>{manual=true});
-  setTimeout(()=>t.focus(),20);
+  renderPromoImgs();setTimeout(()=>t.focus(),20);
 }
 $('#promoRoot').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b)acaoPromo(b,ev)});
 $('#board').addEventListener('click',ev=>{const b=ev.target.closest('[data-pr]');if(b&&b.dataset.pr!=='contatado')acaoPromo(b,ev)});
 $('#board').addEventListener('change',ev=>{const b=ev.target.closest('[data-pr="contatado"]');if(b)acaoPromo(b,ev)});
 async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=promos.find(x=>x.id===promoSel);
   if(a==='ver'){promoSel=id;renderBoard();return}
-  if(a==='nova'){const h=today();const fim=new Date(Date.now()+30*864e5);promoEd={id:null,titulo:'',chamada:'',botao:'Quero receber as ofertas',inicio:h,fim:iso(fim),slug:'',ativa:true};renderPromoEd();return}
-  if(a==='editar'&&p){promoEd={...p};renderPromoEd();return}
-  if(a==='fecharEd'){promoEd=null;renderPromoEd();return}
+  if(a==='nova'){const h=today();const fim=new Date(Date.now()+30*864e5);promoEd={id:null,titulo:'',chamada:'',botao:'Quero receber as ofertas',inicio:h,fim:iso(fim),slug:'',ativa:true,imagens:[],_novos:[],_removidos:[]};renderPromoEd();return}
+  if(a==='editar'&&p){promoEd={...p,imagens:[...(p.imagens||[])],_novos:[],_removidos:[]};renderPromoEd();return}
+  if(a==='fecharEd'){fecharPromoEd();return}
+  if(a==='imgEsq'||a==='imgDir'){const i=+b.dataset.i,j=a==='imgEsq'?i-1:i+1,L=promoEd.imagens;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];renderPromoImgs();return}
+  if(a==='imgDel'){const [x]=promoEd.imagens.splice(+b.dataset.i,1);if(promoEd._novos.includes(x.path)){promoEd._novos=promoEd._novos.filter(y=>y!==x.path);apagarImgs([x.path])}else promoEd._removidos.push(x.path);renderPromoImgs();return}
   if(a==='copiar'&&p){const l=promoLink(p);try{await navigator.clipboard.writeText(l);toast('Link copiado')}catch(e){const i=$('.pr-link input');i.select();toast('Link selecionado. Copie com o menu do aparelho.')}return}
-  if(a==='salvar'){const v={titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked};
+  if(a==='salvar'){if(promoEd.enviando){toast('Aguarde o envio das imagens.');return}
+    const v={imagens:promoEd.imagens.map(x=>({path:x.path,w:x.w,h:x.h})),titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked};
     if(!v.titulo){toast('Dê um nome para a promoção.');$('#pr_titulo').focus();return}
     if(!v.inicio||!v.fim){toast('Informe o período da promoção.');return}
     if(v.fim<v.inicio){toast('A data final precisa ser depois do início.');$('#pr_fim').focus();return}
     if(!v.slug){toast('Informe o final do link.');$('#pr_slug').focus();return}
     b.disabled=true;const r=promoEd.id?await sb.from('promocoes').update(v).eq('id',promoEd.id).select().single():await sb.from('promocoes').insert(v).select().single();b.disabled=false;
     if(r.error){toast(r.error.code==='23505'?'Já existe uma promoção com esse link. Troque o final do link.':'Não foi possível salvar a promoção.');return}
-    promoSel=r.data.id;promoEd=null;renderPromoEd();toast('Promoção salva');await carregarPromos();return}
+    apagarImgs(promoEd._removidos);promoSel=r.data.id;promoEd=null;renderPromoEd();toast('Promoção salva');await carregarPromos();return}
   if(a==='apagar'&&promoEd){const n=(promoLeads[promoEd.id]||[]).length;if(!confirm(`Apagar a promoção "${promoEd.titulo}"${n?` e os ${n} inscritos dela`:''}? Isso não pode ser desfeito.${n?' Exporte o CSV antes se quiser guardar a lista.':''}`))return;
-    const {error}=await sb.from('promocoes').delete().eq('id',promoEd.id);if(error){toast('Não foi possível apagar.');return}promoEd=null;renderPromoEd();toast('Promoção apagada');await carregarPromos();return}
+    const {error}=await sb.from('promocoes').delete().eq('id',promoEd.id);if(error){toast('Não foi possível apagar.');return}apagarImgs([...promoEd.imagens.map(x=>x.path),...promoEd._removidos]);promoEd=null;renderPromoEd();toast('Promoção apagada');await carregarPromos();return}
   if(a==='contatado'){const em=b.checked?new Date().toISOString():null;const {error}=await sb.from('promocoes_leads').update({contatado_em:em}).eq('id',id);if(error){b.checked=!b.checked;toast('Não foi possível salvar.');return}
     for(const k in promoLeads){const l=promoLeads[k].find(x=>x.id===id);if(l)l.contatado_em=em}renderToolbar();renderBoard();return}
   if(a==='apagarlead'){const l=(promoLeads[promoSel]||[]).find(x=>x.id===id);if(!l||!confirm(`Apagar o cadastro de ${l.nome}? Use quando a pessoa pedir para sair da lista.`))return;
@@ -863,7 +880,31 @@ async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=prom
     (promoLeads[p.id]||[]).forEach(l=>lines.push([l.nome,l.telefone,l.email,fdt(l.criado_em),l.contatado_em?fdt(l.contatado_em):'',l.utm?.utm_source||'',l.utm?.utm_campaign||''].map(cell).join(';')));
     const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});const el=document.createElement('a');el.href=URL.createObjectURL(blob);el.download='chowder-promo-'+p.slug+'-'+today()+'.csv';document.body.appendChild(el);el.click();setTimeout(()=>{URL.revokeObjectURL(el.href);el.remove()},500);toast('Planilha salva');return}
 }
-document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&promoEd){promoEd=null;renderPromoEd()}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&promoEd)fecharPromoEd()});
+const imgUrl=path=>C.supabaseUrl+'/storage/v1/object/public/promocoes-img/'+path;
+function apagarImgs(paths){if(paths&&paths.length)sb.storage.from('promocoes-img').remove(paths).catch(()=>{})}
+function fecharPromoEd(){if(promoEd)apagarImgs(promoEd._novos);promoEd=null;renderPromoEd()}
+function renderPromoImgs(){const el=$('#pr_imgs');if(!el||!promoEd)return;const L=promoEd.imagens;
+  el.innerHTML=`<div class="pr-imgs">${L.map((x,i)=>`<figure><img src="${esc(imgUrl(x.path))}" alt="Imagem ${i+1}">${i===0?'<span class="capa">Capa</span>':''}
+    <div class="ia"><button type="button" class="btn sm" data-pr="imgEsq" data-i="${i}" aria-label="Mover para a esquerda"${i===0?' disabled':''}>←</button><button type="button" class="btn sm" data-pr="imgDir" data-i="${i}" aria-label="Mover para a direita"${i===L.length-1?' disabled':''}>→</button><button type="button" class="btn sm danger" data-pr="imgDel" data-i="${i}" aria-label="Remover imagem ${i+1}">✕</button></div></figure>`).join('')}
+    ${L.length<12?`<label class="pr-add${promoEd.enviando?' busy':''}"><input type="file" id="pr_file" accept="image/jpeg,image/png,image/webp" multiple${promoEd.enviando?' disabled':''}><span>${promoEd.enviando?'Enviando…':'+ Adicionar imagens'}</span><small>JPG, PNG ou WebP</small></label>`:''}</div>`}
+async function comprimir(file){
+  const bmp=await createImageBitmap(file);const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+  const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+  let blob=await new Promise(r=>c.toBlob(r,'image/webp',0.86));if(!blob||blob.type!=='image/webp')blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.88));
+  return {blob,w:c.width,h:c.height};
+}
+$('#promoRoot').addEventListener('change',async ev=>{if(ev.target.id!=='pr_file'||!promoEd)return;
+  const ed=promoEd,files=[...ev.target.files].slice(0,12-ed.imagens.length);if(!files.length)return;
+  ed.enviando=true;renderPromoImgs();let falhas=0;
+  for(const f of files){try{const {blob,w,h}=await comprimir(f);const ext=blob.type==='image/webp'?'webp':'jpg';
+      const path='promo/'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2))+'.'+ext;
+      const up=await sb.storage.from('promocoes-img').upload(path,blob,{contentType:blob.type,upsert:false});
+      if(up.error)throw up.error;ed._novos.push(path);ed.imagens.push({path,w,h});if(promoEd===ed)renderPromoImgs()}
+    catch(e){falhas++}}
+  ed.enviando=false;if(promoEd===ed)renderPromoImgs();
+  if(falhas)toast(falhas===1?'Uma imagem não pôde ser enviada. Use JPG ou PNG.':falhas+' imagens não puderam ser enviadas. Use JPG ou PNG.');
+});
 
 /* ---------- CSV ---------- */
 $('#btnExport').addEventListener('click',()=>{
