@@ -17,6 +17,15 @@
   const tema = () => "tema-" + (TEMAS.includes(promo.tema) ? promo.tema : "chowder");
   // No tema Black Friday a última palavra do título fica em amarelo ("Black <Friday>").
   const titulo = () => { const t = esc(promo.titulo); if (promo.tema !== "blackfriday") return t; const i = t.lastIndexOf(" "); return i > 0 ? t.slice(0, i) + ' <span class="y">' + t.slice(i + 1) + "</span>" : '<span class="y">' + t + "</span>"; };
+  const grupo = () => /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}$/.test(promo.grupo_whatsapp || "") ? promo.grupo_whatsapp : "";
+  const WA_ICONE = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 .9c.3.2.5.2.5.4.1.1.1.7-.1 1.3Z"/></svg>';
+  const entrouGrupo = () => { window.ChowderRastreio && ChowderRastreio.contato("Grupo WhatsApp " + promo.titulo); };
+  // Botão da seção para quem já se cadastrou: leva ao grupo (se houver) ou mostra que já está na lista.
+  function ctaCadastrado(cta) {
+    if (!cta) return;
+    if (grupo()) { cta.disabled = false; cta.classList.add("grupo"); cta.innerHTML = WA_ICONE + " Entrar no grupo do WhatsApp"; cta.onclick = () => { entrouGrupo(); window.open(grupo(), "_blank", "noopener"); }; }
+    else { cta.disabled = true; cta.textContent = "✓ Você já está na lista"; }
+  }
   const imgs = () => (Array.isArray(promo.imagens) ? promo.imagens : []).filter(x => x && x.path);
   const imgUrl = path => C.supabaseUrl + "/storage/v1/object/public/promocoes-img/" + path.split("/").map(encodeURIComponent).join("/");
   const imgTag = (x, alt, extra) => `<img src="${esc(imgUrl(x.path))}" alt="${esc(alt)}"${x.w && x.h ? ` width="${+x.w}" height="${+x.h}"` : ""} ${extra || ""}>`;
@@ -25,7 +34,7 @@
     if (!window.supabase) return;
     try { sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, { auth: { persistSession: false } }); } catch (e) { return; }
     // O banco só devolve promoções ativas e dentro do período.
-    const { data, error } = await sb.from("promocoes").select("id,slug,titulo,chamada,botao,fim,imagens,tema").order("inicio", { ascending: false });
+    const { data, error } = await sb.from("promocoes").select("id,slug,titulo,chamada,botao,fim,imagens,tema,grupo_whatsapp").order("inicio", { ascending: false });
     if (error || !data || !data.length) return;
     promo = data.find(p => p.slug === slugLink) || data[0];
     const k = "promo-" + promo.id;
@@ -72,6 +81,10 @@
 .promo-sec .promo-galeria:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .promo-sec .promo-cta{max-width:420px;margin:16px auto 0}
 .promo-sec .promo-cta[disabled]{background:var(--ok);cursor:default}
+.promo-box .grupo-txt{margin-top:12px;color:#fff;font-weight:600}
+.promo-grupo{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;margin-top:10px;border-radius:10px;background:#1F7A4D;color:#fff!important;font:700 1.05rem var(--f-body);text-decoration:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.promo-grupo:hover{background:#196A42}
+.promo-sec .promo-cta.grupo,.promo-sec.tema-bordo .promo-cta.grupo,.promo-sec.tema-blackfriday .promo-cta.grupo{background:#1F7A4D;color:#fff;text-transform:none;letter-spacing:0}
 header.top .menu a.promo-menu{color:var(--gold)}
 /* Tema Bordô */
 .promo-modal.tema-bordo .promo-box{background:radial-gradient(130% 90% at 50% 0%,#7A2338 0,var(--bord) 45%,#3F0F1A 100%)}
@@ -135,6 +148,7 @@ header.top .menu a.promo-menu.tema-blackfriday{color:#FFD400}
     <button type="button" class="btn promo-cta"${cadastrado ? " disabled" : ""}>${cadastrado ? "✓ Você já está na lista" : esc(promo.botao || "Quero receber as ofertas")}</button>
   </div>`;
     sec.querySelector(".promo-cta").onclick = abrir;
+    if (cadastrado) ctaCadastrado(sec.querySelector(".promo-cta"));
     const antes = document.getElementById("portfolio");
     if (antes) antes.parentNode.insertBefore(sec, antes); else (document.querySelector("main") || document.body).appendChild(sec);
     const menu = document.getElementById("menu");
@@ -220,14 +234,18 @@ header.top .menu a.promo-menu.tema-blackfriday{color:#FFD400}
   function sucesso(nome) {
     gravar("promo-" + promo.id, "cadastrado");
     const f = document.getElementById("promo-faixa"); if (f) f.remove();
-    const cta = document.querySelector(".promo-cta"); if (cta) { cta.disabled = true; cta.textContent = "✓ Você já está na lista"; }
+    ctaCadastrado(document.querySelector(".promo-cta"));
+    const g = grupo();
     caixa.querySelector(".corpo").innerHTML = `
   <span class="eyebrow">Promoção</span>
   <div class="ok" aria-hidden="true">✓</div>
   <h2 id="promo-tit" style="font-size:2rem">Você está na lista!</h2>
   <p class="chamada">Obrigado, ${esc(nome.split(" ")[0])}. Vamos te avisar das ofertas da ${esc(promo.titulo)} pelo WhatsApp e e-mail.</p>
+  ${g ? `<p class="chamada grupo-txt">Quer saber de tudo antes? Entre no nosso grupo do WhatsApp da ${esc(promo.titulo)}.</p>
+  <a class="promo-grupo" href="${esc(g)}" target="_blank" rel="noopener">${WA_ICONE} Entrar no grupo do WhatsApp</a>` : ""}
   <button type="button" class="fechar2" data-fechar>Continuar no site</button>`;
-    caixa.querySelector(".fechar2").focus();
+    const lg = caixa.querySelector(".promo-grupo"); if (lg) lg.addEventListener("click", entrouGrupo);
+    (lg || caixa.querySelector(".fechar2")).focus();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar); else iniciar();

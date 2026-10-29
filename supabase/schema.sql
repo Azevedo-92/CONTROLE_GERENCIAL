@@ -185,3 +185,8 @@ create policy "promocoes: admin le imagem" on storage.objects for select to auth
 alter table public.promocoes add column if not exists tema text not null default 'chowder';
 alter table public.promocoes drop constraint if exists promocoes_tema_check;
 alter table public.promocoes add constraint promocoes_tema_check check (tema in ('chowder','bordo','blackfriday'));
+
+-- 11) Link de convite do grupo do WhatsApp da promoção (botão depois do cadastro).
+alter table public.promocoes add column if not exists grupo_whatsapp text not null default '';
+alter table public.promocoes drop constraint if exists promocoes_grupo_whatsapp_check;
+alter table public.promocoes add constraint promocoes_grupo_whatsapp_check check (grupo_whatsapp = '' or grupo_whatsapp ~ '^https://chat\.whatsapp\.com/[A-Za-z0-9]{10,40}$');

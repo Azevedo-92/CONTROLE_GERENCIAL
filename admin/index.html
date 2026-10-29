@@ -824,7 +824,7 @@ function renderPromo(){
         <button class="btn sm ghost" data-pr="apagarlead" data-id="${esc(l.id)}" aria-label="Apagar cadastro de ${esc(l.nome)}">Apagar</button></div></div>`}).join('');
     det=`<section class="box"><h3>${esc(p.titulo)} <span class="hint">${all_.length} inscrito${all_.length===1?'':'s'}${pend?` · ${pend} sem contato`:''}</span></h3>
      <div class="pr-link"><input class="cell" readonly value="${esc(promoLink(p))}" aria-label="Link da promoção"><button class="btn sm" data-pr="copiar">Copiar link</button><a class="btn sm ghost" href="${esc(promoLink(p))}" target="_blank" rel="noopener">Ver na página</a></div>
-     <div class="chips" style="gap:8px"><button class="btn sm" data-pr="editar">Editar promoção</button><button class="btn sm" data-pr="csv"${all_.length?'':' disabled'}>Exportar inscritos (CSV)</button></div>
+     <div class="chips" style="gap:8px"><button class="btn sm" data-pr="editar">Editar promoção</button>${p.grupo_whatsapp?`<a class="btn sm wa" href="${esc(p.grupo_whatsapp)}" target="_blank" rel="noopener">Grupo do WhatsApp</a>`:''}<button class="btn sm" data-pr="csv"${all_.length?'':' disabled'}>Exportar inscritos (CSV)</button></div>
      ${list.length?`<div class="pl">${rows}</div>`:`<p class="meta" style="margin:0">${q?'Nenhum inscrito corresponde à busca.':'Ainda sem inscritos. Quando alguém se cadastrar na landing, aparece aqui na hora.'}</p>`}</section>`}
   $('#board').innerHTML=head+`<div class="pr-wrap"><div class="pr-list">${cards}</div>${det}</div>`;
 }
@@ -836,6 +836,7 @@ function renderPromoEd(){
     <label class="f full">Nome da promoção<input id="pr_titulo" maxlength="80" value="${esc(e.titulo)}" placeholder="Black Friday"></label>
     <label class="f full">Frase da caixinha<textarea id="pr_chamada" rows="2" maxlength="300" placeholder="Cadastre-se e receba as ofertas em primeira mão.">${esc(e.chamada)}</textarea></label>
     <label class="f full">Texto do botão<input id="pr_botao" maxlength="60" value="${esc(e.botao)}"></label>
+    <label class="f full">Link do grupo do WhatsApp <small style="font-weight:400">(opcional; aparece depois do cadastro)</small><input id="pr_grupo" type="url" inputmode="url" maxlength="80" placeholder="https://chat.whatsapp.com/..." value="${esc(e.grupo_whatsapp||'')}"></label>
     <label class="f full">Cores da caixinha, faixa e seção<select id="pr_tema">${PROMO_TEMAS.map(([k,l])=>`<option value="${k}"${(e.tema||'chowder')===k?' selected':''}>${l}</option>`).join('')}</select></label>
     <label class="f">Começa em<input id="pr_inicio" type="date" value="${esc(e.inicio)}"></label>
     <label class="f">Termina em<input id="pr_fim" type="date" value="${esc(e.fim)}"></label>
@@ -863,7 +864,8 @@ async function acaoPromo(b,ev){const a=b.dataset.pr,id=b.dataset.id;const p=prom
   if(a==='imgDel'){const [x]=promoEd.imagens.splice(+b.dataset.i,1);if(promoEd._novos.includes(x.path)){promoEd._novos=promoEd._novos.filter(y=>y!==x.path);apagarImgs([x.path])}else promoEd._removidos.push(x.path);renderPromoImgs();return}
   if(a==='copiar'&&p){const l=promoLink(p);try{await navigator.clipboard.writeText(l);toast('Link copiado')}catch(e){const i=$('.pr-link input');i.select();toast('Link selecionado. Copie com o menu do aparelho.')}return}
   if(a==='salvar'){if(promoEd.enviando){toast('Aguarde o envio das imagens.');return}
-    const v={imagens:promoEd.imagens.map(x=>({path:x.path,w:x.w,h:x.h})),titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked,tema:$('#pr_tema').value};
+    const v={imagens:promoEd.imagens.map(x=>({path:x.path,w:x.w,h:x.h})),titulo:$('#pr_titulo').value.trim(),chamada:$('#pr_chamada').value.trim(),botao:$('#pr_botao').value.trim()||'Quero receber as ofertas',inicio:$('#pr_inicio').value,fim:$('#pr_fim').value,slug:slugify($('#pr_slug').value),ativa:$('#pr_ativa').checked,tema:$('#pr_tema').value,grupo_whatsapp:$('#pr_grupo').value.trim().replace(/[?#].*$/,'').replace(/\/+$/,'')};
+    if(v.grupo_whatsapp&&!/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}$/.test(v.grupo_whatsapp)){toast('Cole o link de convite do grupo (começa com https://chat.whatsapp.com/).');$('#pr_grupo').focus();return}
     if(!v.titulo){toast('Dê um nome para a promoção.');$('#pr_titulo').focus();return}
     if(!v.inicio||!v.fim){toast('Informe o período da promoção.');return}
     if(v.fim<v.inicio){toast('A data final precisa ser depois do início.');$('#pr_fim').focus();return}
