@@ -56,7 +56,7 @@ window.CHOWDER = {
       { id: "encomenda", nome: "Sob encomenda",  desc: "Peça com antecedência pelo WhatsApp." }
     ],
     produtos: [
-      { id: "macarons",      nome: "Macarons",                grupo: "classicos", foto: "assets/img/cardapio/macarons.webp" },
+      { id: "macarons",      nome: "Macarons",                grupo: "classicos", foto: "assets/img/cardapio/macarons-2.webp" },
       { id: "brownie",       nome: "Brownie",                 grupo: "classicos", foto: "assets/img/cardapio/brownie.webp" },
       { id: "cookie",        nome: "Cookie",                  grupo: "classicos", foto: "assets/img/cardapio/cookie.webp" },
       { id: "palha",         nome: "Palha italiana",          grupo: "pronta",    foto: "assets/img/cardapio/palha-italiana.webp", novo: true },
