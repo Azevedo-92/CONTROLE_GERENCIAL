@@ -89,10 +89,10 @@ window.CHOWDER = {
     { src: "assets/img/mesa-rosas.webp",            legenda: "Mesa de doces com rosas",      tipo: "Eventos" },
     { src: "assets/img/torre-flores.webp",          legenda: "Torre de macarons em casamento", tipo: "Eventos" },
     { src: "assets/img/torre-bolo.webp",            legenda: "Torre ao lado do bolo",         tipo: "Eventos" },
-    { src: "assets/img/torre-cores.webp",           legenda: "Cores da sua paleta",          tipo: "Personalizados" },
-    { src: "assets/img/caixinhas-tag.webp",         legenda: "Tag com logo ou mensagem",     tipo: "Personalizados" },
+    { src: "assets/img/torre-cores-2.webp",           legenda: "Cores da sua paleta",          tipo: "Personalizados" },
+    { src: "assets/img/caixinhas-tag-2.webp",         legenda: "Tag com logo ou mensagem",     tipo: "Personalizados" },
     { src: "assets/img/lembrancinhas-brownie.webp", legenda: "Lembrancinhas em volume",      tipo: "Lembrancinhas" },
-    { src: "assets/img/caixa-5-macarons.webp",      legenda: "Caixinha com 5 macarons",      tipo: "Lembrancinhas" }
+    { src: "assets/img/caixa-5-macarons-2.webp",      legenda: "Caixinha com 5 macarons",      tipo: "Lembrancinhas" }
   ],
   sabores: ["Framboesa", "Blueberry", "Café", "Morango", "Manga com maracujá", "Limão siciliano", "Pistache", "Chocolate"]
 };
