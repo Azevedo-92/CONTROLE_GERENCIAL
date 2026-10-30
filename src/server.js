@@ -284,6 +284,16 @@ app.use((err, req, res, next) => {
   res.status(err.code?.startsWith('LIMIT_') ? 400 : 500).json({ erro });
 });
 
+// Endereços para os outros computadores da mesma rede abrirem o sistema.
+function linksDaRede() {
+  return Object.values(require('os').networkInterfaces())
+    .flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal && !i.address.startsWith('169.254.'))
+    .map((i) => `http://${i.address}:${PORTA}`);
+}
+
+app.get('/api/rede', (req, res) => res.json({ links: linksDaRede(), comSenha: !!process.env.SENHA }));
+
 function abrirNavegador(url) {
   if (process.env.NAO_ABRIR_NAVEGADOR) return;
   const { exec } = require('child_process');
@@ -295,10 +305,7 @@ const servidor = app.listen(PORTA, (err) => {
   if (err) return; // tratado em servidor.on('error')
   const url = `http://localhost:${PORTA}`;
   console.log(`\n  Sistema aberto em: ${url}`);
-  const ips = Object.values(require('os').networkInterfaces())
-    .flat()
-    .filter((i) => i && i.family === 'IPv4' && !i.internal)
-    .map((i) => `http://${i.address}:${PORTA}`);
+  const ips = linksDaRede();
   if (ips.length) console.log(`  Outros computadores da mesma rede: ${ips.join('  ou  ')}`);
   console.log('  Deixe esta janela aberta (pode minimizar). Fechar esta janela desliga o sistema.\n');
   abrirNavegador(url);

@@ -102,3 +102,5 @@ nav button { white-space: nowrap; }
 .sem-telefone { display: block; color: #9b5c00; font-size: 13px; margin-top: 4px; font-weight: 600; }
 .lista-pastas li .alerta { color: #d68a00; font-size: 13px; }
 #form-sync { display: flex; flex-direction: column; gap: 12px; }
+.link-rede { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.link-rede input { flex: 1; min-width: 220px; font-size: 16px; font-weight: 600; color: var(--verde-esc); }

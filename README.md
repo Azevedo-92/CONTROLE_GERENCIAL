@@ -34,7 +34,7 @@ Pronto! A conexão fica salva; nas próximas vezes não precisa ler o QR Code de
 
 ## Usar em outros computadores
 
-**Recomendado:** deixe o sistema instalado em um computador principal. Os outros computadores da mesma rede abrem pelo navegador o endereço que aparece na janela preta, na linha **"Outros computadores da mesma rede"** (ex.: `http://192.168.0.10:3000`). Todos compartilham os mesmos clientes, arquivos, histórico e WhatsApp. Na primeira vez, o Windows do computador principal pode perguntar sobre o firewall: clique em **Permitir**.
+**Recomendado:** deixe o sistema instalado em um computador principal. Os outros computadores da mesma rede abrem pelo navegador o endereço que aparece na janela preta, na linha **"Outros computadores da mesma rede"** (ex.: `http://192.168.0.10:3000`). Todos compartilham os mesmos clientes, arquivos, histórico e WhatsApp. O link também aparece em **Configurações → Acessar de outros computadores**, com botão **Copiar link**. Se os outros computadores não conseguirem abrir, dê dois cliques em **`liberar-rede.bat`** no computador principal (libera o sistema no firewall do Windows; ele pede permissão de administrador).
 
 **Alternativa:** instalar em cada computador (Node.js + `instalar.bat`). Cada um fica com seus próprios dados e precisa conectar um WhatsApp (o WhatsApp aceita no máximo 4 aparelhos conectados por número).
 

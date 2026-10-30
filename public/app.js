@@ -403,7 +403,32 @@ async function atualizarDaPasta() {
 setInterval(() => atualizarDaPasta().catch(() => {}), 10000);
 setInterval(() => { if (!$('#aba-config').hidden) carregarSync(true).catch(() => {}); }, 10000);
 
+// ---------- Link para outros computadores ----------
+async function carregarLinksRede() {
+  const { links } = await api('/api/rede');
+  $('#links-rede').innerHTML = links.length
+    ? links.map((l) => `
+      <div class="link-rede">
+        <input value="${esc(l)}" readonly onclick="this.select()">
+        <button class="mini" onclick="copiarLink('${esc(l)}')">Copiar link</button>
+      </div>`).join('')
+    : '<p class="dica esquerda">Este computador não está conectado a uma rede.</p>';
+}
+
+window.copiarLink = async (link) => {
+  try {
+    await navigator.clipboard.writeText(link);
+  } catch {
+    // navegador sem permissão para a área de transferência: copia pelo campo
+    const campo = [...document.querySelectorAll('.link-rede input')].find((i) => i.value === link);
+    campo.select();
+    document.execCommand('copy');
+  }
+  aviso('Link copiado! Cole no WhatsApp ou e-mail de quem vai acessar.');
+};
+
 // ---------- Início ----------
+carregarLinksRede();
 carregarConfig();
 carregarSync();
 carregarClientes();
