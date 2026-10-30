@@ -69,7 +69,8 @@ Tabelas `promocoes` e `promocoes_leads` (itens 8 e 9 do `schema.sql`); o cadastr
 4. Domínio próprio: **Project → Settings → Domains**.
 
 ## Cardápio (produtos avulsos)
-Seção "Cardápio" da página com os produtos em `js/config.js` → `cardapio`: grupos (Nossos clássicos, Pronta-entrega, Sob encomenda) e produtos (nome, grupo, foto opcional, `novo: true` para a etiqueta "Novidade"). Cada produto tem botão de pedido pelo WhatsApp com a mensagem pronta. Botões gerais: **Cardápio online** (preencha `cardapio.link`; vazio mostra "em breve"), WhatsApp e iFood.
+Seção "Cardápio" da página, com abas por categoria (Clássicos, Pronta-entrega, Sob encomenda) e cartões que deslizam no celular. Produtos em `js/config.js` → `cardapio` (id único, nome, grupo, foto em `assets/img/cardapio/`, `novo: true` para a etiqueta "Novidade"); cada um tem botão de pedido pelo WhatsApp com a mensagem pronta.
+No painel, aba **Cardápio**: mostrar/esconder a seção inteira, ligar/desligar cada produto e colar o link do cardápio online (vazio = botão "em breve"). Fica na tabela `site_config` (item 13 do `schema.sql`), que a página lê ao abrir; se o banco não responder, a página mostra o cardápio completo.
 
 ## Estrutura
 

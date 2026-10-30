@@ -204,3 +204,22 @@ language sql volatile security definer set search_path = public as $$
 $$;
 revoke execute on function public.promo_clicou_grupo(uuid) from public;
 grant execute on function public.promo_clicou_grupo(uuid) to anon, authenticated;
+
+-- 13) Configurações públicas do site (lidas pela landing, alteradas só pelos sócios).
+--     Hoje: chave 'cardapio' = { ativo, ocultos: [ids dos produtos], link do cardápio online }.
+create table if not exists public.site_config (
+  chave text primary key check (chave ~ '^[a-z0-9_-]{1,40}$'),
+  valor jsonb not null check (pg_column_size(valor) < 20000),
+  atualizado_em timestamptz not null default now()
+);
+alter table public.site_config enable row level security;
+grant select on public.site_config to anon, authenticated;
+grant insert, update on public.site_config to authenticated;
+grant select, insert, update, delete on public.site_config to service_role;
+drop policy if exists "site le config" on public.site_config;
+drop policy if exists "admin cria site config" on public.site_config;
+drop policy if exists "admin altera site config" on public.site_config;
+create policy "site le config" on public.site_config for select to anon, authenticated using (true);
+create policy "admin cria site config" on public.site_config for insert to authenticated with check (public.pedidos_is_admin());
+create policy "admin altera site config" on public.site_config for update to authenticated using (public.pedidos_is_admin()) with check (public.pedidos_is_admin());
+insert into public.site_config (chave, valor) values ('cardapio', '{"ativo": true, "ocultos": [], "link": ""}') on conflict do nothing;

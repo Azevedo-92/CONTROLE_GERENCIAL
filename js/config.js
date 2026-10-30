@@ -46,25 +46,25 @@ window.CHOWDER = {
     botao: "Quero o Macarons Bar no meu evento"
   },
   // Cardápio de produtos avulsos (seção "Cardápio" da página).
-  // link: endereço do cardápio online para pedir e pagar. Vazio = botão aparece como "em breve".
-  // Em cada produto, "foto" é opcional (sem foto aparece um cartão com o nome).
+  // Mostrar/esconder a seção e cada produto, e o link do cardápio online: no painel, aba "Cardápio".
+  // Para incluir um produto: adicione aqui com um id único (sem espaços) e a foto em assets/img/cardapio/.
   cardapio: {
     link: "",
     grupos: [
-      { id: "classicos", nome: "Nossos clássicos", desc: "Para presentear ou matar a vontade." },
-      { id: "pronta",    nome: "Pronta-entrega",   desc: "Feitos para levar hoje." },
-      { id: "encomenda", nome: "Sob encomenda",    desc: "Peça com antecedência pelo WhatsApp." }
+      { id: "classicos", nome: "Clássicos",      desc: "Para presentear ou matar a vontade." },
+      { id: "pronta",    nome: "Pronta-entrega", desc: "Feitos para levar hoje." },
+      { id: "encomenda", nome: "Sob encomenda",  desc: "Peça com antecedência pelo WhatsApp." }
     ],
     produtos: [
-      { nome: "Macarons",                grupo: "classicos", foto: "assets/img/caixa-5-macarons.webp" },
-      { nome: "Brownie",                 grupo: "classicos", foto: "assets/img/portfolio/bandeja-brownies.webp" },
-      { nome: "Cookie",                  grupo: "classicos", foto: "" },
-      { nome: "Palha italiana",          grupo: "pronta",    foto: "", novo: true },
-      { nome: "Bolo gelado",             grupo: "pronta",    foto: "", novo: true },
-      { nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "", novo: true },
-      { nome: "Pudim Chowder",           grupo: "encomenda", foto: "", novo: true },
-      { nome: "Cheesecake",              grupo: "encomenda", foto: "", novo: true },
-      { nome: "Tiramisù",                grupo: "encomenda", foto: "", novo: true }
+      { id: "macarons",      nome: "Macarons",                grupo: "classicos", foto: "assets/img/cardapio/macarons.webp" },
+      { id: "brownie",       nome: "Brownie",                 grupo: "classicos", foto: "assets/img/cardapio/brownie.webp" },
+      { id: "cookie",        nome: "Cookie",                  grupo: "classicos", foto: "assets/img/cardapio/cookie.webp" },
+      { id: "palha",         nome: "Palha italiana",          grupo: "pronta",    foto: "", novo: true },
+      { id: "bolo-gelado",   nome: "Bolo gelado",             grupo: "pronta",    foto: "", novo: true },
+      { id: "bolo-cenoura",  nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "", novo: true },
+      { id: "pudim",         nome: "Pudim Chowder",           grupo: "encomenda", foto: "assets/img/cardapio/pudim.webp", novo: true },
+      { id: "cheesecake",    nome: "Cheesecake",              grupo: "encomenda", foto: "", novo: true },
+      { id: "tiramisu",      nome: "Tiramisù",                grupo: "encomenda", foto: "assets/img/cardapio/tiramisu.webp", novo: true }
     ]
   },
   pacotes: [

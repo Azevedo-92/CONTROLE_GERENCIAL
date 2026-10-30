@@ -230,30 +230,38 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .chip.chip-destaque input:checked+span::before{color:var(--gold)}
 header.top .menu a.m-destaque{color:var(--gold)}
 /* Cardápio de produtos avulsos */
-.cardapio .cd-acoes{display:grid;gap:8px;margin:4px 0 22px}
-.cardapio .cd-acoes .btn{margin-top:0}
-.cardapio .cd-acoes2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cardapio .cd-acoes2 .btn{font-size:.98rem;min-height:50px;padding:12px}
-.cd-online[aria-disabled="true"]{background:var(--card);color:var(--mute);box-shadow:inset 0 0 0 1px var(--line);cursor:default}
-.cd-breve{font:700 .68rem/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:5px 8px;border-radius:99px}
-.cd-ifood{background:#EA1D2C}.cd-ifood:hover{background:#C9101E}
-@media (min-width:760px){.cardapio .cd-acoes{grid-template-columns:1.3fr 1fr 1fr}.cardapio .cd-acoes2{display:contents}}
-.cd-grupo{margin-top:22px}
-.cd-gh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px}
-.cd-gh h3{font-size:1.6rem}
-.cd-gh p{margin:0;color:var(--mute);font-size:.92rem}
-.cd-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (min-width:760px){.cd-lista{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.cd-item{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.cd-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:4px -16px 14px;padding:2px 16px}
+.cd-tabs::-webkit-scrollbar{display:none}
+.cd-tabs button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 .92rem var(--f-body);padding:9px 16px;border-radius:99px;cursor:pointer;min-height:42px}
+.cd-tabs button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.cd-tabs button .n{font-weight:700;color:var(--gold-ink);margin-left:4px}
+.cd-tabs button[aria-selected="true"] .n{color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cd-tabs button[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:var(--navy)}}
+:root[data-theme="dark"] .cd-tabs button[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.cd-lista{display:grid;grid-auto-flow:column;grid-auto-columns:44%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:2px 16px 6px;outline:none}
+.cd-lista::-webkit-scrollbar{display:none}
+@media (min-width:760px){.cd-lista{grid-auto-flow:row;grid-template-columns:repeat(4,minmax(0,1fr));margin:0;padding:2px 0 6px;overflow:visible}}
+.cd-item{scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:transform .2s ease}
+@media (hover:hover){.cd-item:hover{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:no-preference){.cd-lista.troca .cd-item{animation:cdIn .28s ease both}@keyframes cdIn{from{opacity:0;transform:translateY(6px)}}}
 .cd-foto{position:relative;aspect-ratio:1;background:var(--line);overflow:hidden}
 .cd-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .cd-foto.vazio{display:grid;place-items:center;padding:12px;text-align:center;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--bord) 80%,transparent) 0,transparent 65%),var(--navy)}
-.cd-foto.vazio span{font-family:var(--f-display);font-style:italic;font-size:1.35rem;line-height:1.15;color:var(--gold)}
-.cd-novo{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--navy);font:700 .64rem/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-radius:99px}
+.cd-foto.vazio span{font-family:var(--f-display);font-style:italic;font-size:1.3rem;line-height:1.15;color:var(--gold)}
+.cd-novo{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--navy);font:700 .62rem/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-radius:99px}
 .cd-info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;flex:1}
-.cd-info h4{margin:0;font-family:var(--f-display);font-size:1.25rem;font-weight:600;line-height:1.1}
-.cd-pedir{margin-top:auto;font-weight:700;font-size:.88rem;color:var(--ok);text-decoration:none}
-.cd-pedir::after{content:" →"}
+.cd-info h3{margin:0;font-size:1.2rem;line-height:1.1}
+.cd-pedir{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:7px 12px;border-radius:99px;background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);font-weight:700;font-size:.85rem;text-decoration:none}
+.cd-pedir svg{width:15px;height:15px}
+.cd-desc{margin:10px 0 0;color:var(--mute);font-size:.9rem}
+.cd-acoes{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px;margin-top:16px}
+.cd-btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:8px 10px;border-radius:10px;font-weight:700;font-size:.92rem;text-decoration:none;text-align:center;color:#fff}
+.cd-online{background:var(--navy);box-shadow:inset 0 0 0 1px rgba(196,162,101,.5)}
+.cd-online[aria-disabled="true"]{background:var(--card);color:var(--mute);box-shadow:inset 0 0 0 1px var(--line);cursor:default}
+.cd-breve{font:700 .6rem/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:4px 6px;border-radius:99px;white-space:nowrap}
+.cd-wa{background:var(--ok)}
+.cd-ifood{background:#EA1D2C}
+@media (max-width:380px){.cd-acoes{grid-template-columns:1fr 1fr}.cd-online{grid-column:1/-1}}
 footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(200px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
 footer img{height:40px;width:auto;margin-bottom:14px}
 footer a{color:var(--gold)}
@@ -408,19 +416,19 @@ footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(-
     </div>
   </div></section>
 
-  <!-- CARDÁPIO (produtos avulsos) -->
-  <section class="blk cardapio" id="cardapio"><div class="wrap">
+  <!-- CARDÁPIO (produtos avulsos). Visibilidade e itens controlados no painel (aba Cardápio). -->
+  <section class="blk cardapio" id="cardapio" hidden><div class="wrap">
     <span class="eyebrow">Cardápio</span>
     <h2>Doces para o dia a dia</h2>
-    <p class="sub">Macarons, brownies, cookies e as novidades da casa, avulsos ou sob encomenda.</p>
+    <p class="sub">Avulsos para hoje ou sob encomenda.</p>
+    <div class="cd-tabs" id="cd-tabs" role="tablist" aria-label="Categorias do cardápio"></div>
+    <div class="cd-lista" id="cd-lista" role="tabpanel" tabindex="0"></div>
+    <p class="cd-desc" id="cd-desc"></p>
     <div class="cd-acoes">
-      <a class="btn cd-online" id="cd-online" href="#" aria-disabled="true">Cardápio online <span class="cd-breve">em breve</span></a>
-      <div class="cd-acoes2">
-        <a class="btn wa" id="cd-wa" href="#" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>
-        <a class="btn cd-ifood" id="cd-ifood" href="#" target="_blank" rel="noopener">Pedir no iFood</a>
-      </div>
+      <a class="cd-btn cd-online" id="cd-online" href="#" aria-disabled="true">Cardápio online <span class="cd-breve">em breve</span></a>
+      <a class="cd-btn cd-wa" id="cd-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="cd-btn cd-ifood" id="cd-ifood" href="#" target="_blank" rel="noopener">iFood</a>
     </div>
-    <div id="cd-grupos"></div>
   </div></section>
 
   <!-- PORTFÓLIO -->
@@ -575,27 +583,49 @@ document.addEventListener("DOMContentLoaded", function () {
   } else { const sec = $("#macarons-bar"); if (sec) sec.remove(); }
 
   // ---------- Cardápio de produtos avulsos ----------
+  // Produtos em js/config.js; o painel (aba Cardápio) liga/desliga a seção e cada item (tabela site_config).
   const CD = C.cardapio;
   if (CD && (CD.produtos || []).length) {
     const msgWa = t => waBase + "?text=" + encodeURIComponent(t);
-    const on = $("#cd-online");
-    if (CD.link) { on.href = CD.link; on.target = "_blank"; on.rel = "noopener"; on.removeAttribute("aria-disabled"); on.querySelector(".cd-breve").remove(); }
-    else on.addEventListener("click", ev => ev.preventDefault());
-    $("#cd-wa").href = msgWa("Olá! Vim pela página da Chowder Macarons e quero fazer um pedido do cardápio.");
-    $("#cd-ifood").href = C.ifood;
-    $("#cd-grupos").innerHTML = (CD.grupos || []).map(g => {
-      const ps = CD.produtos.filter(p => p.grupo === g.id); if (!ps.length) return "";
-      const enc = g.id === "encomenda";
-      return `<div class="cd-grupo"><div class="cd-gh"><h3>${esc(g.nome)}</h3>${g.desc ? `<p>${esc(g.desc)}</p>` : ""}</div>
-        <div class="cd-lista">${ps.map(p => `<article class="cd-item">
-          <div class="cd-foto${p.foto ? "" : " vazio"}">${p.foto ? `<img src="${esc(p.foto)}" alt="${esc(p.nome)}" loading="lazy" decoding="async">` : `<span aria-hidden="true">${esc(p.nome)}</span>`}${p.novo ? '<b class="cd-novo">Novidade</b>' : ""}</div>
-          <div class="cd-info"><h4>${esc(p.nome)}</h4>
-          <a class="cd-pedir" href="${esc(msgWa((enc ? "Olá! Quero encomendar: " : "Olá! Quero pedir: ") + p.nome))}" target="_blank" rel="noopener" data-produto="${esc(p.nome)}">${enc ? "Encomendar" : "Pedir"} pelo WhatsApp</a></div></article>`).join("")}</div></div>`;
-    }).join("");
-    $("#cd-grupos").addEventListener("click", ev => { const a = ev.target.closest(".cd-pedir"); if (a) window.ChowderRastreio && ChowderRastreio.contato("WhatsApp cardápio: " + a.dataset.produto); });
-    [["#cd-wa", "WhatsApp cardápio"], ["#cd-ifood", "iFood (cardápio)"]].forEach(([sel, canal]) => $(sel).addEventListener("click", () => window.ChowderRastreio && ChowderRastreio.contato(canal)));
+    const WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>';
     const mc = document.createElement("a"); mc.href = "#cardapio"; mc.textContent = "Cardápio";
     const depois = $("#menu a.m-destaque"); $("#menu").insertBefore(mc, depois ? depois.nextSibling : $("#menu").firstChild);
+    const montar = cfg => {
+      cfg = cfg || {};
+      const ocultos = new Set(cfg.ocultos || []);
+      const prods = CD.produtos.filter(p => !ocultos.has(p.id));
+      const grupos = (CD.grupos || []).filter(g => prods.some(p => p.grupo === g.id));
+      if (cfg.ativo === false || !grupos.length) { $("#cardapio").remove(); mc.remove(); return; }
+      const link = cfg.link || CD.link, on = $("#cd-online");
+      if (link) { on.href = link; on.target = "_blank"; on.rel = "noopener"; on.removeAttribute("aria-disabled"); on.textContent = "Cardápio online"; }
+      else on.addEventListener("click", ev => ev.preventDefault());
+      $("#cd-wa").href = msgWa("Olá! Vim pela página da Chowder Macarons e quero fazer um pedido do cardápio.");
+      $("#cd-ifood").href = C.ifood;
+      const mostrar = (gid, animar) => {
+        const g = grupos.find(x => x.id === gid), enc = gid === "encomenda";
+        $("#cd-tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.g === gid));
+        const L = $("#cd-lista");
+        L.innerHTML = prods.filter(p => p.grupo === gid).map(p => `<article class="cd-item">
+          <div class="cd-foto${p.foto ? "" : " vazio"}">${p.foto ? `<img src="${esc(p.foto)}" alt="${esc(p.nome)}" loading="lazy" decoding="async" width="800" height="800">` : `<span aria-hidden="true">${esc(p.nome)}</span>`}${p.novo ? '<b class="cd-novo">Novidade</b>' : ""}</div>
+          <div class="cd-info"><h3>${esc(p.nome)}</h3>
+          <a class="cd-pedir" href="${esc(msgWa((enc ? "Olá! Quero encomendar: " : "Olá! Quero pedir: ") + p.nome))}" target="_blank" rel="noopener" data-produto="${esc(p.nome)}" aria-label="${enc ? "Encomendar" : "Pedir"} ${esc(p.nome)} pelo WhatsApp">${WA_SVG}${enc ? "Encomendar" : "Pedir"}</a></div></article>`).join("");
+        L.scrollLeft = 0; L.classList.toggle("troca", !!animar);
+        $("#cd-desc").textContent = (g && g.desc) || "";
+      };
+      $("#cd-tabs").innerHTML = grupos.map(g => `<button type="button" role="tab" data-g="${esc(g.id)}">${esc(g.nome)}<span class="n">${prods.filter(p => p.grupo === g.id).length}</span></button>`).join("");
+      $("#cd-tabs").addEventListener("click", ev => { const b = ev.target.closest("button"); if (b) mostrar(b.dataset.g, true); });
+      mostrar(grupos[0].id, false);
+      $("#cd-lista").addEventListener("click", ev => { const a = ev.target.closest(".cd-pedir"); if (a) window.ChowderRastreio && ChowderRastreio.contato("WhatsApp cardápio: " + a.dataset.produto); });
+      [["#cd-wa", "WhatsApp cardápio"], ["#cd-ifood", "iFood (cardápio)"]].forEach(([sel, canal]) => $(sel).addEventListener("click", () => window.ChowderRastreio && ChowderRastreio.contato(canal)));
+      $("#cardapio").hidden = false;
+    };
+    // Lê a configuração do painel; se o banco não responder, mostra o cardápio padrão.
+    let pronto = false; const uma = cfg => { if (!pronto) { pronto = true; montar(cfg); } };
+    if (C.supabaseUrl && C.supabaseAnonKey) {
+      fetch(C.supabaseUrl + "/rest/v1/site_config?chave=eq.cardapio&select=valor", { headers: { apikey: C.supabaseAnonKey, Authorization: "Bearer " + C.supabaseAnonKey } })
+        .then(r => r.ok ? r.json() : []).then(d => uma(d && d[0] ? d[0].valor : null)).catch(() => uma(null));
+      setTimeout(() => uma(null), 4000);
+    } else uma(null);
   } else { const sec = $("#cardapio"); if (sec) sec.remove(); }
 
   // ---------- Menu: abre o bloco certo e destaca a seção visível ----------

@@ -256,6 +256,26 @@ table.items td.r,table.items th.r{text-align:right}
 .pr-add:focus-within{outline:3px solid var(--gold);outline-offset:2px}
 .pr-filtros{align-self:flex-start;flex-wrap:wrap}
 .pr-lote{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:10px;background:var(--warn-soft);border:1px solid var(--line)}
+.cdp-wrap{display:grid;gap:14px;max-width:760px}
+.cdp-main{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer}
+.cdp-main b{font-size:16px}.cdp-main small,.cdp-nome small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.cdp-grupo h4{font-family:var(--f-display);font-size:18px;font-weight:600;margin:6px 0 4px}
+.cdp-item{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+.cdp-item.off .cdp-foto,.cdp-item.off .cdp-nome b{opacity:.45}
+.cdp-foto{width:48px;height:48px;border-radius:10px;overflow:hidden;background:var(--navy);display:grid;place-items:center}
+.cdp-foto img{width:100%;height:100%;object-fit:cover}
+.cdp-foto i{font-style:italic;font-family:var(--f-display);color:var(--gold);font-size:22px}
+.sw{position:relative;display:inline-block;width:44px;height:26px;flex:none}
+.sw.big{width:52px;height:30px}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .15s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.sw.big i::after{width:24px;height:24px}
+.sw input:checked+i{background:var(--ok)}
+.sw input:checked+i::after{transform:translateX(18px)}
+.sw.big input:checked+i::after{transform:translateX(22px)}
+.sw input:focus-visible+i{outline:3px solid var(--gold);outline-offset:2px}
+.sw input:disabled+i{opacity:.5}
 label.chk{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
 label.chk input{width:18px;height:18px;accent-color:var(--bord)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
@@ -449,7 +469,7 @@ function renderToolbar(){
   const nArq=inStage('arquivo').length;
   const nHoje=all().filter(x=>acao(x.r)).length;
   const nPromo=Object.values(promoLeads).flat().filter(l=>!l.contatado_em).length;
-  $('#toolbar').innerHTML=`<div class="views" role="group" aria-label="Visualização"><button data-view="hoje" aria-pressed="${tab==='hoje'}">Para hoje${nHoje?` <span class="n num">${nHoje}</span>`:''}</button><button data-view="board" aria-pressed="${tab==='board'}">Quadro</button><button data-view="promo" aria-pressed="${tab==='promo'}">Promoções${nPromo?` <span class="n num">${nPromo}</span>`:''}</button></div>`
+  $('#toolbar').innerHTML=`<div class="views" role="group" aria-label="Visualização"><button data-view="hoje" aria-pressed="${tab==='hoje'}">Para hoje${nHoje?` <span class="n num">${nHoje}</span>`:''}</button><button data-view="board" aria-pressed="${tab==='board'}">Quadro</button><button data-view="promo" aria-pressed="${tab==='promo'}">Promoções${nPromo?` <span class="n num">${nPromo}</span>`:''}</button><button data-view="cardapio" aria-pressed="${tab==='cardapio'}">Cardápio</button></div>`
    +`<input class="search" id="search" type="search" placeholder="${tab==='promo'?'Buscar inscrito: nome, telefone, e-mail':'Buscar nome, telefone, protocolo'}" value="${esc(q)}" aria-label="Buscar">`
    +(tab==='arquivo'?'<button class="btn" data-view="board">← Voltar ao quadro</button>':`<button class="btn" data-view="arquivo">Arquivo <span class="chip num" style="padding:0 7px">${nArq}</span></button>`);
   if(had){const e=$('#search');e.focus();e.setSelectionRange(e.value.length,e.value.length)}
@@ -480,6 +500,7 @@ function renderBoard(){
   if(!loaded){$('#board').innerHTML='<div class="empty"><h3>Carregando registros…</h3></div>';return}
   if(tab==='hoje'){renderHoje();return}
   if(tab==='promo'){renderPromo();return}
+  if(tab==='cardapio'){renderCardapio();return}
   if(tab==='arquivo'){const list=sorted(inStage('arquivo').filter(matches),'arquivo');
     $('#board').innerHTML=`<h2 style="font-size:26px;margin:4px 0 12px">Arquivo</h2>`+(list.length?`<div class="list">${list.map(card).join('')}</div>`:`<div class="empty"><h3>${q?'Nada encontrado':EMPTY.arquivo[0]}</h3><p style="margin:0">${q?'Nenhum registro arquivado corresponde à busca.':EMPTY.arquivo[1]}</p></div>`);return}
   $('#board').innerHTML='<div class="board">'+['contato','orcamento','evento'].map(k=>{
@@ -934,6 +955,48 @@ $('#promoRoot').addEventListener('change',async ev=>{if(ev.target.id!=='pr_file'
   ed.enviando=false;if(promoEd===ed)renderPromoImgs();
   if(falhas)toast(falhas===1?'Uma imagem não pôde ser enviada. Use JPG ou PNG.':falhas+' imagens não puderam ser enviadas. Use JPG ou PNG.');
 });
+
+/* ---------- Cardápio da página (site_config 'cardapio') ---------- */
+let cdCfg=null,cdSalvando=false;
+const cdPadrao=()=>({ativo:true,ocultos:[],link:''});
+async function carregarCardapio(){
+  const {data,error}=await sb.from('site_config').select('valor').eq('chave','cardapio').maybeSingle();
+  if(error){toast('Não foi possível carregar o cardápio.');cdCfg=cdPadrao()}else cdCfg={...cdPadrao(),...(data&&data.valor||{})};
+  if(tab==='cardapio')renderBoard();
+}
+async function salvarCardapio(novo,msg){
+  const antes=cdCfg;cdCfg=novo;renderBoard();cdSalvando=true;
+  const {error}=await sb.from('site_config').upsert({chave:'cardapio',valor:novo,atualizado_em:new Date().toISOString()});
+  cdSalvando=false;if(error){cdCfg=antes;renderBoard();toast('Não foi possível salvar. Tente de novo.');return}
+  toast(msg);
+}
+function renderCardapio(){
+  const CD=C.cardapio;
+  if(!CD||!(CD.produtos||[]).length){$('#board').innerHTML='<div class="empty"><h3>Cardápio não configurado</h3></div>';return}
+  if(!cdCfg){$('#board').innerHTML='<div class="empty"><h3>Carregando cardápio…</h3></div>';carregarCardapio();return}
+  const oc=new Set(cdCfg.ocultos||[]),vis=CD.produtos.filter(p=>!oc.has(p.id)).length;
+  const grupos=(CD.grupos||[]).map(g=>{const ps=CD.produtos.filter(p=>p.grupo===g.id);if(!ps.length)return '';
+    return `<div class="cdp-grupo"><h4>${esc(g.nome)}</h4>${ps.map(p=>{const on=!oc.has(p.id);return `<label class="cdp-item${on?'':' off'}">
+      <span class="cdp-foto">${p.foto?`<img src="../${esc(p.foto)}" alt="" loading="lazy">`:`<i>${esc(p.nome.slice(0,1))}</i>`}</span>
+      <span class="cdp-nome"><b>${esc(p.nome)}</b><small>${on?'Aparece na página':'Escondido'}${p.novo?' · Novidade':''}${p.foto?'':' · sem foto'}</small></span>
+      <span class="sw"><input type="checkbox" data-cd="item" data-id="${esc(p.id)}"${on?' checked':''}${cdCfg.ativo?'':' disabled'} aria-label="Mostrar ${esc(p.nome)} na página"><i></i></span></label>`}).join('')}</div>`}).join('');
+  $('#board').innerHTML=`<div class="pr-head"><h2>Cardápio da página</h2><a class="btn" href="../#cardapio" target="_blank" rel="noopener">Ver na página</a></div>
+   <div class="cdp-wrap">
+    <section class="box"><label class="cdp-main"><span><b>Mostrar o cardápio na página</b><small>${cdCfg.ativo?`Visível · ${vis} de ${CD.produtos.length} produtos`:'Escondido: a seção e o link do menu não aparecem'}</small></span>
+      <span class="sw big"><input type="checkbox" data-cd="ativo"${cdCfg.ativo?' checked':''} aria-label="Mostrar o cardápio na página"><i></i></span></label></section>
+    <section class="box"><h3>Link do cardápio online <span class="hint">vazio: o botão aparece como "em breve"</span></h3>
+      <div class="pr-link"><input class="cell" id="cd_link" type="url" inputmode="url" placeholder="https://..." value="${esc(cdCfg.link||'')}" maxlength="300"><button class="btn sm primary" data-cd="link">Salvar link</button></div></section>
+    <section class="box"><h3>Produtos <span class="hint">ligue ou desligue cada um</span></h3>${grupos}
+      <p class="meta" style="margin:0">Para incluir produtos novos, trocar fotos ou nomes, peça a atualização do arquivo de configuração do site.</p></section>
+   </div>`;
+}
+$('#board').addEventListener('change',ev=>{const b=ev.target.closest('[data-cd]');if(!b||!cdCfg||cdSalvando)return;
+  if(b.dataset.cd==='ativo'){salvarCardapio({...cdCfg,ativo:b.checked},b.checked?'Cardápio visível na página':'Cardápio escondido da página');return}
+  if(b.dataset.cd==='item'){const oc=new Set(cdCfg.ocultos||[]);if(b.checked)oc.delete(b.dataset.id);else oc.add(b.dataset.id);
+    const p=C.cardapio.produtos.find(x=>x.id===b.dataset.id);salvarCardapio({...cdCfg,ocultos:[...oc]},(p?p.nome:'Produto')+(b.checked?' visível':' escondido'))}});
+$('#board').addEventListener('click',ev=>{const b=ev.target.closest('[data-cd="link"]');if(!b||!cdCfg)return;
+  const v=$('#cd_link').value.trim();if(v&&!/^https:\/\/[^\s]+\.[^\s]+/.test(v)){toast('Cole um link completo, começando com https://');$('#cd_link').focus();return}
+  salvarCardapio({...cdCfg,link:v},v?'Link salvo: o botão do cardápio online está ativo':'Link removido: o botão volta a "em breve"')});
 
 /* ---------- CSV ---------- */
 $('#btnExport').addEventListener('click',()=>{
