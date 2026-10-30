@@ -236,6 +236,8 @@ header.top .menu a.m-destaque{color:var(--gold)}
 .cd-tabs button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 .cd-tabs button .n{font-weight:700;color:var(--gold-ink);margin-left:4px}
 .cd-tabs button[aria-selected="true"] .n{color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cd-tabs button[aria-selected="true"] .n{color:var(--navy)}}
+:root[data-theme="dark"] .cd-tabs button[aria-selected="true"] .n{color:var(--navy)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cd-tabs button[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:var(--navy)}}
 :root[data-theme="dark"] .cd-tabs button[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:var(--navy)}
 .cd-lista{display:grid;grid-auto-flow:column;grid-auto-columns:44%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:2px 16px 6px;outline:none}
@@ -259,7 +261,7 @@ header.top .menu a.m-destaque{color:var(--gold)}
 .cd-online{background:var(--navy);box-shadow:inset 0 0 0 1px rgba(196,162,101,.5)}
 .cd-online[aria-disabled="true"]{background:var(--card);color:var(--mute);box-shadow:inset 0 0 0 1px var(--line);cursor:default}
 .cd-breve{font:700 .6rem/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:4px 6px;border-radius:99px;white-space:nowrap}
-.cd-wa{background:var(--ok)}
+.cd-wa{background:#1F7A4D}
 .cd-ifood{background:#EA1D2C}
 @media (max-width:380px){.cd-acoes{grid-template-columns:1fr 1fr}.cd-online{grid-column:1/-1}}
 footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(200px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
@@ -418,7 +420,7 @@ footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(-
 
   <!-- CARDÁPIO (produtos avulsos). Visibilidade e itens controlados no painel (aba Cardápio). -->
   <section class="blk cardapio" id="cardapio" hidden><div class="wrap">
-    <span class="eyebrow">Cardápio</span>
+    <span class="eyebrow">Dia a dia</span>
     <h2>Doces para o dia a dia</h2>
     <p class="sub">Avulsos para hoje ou sob encomenda.</p>
     <div class="cd-tabs" id="cd-tabs" role="tablist" aria-label="Categorias do cardápio"></div>
@@ -588,7 +590,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (CD && (CD.produtos || []).length) {
     const msgWa = t => waBase + "?text=" + encodeURIComponent(t);
     const WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>';
-    const mc = document.createElement("a"); mc.href = "#cardapio"; mc.textContent = "Cardápio";
+    const mc = document.createElement("a"); mc.href = "#cardapio"; mc.textContent = "Dia a dia";
     const depois = $("#menu a.m-destaque"); $("#menu").insertBefore(mc, depois ? depois.nextSibling : $("#menu").firstChild);
     const montar = cfg => {
       cfg = cfg || {};
