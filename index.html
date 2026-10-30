@@ -229,6 +229,31 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .chip.chip-destaque span::before{content:"★ ";color:var(--gold-ink)}
 .chip.chip-destaque input:checked+span::before{color:var(--gold)}
 header.top .menu a.m-destaque{color:var(--gold)}
+/* Cardápio de produtos avulsos */
+.cardapio .cd-acoes{display:grid;gap:8px;margin:4px 0 22px}
+.cardapio .cd-acoes .btn{margin-top:0}
+.cardapio .cd-acoes2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cardapio .cd-acoes2 .btn{font-size:.98rem;min-height:50px;padding:12px}
+.cd-online[aria-disabled="true"]{background:var(--card);color:var(--mute);box-shadow:inset 0 0 0 1px var(--line);cursor:default}
+.cd-breve{font:700 .68rem/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:5px 8px;border-radius:99px}
+.cd-ifood{background:#EA1D2C}.cd-ifood:hover{background:#C9101E}
+@media (min-width:760px){.cardapio .cd-acoes{grid-template-columns:1.3fr 1fr 1fr}.cardapio .cd-acoes2{display:contents}}
+.cd-grupo{margin-top:22px}
+.cd-gh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px}
+.cd-gh h3{font-size:1.6rem}
+.cd-gh p{margin:0;color:var(--mute);font-size:.92rem}
+.cd-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:760px){.cd-lista{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cd-item{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.cd-foto{position:relative;aspect-ratio:1;background:var(--line);overflow:hidden}
+.cd-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cd-foto.vazio{display:grid;place-items:center;padding:12px;text-align:center;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--bord) 80%,transparent) 0,transparent 65%),var(--navy)}
+.cd-foto.vazio span{font-family:var(--f-display);font-style:italic;font-size:1.35rem;line-height:1.15;color:var(--gold)}
+.cd-novo{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--navy);font:700 .64rem/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-radius:99px}
+.cd-info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;flex:1}
+.cd-info h4{margin:0;font-family:var(--f-display);font-size:1.25rem;font-weight:600;line-height:1.1}
+.cd-pedir{margin-top:auto;font-weight:700;font-size:.88rem;color:var(--ok);text-decoration:none}
+.cd-pedir::after{content:" →"}
 footer{background:var(--navy);color:var(--on-dark-mute);padding:30px 0 calc(200px + env(safe-area-inset-bottom,0px));font-size:.92rem;border-top:1px solid rgba(196,162,101,.35)}
 footer img{height:40px;width:auto;margin-bottom:14px}
 footer a{color:var(--gold)}
@@ -383,6 +408,21 @@ footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(-
     </div>
   </div></section>
 
+  <!-- CARDÁPIO (produtos avulsos) -->
+  <section class="blk cardapio" id="cardapio"><div class="wrap">
+    <span class="eyebrow">Cardápio</span>
+    <h2>Doces para o dia a dia</h2>
+    <p class="sub">Macarons, brownies, cookies e as novidades da casa, avulsos ou sob encomenda.</p>
+    <div class="cd-acoes">
+      <a class="btn cd-online" id="cd-online" href="#" aria-disabled="true">Cardápio online <span class="cd-breve">em breve</span></a>
+      <div class="cd-acoes2">
+        <a class="btn wa" id="cd-wa" href="#" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>
+        <a class="btn cd-ifood" id="cd-ifood" href="#" target="_blank" rel="noopener">Pedir no iFood</a>
+      </div>
+    </div>
+    <div id="cd-grupos"></div>
+  </div></section>
+
   <!-- PORTFÓLIO -->
   <section class="blk" id="portfolio"><div class="wrap">
     <span class="eyebrow">Portfólio</span>
@@ -533,6 +573,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const ml = document.createElement("a"); ml.href = "#macarons-bar"; ml.textContent = MB.nome; ml.className = "m-destaque";
     $("#menu").insertBefore(ml, $("#menu").firstChild);
   } else { const sec = $("#macarons-bar"); if (sec) sec.remove(); }
+
+  // ---------- Cardápio de produtos avulsos ----------
+  const CD = C.cardapio;
+  if (CD && (CD.produtos || []).length) {
+    const msgWa = t => waBase + "?text=" + encodeURIComponent(t);
+    const on = $("#cd-online");
+    if (CD.link) { on.href = CD.link; on.target = "_blank"; on.rel = "noopener"; on.removeAttribute("aria-disabled"); on.querySelector(".cd-breve").remove(); }
+    else on.addEventListener("click", ev => ev.preventDefault());
+    $("#cd-wa").href = msgWa("Olá! Vim pela página da Chowder Macarons e quero fazer um pedido do cardápio.");
+    $("#cd-ifood").href = C.ifood;
+    $("#cd-grupos").innerHTML = (CD.grupos || []).map(g => {
+      const ps = CD.produtos.filter(p => p.grupo === g.id); if (!ps.length) return "";
+      const enc = g.id === "encomenda";
+      return `<div class="cd-grupo"><div class="cd-gh"><h3>${esc(g.nome)}</h3>${g.desc ? `<p>${esc(g.desc)}</p>` : ""}</div>
+        <div class="cd-lista">${ps.map(p => `<article class="cd-item">
+          <div class="cd-foto${p.foto ? "" : " vazio"}">${p.foto ? `<img src="${esc(p.foto)}" alt="${esc(p.nome)}" loading="lazy" decoding="async">` : `<span aria-hidden="true">${esc(p.nome)}</span>`}${p.novo ? '<b class="cd-novo">Novidade</b>' : ""}</div>
+          <div class="cd-info"><h4>${esc(p.nome)}</h4>
+          <a class="cd-pedir" href="${esc(msgWa((enc ? "Olá! Quero encomendar: " : "Olá! Quero pedir: ") + p.nome))}" target="_blank" rel="noopener" data-produto="${esc(p.nome)}">${enc ? "Encomendar" : "Pedir"} pelo WhatsApp</a></div></article>`).join("")}</div></div>`;
+    }).join("");
+    $("#cd-grupos").addEventListener("click", ev => { const a = ev.target.closest(".cd-pedir"); if (a) window.ChowderRastreio && ChowderRastreio.contato("WhatsApp cardápio: " + a.dataset.produto); });
+    [["#cd-wa", "WhatsApp cardápio"], ["#cd-ifood", "iFood (cardápio)"]].forEach(([sel, canal]) => $(sel).addEventListener("click", () => window.ChowderRastreio && ChowderRastreio.contato(canal)));
+    const mc = document.createElement("a"); mc.href = "#cardapio"; mc.textContent = "Cardápio";
+    const depois = $("#menu a.m-destaque"); $("#menu").insertBefore(mc, depois ? depois.nextSibling : $("#menu").firstChild);
+  } else { const sec = $("#cardapio"); if (sec) sec.remove(); }
 
   // ---------- Menu: abre o bloco certo e destaca a seção visível ----------
   function irPara(hash, suave) {

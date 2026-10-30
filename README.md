@@ -68,6 +68,9 @@ Tabelas `promocoes` e `promocoes_leads` (itens 8 e 9 do `schema.sql`); o cadastr
 3. Endereço do site: **https://chowdermacarons.com.br** (domínio no Registro.br, zona DNS em modo avançado: dois registros A `216.150.1.1` e `216.150.16.1` e CNAME `www` → `7ec31bdeb7a59090.vercel-dns-016.com`; o www redireciona para o endereço sem www). Os endereços antigos chowder-macarons.vercel.app e chef-chowder-bakeshop.vercel.app redirecionam para ele. Link do anúncio: `https://chowdermacarons.com.br/?utm_source=instagram&utm_campaign=NOME`. Os parâmetros `utm_*` aparecem no painel em cada pedido.
 4. Domínio próprio: **Project → Settings → Domains**.
 
+## Cardápio (produtos avulsos)
+Seção "Cardápio" da página com os produtos em `js/config.js` → `cardapio`: grupos (Nossos clássicos, Pronta-entrega, Sob encomenda) e produtos (nome, grupo, foto opcional, `novo: true` para a etiqueta "Novidade"). Cada produto tem botão de pedido pelo WhatsApp com a mensagem pronta. Botões gerais: **Cardápio online** (preencha `cardapio.link`; vazio mostra "em breve"), WhatsApp e iFood.
+
 ## Estrutura
 
 ```

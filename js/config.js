@@ -45,6 +45,28 @@ window.CHOWDER = {
     foto: "assets/img/portfolio/carrinho-torre-colorida.webp",
     botao: "Quero o Macarons Bar no meu evento"
   },
+  // Cardápio de produtos avulsos (seção "Cardápio" da página).
+  // link: endereço do cardápio online para pedir e pagar. Vazio = botão aparece como "em breve".
+  // Em cada produto, "foto" é opcional (sem foto aparece um cartão com o nome).
+  cardapio: {
+    link: "",
+    grupos: [
+      { id: "classicos", nome: "Nossos clássicos", desc: "Para presentear ou matar a vontade." },
+      { id: "pronta",    nome: "Pronta-entrega",   desc: "Feitos para levar hoje." },
+      { id: "encomenda", nome: "Sob encomenda",    desc: "Peça com antecedência pelo WhatsApp." }
+    ],
+    produtos: [
+      { nome: "Macarons",                grupo: "classicos", foto: "assets/img/caixa-5-macarons.webp" },
+      { nome: "Brownie",                 grupo: "classicos", foto: "assets/img/portfolio/bandeja-brownies.webp" },
+      { nome: "Cookie",                  grupo: "classicos", foto: "" },
+      { nome: "Palha italiana",          grupo: "pronta",    foto: "", novo: true },
+      { nome: "Bolo gelado",             grupo: "pronta",    foto: "", novo: true },
+      { nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "", novo: true },
+      { nome: "Pudim Chowder",           grupo: "encomenda", foto: "", novo: true },
+      { nome: "Cheesecake",              grupo: "encomenda", foto: "", novo: true },
+      { nome: "Tiramisù",                grupo: "encomenda", foto: "", novo: true }
+    ]
+  },
   pacotes: [
     { id: "torre4",  nome: "Torre de 4 andares",  detalhe: "cerca de 50 macarons",  qtd: 1, valor: 410 },
     { id: "torre6",  nome: "Torre de 6 andares",  detalhe: "cerca de 100 macarons", qtd: 1, valor: 750, destaque: "Mais pedido" },
