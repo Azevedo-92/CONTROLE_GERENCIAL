@@ -149,6 +149,8 @@ input[aria-invalid="true"]{border-color:var(--err)}
 .done{text-align:center}
 .done .seal{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:var(--navy);color:var(--gold);font-size:1.8rem;box-shadow:0 0 0 4px var(--card),0 0 0 5px var(--gold)}
 .done h2{font-size:2rem}
+.done-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--mute);font-size:1.9rem;line-height:1;cursor:pointer}
+.done-x:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
 .done .proto{display:inline-block;margin:10px 0 4px;padding:4px 12px;border:1px dashed var(--gold);border-radius:99px;font-weight:700;letter-spacing:.08em}
 .done .btns{display:grid;gap:0;margin-top:10px}
 .done .mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -346,6 +348,7 @@ footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(-
       </form>
 
       <div class="done" id="done" hidden tabindex="-1">
+        <button class="done-x" type="button" id="d-fechar" aria-label="Fechar e voltar ao início">×</button>
         <div class="seal" aria-hidden="true">✓</div>
         <h2>Pedido pronto!</h2>
         <p class="sub" style="margin-top:6px">Falta só um toque: envie para o Chef pelo WhatsApp. O PDF do pedido vai junto na mensagem.</p>
@@ -729,9 +732,10 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#d-share").addEventListener("click", async () => {
     try { await navigator.share({ files: [pdfFile], title: "Pedido " + (ultimo ? ultimo.protocolo : ""), text: "Pedido de orçamento — Chowder Macarons" }); } catch (e) {}
   });
-  $("#d-novo").addEventListener("click", () => {
-    $("#form").reset(); $("#wrap-local").hidden = false; $("#done").hidden = true; $("#form").hidden = false; $("#nome").focus();
-  });
+  function novoFormulario() { $("#form").reset(); $("#wrap-local").hidden = false; $("#done").hidden = true; $("#form").hidden = false; }
+  $("#d-novo").addEventListener("click", () => { novoFormulario(); $("#nome").focus(); });
+  // X: fecha a confirmação, deixa o formulário limpo e volta para o início da página.
+  $("#d-fechar").addEventListener("click", () => { novoFormulario(); window.scrollTo({ top: 0, behavior: "smooth" }); });
 });
 </script>
 </body>
