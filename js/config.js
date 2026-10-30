@@ -51,14 +51,13 @@ window.CHOWDER = {
   cardapio: {
     link: "",
     grupos: [
-      { id: "classicos", nome: "Clássicos",      desc: "Para presentear ou matar a vontade." },
-      { id: "pronta",    nome: "Pronta-entrega", desc: "Feitos para levar hoje." },
+      { id: "pronta",    nome: "Pronta-entrega", desc: "Para levar hoje. Os clássicos da casa e as novidades." },
       { id: "encomenda", nome: "Sob encomenda",  desc: "Peça com antecedência pelo WhatsApp." }
     ],
     produtos: [
-      { id: "macarons",      nome: "Macarons",                grupo: "classicos", foto: "assets/img/cardapio/macarons-2.webp" },
-      { id: "brownie",       nome: "Brownie",                 grupo: "classicos", foto: "assets/img/cardapio/brownie.webp" },
-      { id: "cookie",        nome: "Cookie",                  grupo: "classicos", foto: "assets/img/cardapio/cookie.webp" },
+      { id: "macarons",      nome: "Macarons",                grupo: "pronta",    foto: "assets/img/cardapio/macarons-2.webp" },
+      { id: "brownie",       nome: "Brownie",                 grupo: "pronta",    foto: "assets/img/cardapio/brownie.webp" },
+      { id: "cookie",        nome: "Cookie",                  grupo: "pronta",    foto: "assets/img/cardapio/cookie.webp" },
       { id: "palha",         nome: "Palha italiana",          grupo: "pronta",    foto: "assets/img/cardapio/palha-italiana.webp", novo: true },
       { id: "bolo-gelado",   nome: "Bolo gelado",             grupo: "pronta",    foto: "assets/img/cardapio/bolo-gelado.webp", novo: true },
       { id: "bolo-cenoura",  nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "assets/img/cardapio/bolo-cenoura.webp", novo: true },
