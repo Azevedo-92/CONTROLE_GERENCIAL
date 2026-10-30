@@ -59,11 +59,11 @@ window.CHOWDER = {
       { id: "macarons",      nome: "Macarons",                grupo: "classicos", foto: "assets/img/cardapio/macarons.webp" },
       { id: "brownie",       nome: "Brownie",                 grupo: "classicos", foto: "assets/img/cardapio/brownie.webp" },
       { id: "cookie",        nome: "Cookie",                  grupo: "classicos", foto: "assets/img/cardapio/cookie.webp" },
-      { id: "palha",         nome: "Palha italiana",          grupo: "pronta",    foto: "", novo: true },
-      { id: "bolo-gelado",   nome: "Bolo gelado",             grupo: "pronta",    foto: "", novo: true },
-      { id: "bolo-cenoura",  nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "", novo: true },
+      { id: "palha",         nome: "Palha italiana",          grupo: "pronta",    foto: "assets/img/cardapio/palha-italiana.webp", novo: true },
+      { id: "bolo-gelado",   nome: "Bolo gelado",             grupo: "pronta",    foto: "assets/img/cardapio/bolo-gelado.webp", novo: true },
+      { id: "bolo-cenoura",  nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "assets/img/cardapio/bolo-cenoura.webp", novo: true },
       { id: "pudim",         nome: "Pudim Chowder",           grupo: "encomenda", foto: "assets/img/cardapio/pudim.webp", novo: true },
-      { id: "cheesecake",    nome: "Cheesecake",              grupo: "encomenda", foto: "", novo: true },
+      { id: "cheesecake",    nome: "Cheesecake",              grupo: "encomenda", foto: "assets/img/cardapio/cheesecake.webp", novo: true },
       { id: "tiramisu",      nome: "Tiramisù",                grupo: "encomenda", foto: "assets/img/cardapio/tiramisu.webp", novo: true }
     ]
   },
