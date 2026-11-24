@@ -7,11 +7,11 @@
 <meta name="description" content="Torres de macarons, mesas de doces e lembrancinhas pelo Chef Daniel Souza. Peça seu orçamento pelo WhatsApp.">
 <meta name="theme-color" content="#131F37">
 <meta property="og:title" content="Chowder Macarons | Peça seu orçamento">
-<meta property="og:description" content="Todo momento especial merece um doce Chowder. Macarons Bar, torres de macarons, mesas de doces e lembrancinhas.">
+<meta property="og:description" content="Todo momento especial merece um doce Chowder. Macaron Bar, torres de macarons, mesas de doces e lembrancinhas.">
 <meta property="og:image" content="https://chowdermacarons.com.br/assets/img/og-macarons-bar.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="800">
-<meta property="og:image:alt" content="Macarons Bar da Chowder Macarons: carrinho com torre de macarons coloridos">
+<meta property="og:image:alt" content="Macaron Bar da Chowder Macarons: carrinho com torre de macarons coloridos">
 <link rel="icon" href="assets/img/icone.png">
 <link rel="apple-touch-icon" href="assets/img/icone.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -206,7 +206,7 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .closing h2{font-size:clamp(1.9rem,6vw,2.5rem);font-weight:500}
 .closing .btn{max-width:420px;margin:18px auto 0;background:var(--gold);color:var(--navy);box-shadow:none}
 .closing .btn.wa{background:transparent;color:var(--on-dark);box-shadow:inset 0 0 0 1px rgba(245,239,230,.5);margin-top:10px}
-/* Destaque: Macarons Bar */
+/* Destaque: Macaron Bar */
 .mbar{margin-top:44px;padding:40px 0;color:var(--on-dark);background:radial-gradient(110% 80% at 100% 0%,color-mix(in srgb,var(--bord) 85%,transparent) 0,transparent 60%),var(--navy);border-top:1px solid rgba(196,162,101,.45);border-bottom:1px solid rgba(196,162,101,.45)}
 .mbar .wrap{display:grid;gap:22px;align-items:center}
 @media (min-width:760px){.mbar .wrap{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:34px;max-width:980px}}
@@ -322,7 +322,7 @@ footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(-
       <div class="strip">
         <img src="assets/img/torre-flores.webp" width="520" height="693" alt="Torre de macarons com flores em casamento">
         <img src="assets/img/caixinhas-tag-2.webp" width="520" height="693" alt="Caixinhas de macarons com tag personalizada">
-        <img src="assets/img/macarons-bar.webp" width="520" height="693" alt="Macarons Bar: carrinho com torre de macarons coloridos">
+        <img src="assets/img/macarons-bar.webp" width="520" height="693" alt="Macaron Bar: carrinho com torre de macarons coloridos">
       </div>
       <p class="strip-cap">Fotos reais dos nossos eventos</p>
     </div>
@@ -409,12 +409,12 @@ footer .legal button{background:none;border:0;padding:0;font:inherit;color:var(-
     <figure class="mbar-foto"><img id="mb-foto" src="" alt="" width="860" height="1147" loading="lazy" decoding="async"><figcaption>Destaque da casa</figcaption></figure>
     <div class="mbar-txt">
       <span class="eyebrow">Destaque da casa</span>
-      <h2 id="mb-nome">Macarons Bar</h2>
+      <h2 id="mb-nome">Macaron Bar</h2>
       <div class="rule" aria-hidden="true"><i></i></div>
       <p class="mbar-lead" id="mb-chamada"></p>
       <ul class="mbar-itens" id="mb-itens"></ul>
       <a class="btn" id="mb-cta" href="#orcamento">Quero no meu evento</a>
-      <p class="mbar-nota">Peça junto com o seu orçamento. A gente monta a proposta com o Macarons Bar.</p>
+      <p class="mbar-nota">Peça junto com o seu orçamento. A gente monta a proposta com o Macaron Bar.</p>
     </div>
   </div></section>
 
@@ -564,7 +564,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   $("#ocasioes").innerHTML = C.ocasioes.map((o, i) => `<label class="chip"><input type="radio" name="ocasiao" value="${esc(o)}"${i === 0 ? " checked" : ""}><span>${esc(o)}</span></label>`).join("");
   $("#necessidades").innerHTML = C.necessidades.map(o => `<label class="chip"><input type="checkbox" name="nec" value="${esc(o)}"><span>${esc(o)}</span></label>`).join("");
-  // ---------- Destaque: Macarons Bar ----------
+  // ---------- Destaque: Macaron Bar ----------
   const MB = C.macaronsBar;
   if (MB && MB.nome) {
     const chipMB = document.querySelector(`input[name="nec"][value="${MB.nome}"]`);

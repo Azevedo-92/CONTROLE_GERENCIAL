@@ -36,14 +36,14 @@ window.CHOWDER = {
 
   // Listas compartilhadas entre landing e painel
   ocasioes: ["Casamento", "Aniversário", "Corporativo", "Batizado", "Chá de bebê", "Maternidade", "Presente", "Outro"],
-  necessidades: ["Torre de macarons", "Mesa de doces", "Macarons Bar", "Lembrancinhas", "Macarons avulsos", "Brownies", "Cookies"],
+  necessidades: ["Torre de macarons", "Mesa de doces", "Macaron Bar", "Lembrancinhas", "Macarons avulsos", "Brownies", "Cookies"],
   // Destaque da página (seção própria, link no menu e opção marcada no formulário). Deixe macaronsBar: null para esconder.
   macaronsBar: {
-    nome: "Macarons Bar",
+    nome: "Macaron Bar",
     chamada: "Um carrinho de macarons no seu evento, onde os convidados montam os próprios macarons na hora.",
     itens: ["Atração que movimenta a festa e rende muitas fotos", "Os convidados escolhem e montam o próprio macaron", "Para casamentos, aniversários e eventos corporativos"],
     foto: "assets/img/portfolio/carrinho-torre-colorida.webp",
-    botao: "Quero o Macarons Bar no meu evento"
+    botao: "Quero o Macaron Bar no meu evento"
   },
   // Cardápio de produtos avulsos (seção "Cardápio" da página).
   // Mostrar/esconder a seção e cada produto, e o link do cardápio online: no painel, aba "Cardápio".
@@ -51,15 +51,15 @@ window.CHOWDER = {
   cardapio: {
     link: "",
     grupos: [
-      { id: "pronta",    nome: "Pronta-entrega", desc: "Para levar hoje. Os clássicos da casa e as novidades." },
+      { id: "pronta",    nome: "Pronta-entrega", desc: "Os clássicos da casa, para levar hoje." },
       { id: "encomenda", nome: "Sob encomenda",  desc: "Peça com antecedência pelo WhatsApp." }
     ],
     produtos: [
-      { id: "macarons",      nome: "Macarons",                grupo: "pronta",    foto: "assets/img/cardapio/macarons-2.webp" },
+      { id: "macarons",      nome: "Macaron",                 grupo: "pronta",    foto: "assets/img/cardapio/macarons-2.webp" },
       { id: "brownie",       nome: "Brownie",                 grupo: "pronta",    foto: "assets/img/cardapio/brownie.webp" },
       { id: "cookie",        nome: "Cookie",                  grupo: "pronta",    foto: "assets/img/cardapio/cookie.webp" },
-      { id: "palha",         nome: "Palha italiana",          grupo: "pronta",    foto: "assets/img/cardapio/palha-italiana.webp", novo: true },
-      { id: "bolo-gelado",   nome: "Bolo gelado",             grupo: "pronta",    foto: "assets/img/cardapio/bolo-gelado.webp", novo: true },
+      { id: "palha",         nome: "Palha italiana",          grupo: "encomenda", foto: "assets/img/cardapio/palha-italiana.webp", novo: true },
+      { id: "bolo-gelado",   nome: "Bolo gelado",             grupo: "encomenda", foto: "assets/img/cardapio/bolo-gelado.webp", novo: true },
       { id: "bolo-cenoura",  nome: "Bolo de cenoura da vovó", grupo: "encomenda", foto: "assets/img/cardapio/bolo-cenoura.webp", novo: true },
       { id: "pudim",         nome: "Pudim Chowder",           grupo: "encomenda", foto: "assets/img/cardapio/pudim.webp", novo: true },
       { id: "cheesecake",    nome: "Cheesecake",              grupo: "encomenda", foto: "assets/img/cardapio/cheesecake.webp", novo: true },
@@ -81,7 +81,7 @@ window.CHOWDER = {
   // Portfólio (carrossel). Para trocar fotos: coloque o arquivo em assets/img/portfolio/ e ajuste aqui.
   portfolio: [
     { src: "assets/img/portfolio/piramide-macarons.webp",       legenda: "Macarons na mesa de doces",       tipo: "Eventos" },
-    { src: "assets/img/portfolio/carrinho-torre-colorida.webp", legenda: "Macarons Bar",                     tipo: "Eventos" },
+    { src: "assets/img/portfolio/carrinho-torre-colorida.webp", legenda: "Macaron Bar",                     tipo: "Eventos" },
     { src: "assets/img/portfolio/bandeja-brownies.webp",        legenda: "Bandeja de brownies",             tipo: "Eventos" },
     { src: "assets/img/portfolio/brownies-tag-helena.webp",     legenda: "Brownies com tag personalizada",  tipo: "Lembrancinhas" },
     { src: "assets/img/portfolio/caixinhas-brownie-laco.webp",  legenda: "Caixinhas de brownie com laço",   tipo: "Lembrancinhas" },
